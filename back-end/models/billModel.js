@@ -1,17 +1,15 @@
-const Sequelize = require('sequelize');
-const sequelize = require('../config/dbConfig.js');
+const { DataTypes } = require('sequelize');
 
-
-module.express = (sequelize, Sequelize) => {
-    const Bill = sequelize.define('bill', {
-        amount: {
-          type: Sequelize.FLOAT,
-          allowNull: false
-        },
-        description: {
-          type: Sequelize.STRING,
-          allowNull: false
-        }
-      });
-    return Bill;
-    };
+module.exports = (sequelize, Sequelize) => {
+  const Bill = sequelize.define('bill', {
+    amount: {
+      type: DataTypes.FLOAT,
+      allowNull: false
+    },
+    description: {
+      type: DataTypes.STRING,
+      allowNull: false
+    }
+  });
+  return Bill;
+};

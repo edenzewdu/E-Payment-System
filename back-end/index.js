@@ -1,11 +1,8 @@
-
-
 // Import necessary packages and modules
-
 const express = require('express');
+const bodyParser = require('body-parser');
 const cors = require('cors');
 const app = express();
-const connection = require('./config/dbConfig.js');
 
 var corOptions = {
   origin: 'https://localhost:8081'
@@ -13,8 +10,34 @@ var corOptions = {
 
 //middleware
 app.use(cors(corOptions))
+app.use(bodyParser.json())
 app.use(express.json())
 app.use(express.urlencoded({extended : true}))
+
+//
+const db = require('./models/index.js')
+db.sequelize.sync();
+
+db.sequelize.sync({force: false })
+.then(() => {
+  console.log('yes resync db.');
+});
+
+// Import controllers
+const billController = require('./controller/billController.js');
+// const agentController = require('./controllers/agentController');
+// const paymentController = require('./controllers/paymentController');
+// const serviceController = require('./controllers/serviceController');
+// const userController = require('./controllers/userController');
+// const agentHistoryController = require('./controllers/agentHistoryController');
+// const serviceHistoryController = require('./controllers/serviceHistoryController');
+// const userHistoryController = require('./controllers/userHistoryController');
+
+// Import routes
+const billsRouter = require('./routes/bills.js');
+
+// Mount routes
+app.use('/bills', billsRouter);
 
 //testing api
 app.get('/',(req,res)=>{
@@ -24,15 +47,11 @@ app.get('/',(req,res)=>{
 //Port
 const PORT = process.env.PORT || 8000
 
-// // import controllers
-// const agentController = require('./controllers/agentController');
-// const billController = require('./controllers/billController');
-// const paymentController = require('./controllers/paymentController');
-// const serviceController = require('./controllers/serviceController');
-// const userController = require('./controllers/userController');
-// const agentHistoryController = require('./controllers/agentHistoryController');
-// const serviceHistoryController = require('./controllers/serviceHistoryController');
-// const userHistoryController = require('./controllers/userHistoryController');
+// start server
+app.listen(PORT, () => {
+  console.log(`Server started on port ${PORT}`);
+});
+
 
 // // set up routes
 // app.use('/agents', agentController);
@@ -45,11 +64,11 @@ const PORT = process.env.PORT || 8000
 // app.use('/userHistory', userHistoryController);
 
 // start server
-app.listen(PORT, () => {
-  console.log(`Server started on port ${PORT}`);
-  connection.connect(function(err){
-    if (err) throw err;
-    console.log('database connected');
+// app.listen(PORT, () => {
+//   console.log(`Server started on port ${PORT}`);
+//   connection.connect(function(err){
+//     if (err) throw err;
+//     console.log('database connected');
 
-  })
-});
+//   })
+// });
