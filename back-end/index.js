@@ -30,16 +30,18 @@ const billController = require('./controller/billController.js');
 // const agentController = require('./controllers/agentController');
 // const paymentController = require('./controllers/paymentController');
 // const serviceController = require('./controllers/serviceController');
-// const userController = require('./controllers/userController');
+const userController = require('./controller/UserController.js');
 // const agentHistoryController = require('./controllers/agentHistoryController');
 // const serviceHistoryController = require('./controllers/serviceHistoryController');
 // const userHistoryController = require('./controllers/userHistoryController');
 
 // Import routes
 const billsRouter = require('./routes/bills.js');
+const usersRouter = require('./routes/userRoute.js');
 
 // Mount routes
 app.use('/bills', billsRouter);
+app.use('/Users', usersRouter);
 
 //testing api
 app.get('/',(req,res)=>{
