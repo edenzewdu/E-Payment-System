@@ -1,6 +1,8 @@
 // Import necessary packages and modules
 const express = require('express');
 const bodyParser = require('body-parser');
+const dotenv = require('dotenv').config()
+const { errorHandler } = require('./middleware/errorMiddleware.js')
 const cors = require('cors');
 const app = express();
 
