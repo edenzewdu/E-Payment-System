@@ -28,7 +28,7 @@ db.sequelize.sync({force: false })
 // Import controllers
 const billController = require('./controller/billController.js');
 // const agentController = require('./controllers/agentController');
-// const paymentController = require('./controllers/paymentController');
+const paymentController = require('./controller/PaymentController.js');
 // const serviceController = require('./controllers/serviceController');
 const userController = require('./controller/UserController.js');
 // const agentHistoryController = require('./controllers/agentHistoryController');
@@ -38,10 +38,12 @@ const userController = require('./controller/UserController.js');
 // Import routes
 const billsRouter = require('./routes/bills.js');
 const usersRouter = require('./routes/userRoute.js');
+const paymentRouter = require('./routes/payment.js');
 
 // Mount routes
 app.use('/bills', billsRouter);
 app.use('/Users', usersRouter);
+app.use('/payment', paymentRouter);
 
 //testing api
 app.get('/',(req,res)=>{

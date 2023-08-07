@@ -3,7 +3,7 @@ module.exports =(sequelize, DataTypes) =>{
           UserID:{
               type:DataTypes.STRING,
               allowNull:false,
-              primaryKey: true,
+              unique: true
           },
           FirstName:{
               type:DataTypes.STRING,
@@ -43,16 +43,9 @@ module.exports =(sequelize, DataTypes) =>{
               type:DataTypes.STRING,
               allowNull:false,
           },
-         createdAt:{
-              type:DataTypes.DATE,
-              allowNull:false,
-          },
-         updatedAt:{
-              type:DataTypes.DATE,
-              allowNull:false,
-          },
          
-         
+      },{
+        timestamps: true
       });
   
   return User;
