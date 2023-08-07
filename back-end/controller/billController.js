@@ -6,17 +6,27 @@ const Bill = db.Bill;
 // Create and save a new bill
 exports.create = asyncHandler(async (req, res) => {
   // Validate request
-  if (!req.body.amount || !req.body.description) {
+  if (!req.body.billNumber || !req.body.dateIssued || !req.body.dueDate || !req.body.amountDue || !req.body.customerName ||
+    !req.body.serviceDescription  || !req.body.serviceCharges ||  !req.body.billStatus || !req.body.TotalAmount) {
     res.status(400).send({
-      message: 'Amount and description cannot be empty',
+      message: 'cannot be empty',
     });
     return;
   }
 
   // Create a bill object
   const bill = {
-    amount: req.body.amount,
-    description: req.body.description,
+    billNumber: req.body.billNumber,
+    dateIssued: req.body.dateIssued,
+    dueDate: req.body.dueDate,
+    amountDue: req.body.amountDue,
+    customerName: req.body.customerName,
+    serviceDescription: req.body.serviceDescription,
+    serviceCharges: req.body.serviceCharges,
+    billStatus: req.body.billStatus,
+    TotalAmount: req.body.TotalAmount,
+    additionalCharges: req.body.additionalCharges,
+    servicePeriod: req.body.servicePeriod
   };
 
   // Save bill in the database
