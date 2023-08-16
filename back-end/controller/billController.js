@@ -9,7 +9,7 @@ exports.create = asyncHandler(async (req, res) => {
   if (!req.body.billNumber || !req.body.dateIssued || !req.body.dueDate || !req.body.amountDue || !req.body.customerName ||
     !req.body.serviceDescription  || !req.body.serviceCharges ||  !req.body.billStatus || !req.body.TotalAmount) {
     res.status(400).send({
-      message: 'cannot be empty',
+      message: 'Fields cannot be empty',
     });
     return;
   }

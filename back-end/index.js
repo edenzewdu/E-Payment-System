@@ -1,8 +1,8 @@
 // Import necessary packages and modules
 const express = require('express');
 const bodyParser = require('body-parser');
-const dotenv = require('dotenv').config()
-const { errorHandler } = require('./middleware/errorMiddleware.js')
+const dotenv = require('dotenv').config();
+const { errorHandler } = require('./middleware/errorMiddleware');
 const cors = require('cors');
 const app = express();
 
@@ -34,24 +34,29 @@ const userController = require('./controller/UserController.js');
 // const agentHistoryController = require('./controllers/agentHistoryController');
 // const serviceHistoryController = require('./controllers/serviceHistoryController');
 // const userHistoryController = require('./controllers/userHistoryController');
+const AdminLoginController = require('./controller/AdminLoginController.js');
+const adminLogin  = require('./controller/AdminLoginController.js');
 
 // Import routes
 const billsRouter = require('./routes/bills.js');
 const usersRouter = require('./routes/userRoute.js');
 const paymentRouter = require('./routes/payment.js');
+const adminRoutes = require('./routes/AdminRoutes.js');
+
 
 // Mount routes
 app.use('/bills', billsRouter);
 app.use('/Users', usersRouter);
 app.use('/payment', paymentRouter);
+app.use('/api/admin', adminRoutes);
 
 //testing api
 app.get('/',(req,res)=>{
-  res.json({message: 'hello from api'})
+  res.json({message: 'Welcome to E-Payment'})
 })
 
 //Port
-const PORT = process.env.PORT || 8000
+const PORT = process.env.PORT || 3000
 
 // start server
 app.listen(PORT, () => {

@@ -1,0 +1,214 @@
+* {
+    box-sizing: border-box;
+    font-family: -apple-system, BlinkMacSystemFont, "segoe ui", roboto, oxygen, ubuntu, cantarell, "fira sans", "droid sans", "helvetica neue", Arial, sans-serif;
+    font-size: 16px;
+}
+html{
+  
+  background-color: #435165;
+}
+
+.login {
+    width: 400px;
+    background-color: #ffffff;
+    box-shadow: 0 0 15px 0 rgba(200, 243, 7, 0.3);
+    margin: 150px auto;
+    padding-bottom: 15px;
+}
+.login h1 {
+    text-align: center;
+    color: #5b6574;
+    font-size: 24px;
+    padding: 20px 0 20px 0;
+    border-bottom: 1px solid #dee0e4;
+}
+.login .form {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    padding-top: 20px;
+}
+.login .form label {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 50px;
+    height: 50px;
+    background-color: #3274d6;
+    color: #ffffff;
+}
+.login .form input[type="password"], .login .form input[type="text"] {
+    width: 310px;
+    height: 50px;
+    border: 1px solid #dee0e4;
+    margin-bottom: 20px;
+    padding: 0 15px;
+}
+.login .form .button {
+    width: 100%;
+    padding: 15px;
+   margin-top: 20px;
+    background-color: #3274d6;
+    border: 0;
+    cursor: pointer;
+    font-weight: bold;
+    color: #ffffff;
+    transition: background-color 0.2s;
+}
+.login .form .button:hover {
+  background-color: #2868c7;
+    transition: background-color 0.2s;
+}
+
+
+/* 
+//AdminLogin.css
+.login {
+    width: 300px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #f0f0f0;
+    border-radius: 5px;
+  }
+  
+  .form {
+    margin-top: 20px;
+  }
+  
+  .icon {
+    margin-right: 5px;
+  }
+  
+  .button {
+    margin-top: 20px;
+  }
+  
+  //App.css 
+  .login-container {
+    width: 300px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #f0f0f0;
+    border-radius: 5px;
+  }
+  
+  .login-container h1 {
+    text-align: center;
+  }
+  
+  .login-container form {
+    display: flex;
+    flex-direction: column;
+    margin-top: 20px;
+  }
+  
+  .login-container input {
+    margin-bottom: 10px;
+    padding: 5px;
+  }
+  
+  .login-container button {
+    padding: 10px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .login-container button:hover {
+    background-color: #0056b3;
+  }
+  
+  .profile-container {
+    width: 300px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #f0f0f0;
+    border-radius: 5px;
+  }
+  
+  .profile-container h1 {
+    text-align: center;
+  }
+  
+  .dashboard-container {
+    margin: 16px;
+  }
+  
+  .header-icons {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+  }
+  
+  .header-icon {
+    font-size: 18px;
+    margin-left: 10px;
+    color: #fff;
+  }
+  
+  .site-layout {
+    margin-left: 200px;
+    min-height: 100vh;
+  }
+  
+  .site-layout-background {
+    background-color: #fff;
+  }
+  
+  .logo {
+    height: 32px;
+    background: rgba(255, 255, 255, 0.2);
+    margin: 16px;
+  }
+  
+  .site-layout .ant-layout-sider {
+    overflow: auto;
+    height: 100vh;
+    position: fixed;
+    left: 0;
+  }
+  
+  .site-layout .ant-layout-header {
+    background: #fff;
+    padding: 0;
+  }
+  
+  .site-layout .ant-layout-content {
+    margin-left: 24px;
+    margin-right: 24px;
+    padding: 24px;
+    background: #fff;
+    min-height: 280px;
+  }
+  
+  .site-layout .ant-layout-footer {
+    text-align: center;
+  }
+  
+  .ant-menu-dark,
+  .ant-menu-dark .ant-menu-sub {
+    background-color: #001529;
+  }
+  
+  .ant-menu-dark .ant-menu-item-selected,
+  .ant-menu-dark .ant-menu-submenu-selected,
+  .ant-menu-dark .ant-menu-item-active,
+  .ant-menu-dark .ant-menu-submenu-active,
+  .ant-menu-dark .ant-menu-item-open,
+  .ant-menu-dark .ant-menu-submenu-open,
+  .ant-menu-dark .ant-menu-item-selected > a,
+  .ant-menu-dark .ant-menu-submenu-selected > a,
+  .ant-menu-dark .ant-menu-item-active > a,
+  .ant-menu-dark .ant-menu-submenu-active > a,
+  .ant-menu-dark .ant-menu-item-open > a,
+  .ant-menu-dark .ant-menu-submenu-open > a {
+    color: #fff;
+    background-color: #1890ff;
+  }
+  
+  .ant-menu-dark .ant-menu-item,
+  .ant-menu-dark .ant-menu-submenu-title {
+    color: #fff;
+  } 
+  */
