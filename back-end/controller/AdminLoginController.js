@@ -5,22 +5,30 @@ const { Op } = require('sequelize');
 
 // Admin Login Controller
 async function adminLogin(req, res) {
-  const { UserName, Email, Password } = req.body;
+  // Validate request
+  const { identifier, Password } = req.body;
+
+  if (!identifier || !Password) {
+    res.status(400).send({
+      message: 'Username/Email and password are required',
+    });
+    return;
+  }
 
   try {
-    // Check if the user exists and has an 'Admin' role
+    // Find the user by email or username
     const user = await User.findOne({
+      Role: 'Admin',
       where: {
-        Role: 'Admin',
-        [Op.or]: [
-          { UserName: { [Op.eq]: UserName } },
-          { Email: { [Op.eq]: Email } }
-        ]
+        [Op.or]: [{ Email: identifier }, { UserName: identifier }],
       }
     });
 
     if (!user) {
-      return res.status(401).json({ error: 'Invalid user name' });
+      res.status(404).send({
+        message: 'User not found',
+      });
+      return;
     }
 
     // Compare the provided password with the hashed password in the database
@@ -33,7 +41,9 @@ async function adminLogin(req, res) {
     // Generate JWT token
     const token = jwt.sign({ userId: user.UserID }, 'super_secret_key_1234', { expiresIn: '1h' });
 
-    res.json({ token });
+    res.json({ message: 'Login successful',
+    token: token,
+    user: user, });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Internal server error' });

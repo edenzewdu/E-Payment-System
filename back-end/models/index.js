@@ -18,20 +18,19 @@ const sequelize = new Sequelize(
   }
 );
 
-const db = {}
+const db = {};
 
-db.Sequelize = Sequelize
-db.sequelize = sequelize
+db.Sequelize = Sequelize;
+db.sequelize = sequelize;
 
 db.Bill = require('./billModel.js')(sequelize, Sequelize);
 db.Agents = require('./agentModel.js')(sequelize, Sequelize);
 db.User = require('./UserModel.js')(sequelize, Sequelize);
-db.Services = require('./ServiceModel.js')(sequelize, Sequelize);
-db.payment = require('./PaymentModel.js')(sequelize, Sequelize);
+db.ServiceProviders = require('./ServiceProviderModel.js')(sequelize, Sequelize);
+db.Payment = require('./PaymentModel.js')(sequelize, Sequelize);
 // db.AgentHistory = require('./agentHistoryModel.js')(sequelize, Sequelize);
 // db.ServiceProviderHistory = require('./serviceProviderHistoryModel.js')(sequelize, Sequelize);
 // db.UserHistory = require('./userHistoryModel.js')(sequelize, Sequelize);
-
 
 // Define User-Agents junction table
 const UserAgent = sequelize.define('userAgent', {});
@@ -40,59 +39,66 @@ const UserAgent = sequelize.define('userAgent', {});
 const AgentServiceProvider = sequelize.define('agentServiceProvider', {});
 
 // Define User-ServiceProvider junction table
-const UserServiceProvider = sequelize.define('userServiceProvider', {});
+const UserServiceProvider = sequelize.define('userServiceProvider', {
+  serviceNo: {
+    type: Sequelize.INTEGER
+  }
+});
 
+// Define associations
+db.User.belongsToMany(db.Agents, {
+  through: UserAgent,
+  as: 'Agents',
+  foreignKey: 'UserId'
+});
+db.Agents.belongsToMany(db.User, {
+  through: UserAgent,
+  as: 'User',
+  foreignKey: 'AgentBIN'
+});
 
-// // Define associations
-db.User.belongsToMany(db.Agents, { through: UserAgent,
-as: "Agents",
-foreignKey: "UserID"});
-db.Agents.belongsToMany(db.User, { through: UserAgent, 
-  as: "User",
-  foreignKey: "AgentID"});
+db.Agents.belongsToMany(db.ServiceProviders, {
+  through: AgentServiceProvider,
+  as: 'ServiceProviders',
+  foreignKey: 'AgentBIN'
+});
+db.ServiceProviders.belongsToMany(db.Agents, {
+  through: AgentServiceProvider,
+  as: 'Agents',
+  foreignKey: 'serviceProviderBIN'
+});
 
-db.Agents.belongsToMany(db.Services, { through: AgentServiceProvider,
-  as: "Services",
-  foreignKey: "AgentID" });
-db.Services.belongsToMany(db.Agents, { through: AgentServiceProvider,
-  as: "Agents",
-  foreignKey: "Services_id"});
+db.User.belongsToMany(db.ServiceProviders, {
+  through: UserServiceProvider,
+  as: 'ServiceProviders',
+  foreignKey: 'UserId'
+});
+db.ServiceProviders.belongsToMany(db.User, {
+  through: UserServiceProvider,
+  as: 'User',
+  foreignKey: 'serviceProviderBIN'
+});
 
-db.User.belongsToMany(db.Services, { through: UserServiceProvider,
-  as: "Services",
-  foreignKey: "UserID"});
-db.Services.belongsToMany(db.User, { through: UserServiceProvider,
-  as: "User",
-  foreignKey: "Services_id"});
+db.Agents.hasMany(db.Payment);
+db.Payment.belongsTo(db.Agents);
 
-db.Agents.hasMany(db.payment);
-db.payment.belongsTo(db.Agents);
+db.User.hasMany(db.Payment);
+db.Payment.belongsTo(db.User);
 
-// db.AgentHistory.hasOne(db.payment);
-// db.payment.belongsTo(db.AgentHistory);
+db.ServiceProviders.hasMany(db.Payment);
+db.Payment.belongsTo(db.ServiceProviders);
 
-db.User.hasMany(db.payment);
-db.payment.belongsTo(db.User);
+db.ServiceProviders.hasMany(db.Bill);
+db.Bill.belongsTo(db.ServiceProviders);
 
-db.Services.hasMany(db.payment);
-db.payment.belongsTo(db.Services);
-
-// db.ServiceProviderHistory.hasOne(db.Payment);
-// db.Payment.belongsTo(db.ServiceProviderHistory);
-
-// db.User.hasMany(db.UserHistory);
-// db.UserHistory.belongsTo(db.User);
-
-// db.Payment.hasOne(db.UserHistory);
-// db.UserHistory.belongsTo(db.Payment);
-
-db.Services.hasMany(db.Bill);
-db.Bill.belongsTo(db.Services);
-
-db.payment.hasOne(db.Bill);
-db.Bill.belongsTo(db.payment);
+db.Payment.hasOne(db.Bill);
+db.Bill.belongsTo(db.Payment);
 
 db.User.hasMany(db.Bill);
 db.Bill.belongsTo(db.User);
+
+db.UserAgent = UserAgent;
+db.AgentServiceProvider = AgentServiceProvider;
+db.UserServiceProvider = UserServiceProvider;
 
 module.exports = db;

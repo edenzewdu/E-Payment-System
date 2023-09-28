@@ -1,14 +1,16 @@
 const express = require('express');
 const userRouter = express.Router();
+const UserController = require('../controller/UserController.js');
 
-const userController = require('../controller/UserController.js');
 
-// Define routes for bills resource
-userRouter.post('/', userController.create);
-userRouter.post('/login', userController.login);
-userRouter.get('/', userController.findAll);
-userRouter.get('/:id', userController.findOne);
-userRouter.put('/:id', userController.update);
-userRouter.delete('/:id', userController.delete);
-
-module.exports = userRouter;
+userRouter.post('/',UserController.upload,UserController.create)
+userRouter.post('/login', UserController.login)
+userRouter.post('/verifyResetToken', UserController.verifyResetToken)
+userRouter.post('/updatePasswordWithToken', UserController.updatePasswordWithToken )
+userRouter.get('/', UserController.findAll)
+userRouter.get('/:id', UserController.findOne);
+userRouter.get('/serviceNo/:serviceNo', UserController.findOneByServiceNo);
+userRouter.put('/:id', UserController.upload, UserController.update)
+userRouter.delete('/:id', UserController.delete)
+userRouter.post('/requestPasswordReset', UserController.requestPasswordReset);
+module.exports= userRouter;

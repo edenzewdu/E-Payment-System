@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import AdminLogin from './Admin/AdminLogin.js';
 import Dashboard from './Admin/Dashboard.js';
+import ProfilePage from './Admin/AdminProfile.js';
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -13,6 +14,10 @@ function App() {
         <Route
           path="/admin/dashboard"
           element={<Dashboard isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />}
+        />
+        <Route 
+        path="/admin/profile"
+        element= {<ProfilePage isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn}  />}
         />
       </Routes>
     </Router>

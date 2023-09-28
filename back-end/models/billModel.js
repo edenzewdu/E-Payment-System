@@ -1,53 +1,70 @@
-const { DataTypes } = require('sequelize');
+const { ServiceProviders, Payment, User } = require(".");
 
-module.exports = (sequelize, Sequelize) => {
+// billModel.js
+module.exports = (sequelize, DataTypes) => {
   const Bill = sequelize.define('Bill', {
     billNumber: {
       type: DataTypes.STRING,
       allowNull: false,
-      unique: true
+      unique: true,
     },
     dateIssued: {
       type: DataTypes.DATE,
-      allowNull: false
+      allowNull: false,
     },
     dueDate: {
       type: DataTypes.DATE,
-      allowNull: false
+      allowNull: false,
     },
     amountDue: {
       type: DataTypes.FLOAT,
-      allowNull: false
+      allowNull: false,
     },
     customerName: {
       type: DataTypes.STRING,
-      allowNull: false
+      allowNull: false,
     },
     serviceDescription: {
       type: DataTypes.STRING,
-      allowNull: false
+      allowNull: false,
     },
     servicePeriod: {
       type: DataTypes.STRING,
-      allowNull: true
+      allowNull: true,
     },
     serviceCharges: {
       type: DataTypes.FLOAT,
-      allowNull: false
+      allowNull: false,
     },
     additionalCharges: {
       type: DataTypes.FLOAT,
-      allowNull: true
+      allowNull: true,
     },
     billStatus: {
       type: DataTypes.STRING,
-      allowNull: false
+      allowNull: false,
     },
     TotalAmount: {
       type: DataTypes.FLOAT,
-      allowNull: false
+      allowNull: false,
     }
   });
 
+  Bill.associate = (models) => {
+    Bill.belongsTo(models.ServiceProviders, {
+      foreignKey: 'serviceProviderBIN',
+      as: 'ServiceProviders',
+    });
+    Bill.hasOne(models.Payment, {
+      foreignKey: 'paymentId',
+      as: 'payments',
+    });
+    Bill.belongsTo(models.User, {
+      foreignKey: 'UserId',
+      as: 'Users',
+    });
+  };
+  
   return Bill;
 };
+
