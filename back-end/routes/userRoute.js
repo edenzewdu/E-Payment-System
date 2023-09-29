@@ -6,6 +6,7 @@ const UserController = require('../controller/UserController.js');
 userRouter.post('/',UserController.upload,UserController.create)
 userRouter.post('/login', UserController.login)
 userRouter.post('/verifyResetToken', UserController.verifyResetToken)
+userRouter.post('/verifyUser/:userId/:verificationCode', UserController.verifyUser);
 userRouter.post('/updatePasswordWithToken', UserController.updatePasswordWithToken )
 userRouter.get('/', UserController.findAll)
 userRouter.get('/:id', UserController.findOne);

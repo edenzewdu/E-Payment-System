@@ -94,7 +94,7 @@ const Dashboard = ({ content }) => {
     e.preventDefault();
     Modal.confirm({
       title: 'Confirm Edit',
-      content: 'Are you sure you want to edit this agent?',
+      content: 'Are you sure you want to edit this admin?',
       okText: 'Edit',
       okType: 'danger',
       cancelText: 'Cancel',
@@ -192,7 +192,7 @@ const Dashboard = ({ content }) => {
                   <div className="circle-image" style={{ width: '75px', height: '75px', marginLeft: '30px' }}>
                     <div className="coin-animation">
                       <div className="coin-inner-animation">
-                        <img src={companyLogo} alt="Logo" className="logo-image" style={{ width: '100%', height: '100%', borderRadius: '50%' }} />
+                       <img src={companyLogo} alt="Logo" className="logo-image" style={{ width: '100%', height: '100%', borderRadius: '50%' }} />
                         <div className="splash-animation" />
                       </div>
                     </div>

@@ -1,13 +1,14 @@
-import React, { useEffect, useState } from 'react';
+
+                 
+
+import React, { useState } from 'react';
 import axios from 'axios';
 import { UserOutlined } from '@ant-design/icons';
 import { Layout, Menu, Avatar, Button, message, Form, Input, Upload, Modal } from 'antd';
 import Dashboard from './Dashboard';
 
-
 const ServiceProviderRegistrationForm = () => {
   const [form] = Form.useForm();
-  const [selectedMenu, setSelectedMenu] = useState(['4']);
   const [formData, setFormData] = useState({
     serviceProviderBIN: '',
     serviceProviderName: '',
@@ -20,11 +21,6 @@ const ServiceProviderRegistrationForm = () => {
   const [file, setFile] = useState(null);
   const [errors, setErrors] = useState({});
   const [serviceProviderAuthorizationLetterUrl, setServiceProviderAuthorizationLetterUrl] = useState();
-
-  useEffect(() => {
-    localStorage.setItem("selectedMenu", selectedMenu);
-  }, [selectedMenu]);
-  
 
   const validateForm = () => {
     const newErrors = {};
@@ -69,8 +65,6 @@ const ServiceProviderRegistrationForm = () => {
 
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
-    const url = URL.createObjectURL(selectedFile);
-    setServiceProviderAuthorizationLetterUrl(url);
     setFile(selectedFile);
   };
 
@@ -100,7 +94,7 @@ const ServiceProviderRegistrationForm = () => {
   };
 
   return (
-    <Dashboard selectedMenu={selectedMenu}
+    <Dashboard
       content={
         <Form name="serviceProviderRegistrationForm" onFinish={handleSubmit}>
           <h1>Service provider Registration</h1>
@@ -139,7 +133,8 @@ const ServiceProviderRegistrationForm = () => {
 
           <Form.Item
             label="Bank Account Number"
-            validateStatus={errors.BankAccountNumber && 'error'}
+            validateStatus={errors.BankAccountNumber
+               && 'error'}
             help={errors.BankAccountNumber}
           >
             <Input name="BankAccountNumber" onChange={handleChange} />

@@ -10,12 +10,11 @@ const ServiceProvidersList = ({ isLoggedIn, setIsLoggedIn }) => {
   const [editMode, setEditMode] = useState(false);
   const [serviceProvider, setServiceProvider] = useState(null);
   const [serviceProviderAuthorizationLetterUrl, setServiceProviderAuthorizationLetterUrl] = useState();
-  const [selectedMenu, setSelectedMenu] = useState(['5']);
+  const [searchInput, setSearchInput] = useState('');
 
   useEffect(() => {
-    localStorage.setItem("selectedMenu", selectedMenu);
     fetchServiceProviders();
-  }, [selectedMenu]);
+  }, []);
   
 
   const fetchServiceProviders = async () => {
@@ -175,13 +174,43 @@ const ServiceProvidersList = ({ isLoggedIn, setIsLoggedIn }) => {
       ),
     },
   ];
+  const handleSearch = (value) => {
+  setSearchInput(value);
+
+  if (value === '') {
+    // If search input is empty, display the whole list
+    fetchServiceProviders();
+  } else {
+    // Filter serviceData based on search input
+    const filteredServiceProviders = serviceProviderData.filter((serviceProvider) => {
+      const serviceProviderName = serviceProvider.serviceProviderName.toLowerCase();
+      const serviceProviderBIN = serviceProvider.serviceProviderBIN.toLowerCase();
+      const phoneNumber = serviceProvider.phoneNumber.toLowerCase();
+      const searchValue = value.toLowerCase();
+
+      return (
+        serviceProviderName.includes(searchValue) ||
+        serviceProviderBIN.includes(searchValue) ||
+        phoneNumber.includes(searchValue)
+      );
+    });
+
+    setServiceProviderData(filteredServiceProviders);
+  }
+};
+
 
   return (
-    <Dashboard selectedMenu={selectedMenu} content={
+    <Dashboard isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} content={
       <div>
         <h1>Service Providers List</h1>
-        <Table dataSource={serviceProviderData} columns={columns} scroll={{ x: true }} />
-        <Modal
+        <Input.Search
+          placeholder="Search Service provider"
+          value={searchInput}
+          onChange={(e) => handleSearch(e.target.value)}
+          style={{ marginBottom: '16px' }}
+        />
+        <Table dataSource={serviceProviderData} columns={columns} scroll={{ x: true }} />        <Modal
           title={editMode ? 'Edit Service Provider' : 'Create Service Provider'}
           visible={editMode}
           onCancel={() => {

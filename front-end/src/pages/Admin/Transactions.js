@@ -5,12 +5,10 @@ import Dashboard from './Dashboard';
 
 const PaymentList = () => {
   const [paymentData, setPaymentData] = useState([]);
-  const [selectedMenu, setSelectedMenu] = useState(['9']);
 
   useEffect(() => {
-      localStorage.setItem("selectedMenu", selectedMenu);
     fetchPayments();
-  }, [selectedMenu]);
+  }, []);
 
   const fetchPayments = async () => {
     try {

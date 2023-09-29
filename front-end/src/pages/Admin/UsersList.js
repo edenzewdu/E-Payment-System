@@ -1,37 +1,45 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Button, message, Modal, Form, Input, Upload } from 'antd';
-import { DeleteOutlined, EditOutlined, UploadOutlined } from '@ant-design/icons';
+import { Table, Input,Button } from 'antd';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
 import Dashboard from './Dashboard';
 
-const UsersList = () => {
+const UsersList = ({ isLoggedIn, setIsLoggedIn }) => {
   const [userData, setUserData] = useState([]);
-  const [selectedMenu, setSelectedMenu] = useState(['8']);
-  const navigate = useNavigate();
+  const [searchInput, setSearchInput] = useState('');
 
   useEffect(() => {
-      localStorage.setItem("selectedMenu", 8);
     fetchUsers();
-  }, [selectedMenu]);
+  }, []);
 
   const fetchUsers = async () => {
     try {
       const response = await axios.get('http://localhost:3000/Users');
       setUserData(response.data);
     } catch (error) {
-      message.error('Failed to fetch users.');
+      console.error('Failed to fetch users.', error);
     }
   };
 
+  const handleSearch = (value) => {
+    setSearchInput(value);
+  };
 
+  const filteredUsers = userData.filter((user) =>
+  user.Role === 'User' &&
+  (user.UserName.toLowerCase().includes(searchInput.toLowerCase()) ||
+    user.FirstName.toLowerCase().includes(searchInput.toLowerCase()) ||
+    user.LastName.toLowerCase().includes(searchInput.toLowerCase()) ||
+    user.Email.toLowerCase().includes(searchInput.toLowerCase()) ||
+    (typeof user.PhoneNumber === 'string' &&
+      user.PhoneNumber.toLowerCase().includes(searchInput.toLowerCase())))
+);
 
   const columns = [
     {
-        title: 'User ID',
-        dataIndex: 'UserID',
-        key: 'UserID',
-      },
+      title: 'User ID',
+      dataIndex: 'UserID',
+      key: 'UserID',
+    },
     {
       title: 'First Name',
       dataIndex: 'FirstName',
@@ -103,10 +111,23 @@ const UsersList = () => {
   ];
 
   return (
-    <Dashboard selectedMenu={selectedMenu} content={
+    <Dashboard isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} content={
       <div>
-        <Table dataSource={userData} columns={columns} rowKey="id" scroll={{ x: true }} />
-      </div>} />
+        <h1>User List</h1>
+        <Input.Search
+          placeholder="Search User"
+          value={searchInput}
+          onChange={(e) => handleSearch(e.target.value)}
+          style={{ marginBottom: '16px' }}
+        />
+        <Table
+          dataSource={filteredUsers}
+          columns={columns}
+          rowKey="id"
+          scroll={{ x: true }}
+        />
+      </div>
+    } />
   );
 };
 

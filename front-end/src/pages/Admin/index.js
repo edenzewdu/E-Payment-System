@@ -7,7 +7,6 @@ import './style.css';
 
 const Home = ({ content }) => {
   const [adminData, setAdminData] = useState(JSON.parse(localStorage.getItem('adminData')));
-  const [selectedMenu, setSelectedMenu] = useState(['1']);
 
   const handleCoinClick = (event) => {
     const splashElement = document.querySelector('.splash-animation');
@@ -20,34 +19,18 @@ const Home = ({ content }) => {
   };
 
   useEffect(() => {
-    const handleStorageChange = (event) => {
-      if (event.key === 'adminData') {
-        setAdminData(JSON.parse(event.newValue));
-      }
-    };
-
-    window.addEventListener('storage', handleStorageChange);
-
-    // Cleanup function
-    return () => {
-      window.removeEventListener('storage', handleStorageChange);
-    };
+    // Your useEffect logic here
   }, []);
-
-  useEffect(() => {
-    const updatedAdminData = JSON.parse(localStorage.getItem('adminData'));
-    setAdminData(updatedAdminData);
-  }, [adminData]);
 
   return (
     <Dashboard
-      selectedMenu={selectedMenu}
       content={
         <Layout>
           <div
             className="site-layout-background"
             style={{ padding: 24, minHeight: 360, display: 'flex', flexDirection: 'column', alignItems: 'center' }}
           >
+
             <h1 style={{ fontSize: 24, fontWeight: 'bold', textAlign: 'center' }}>
               Welcome to E-Payment, {adminData.FirstName}!
             </h1>
@@ -77,7 +60,8 @@ const Home = ({ content }) => {
               className="note3"
               style={{ backgroundColor: 'rgb(250, 250, 250)', borderRadius: 8, padding: 16, textAlign: 'center' }}
             >
-              <h4 style={{ fontSize: 16 }}>{/* Add your content here */}</h4>
+              <h4 style={{ fontSize: 16 }}>
+              </h4>
             </div>
           </div>
         </Layout>

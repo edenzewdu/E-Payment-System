@@ -5,7 +5,6 @@ import jsPDF from "jspdf";
 import axios from "axios";
 import "./payment.css";
 import { MailOutlined } from "@ant-design/icons";
-import nodemailer from "nodemailer";
 
 
 const Payment = () => {
@@ -19,6 +18,10 @@ const Payment = () => {
   const [downloadModalVisible, setDownloadModalVisible] = useState(false);
   const formRef = useRef(null);
   const [verificationCode, setVerificationCode] = useState('');
+  const [verifyCode, setVerifyCode] = useState('');
+  const [errors, setErrorMessage] = useState('');
+  const [showBankAccountForm, setShowBankAccountForm] = useState(false);
+  const [loading, setLoading] = useState(false);
 
 
 
@@ -29,7 +32,6 @@ const Payment = () => {
     account_holder_type: "individual",
   });
 
-  const [showBankAccountForm, setShowBankAccountForm] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -75,51 +77,34 @@ const Payment = () => {
   };
 
 
-  const handleChange = () => {
-    console.log();
+  const handleChange = (event) => {
+    const { name, value } = event.target;
+    setBankAccount((prevBankAccount) => ({
+      ...prevBankAccount,
+      [name]: value,
+    }));
   };
 
 
   const sendVerificationEmail = async () => {
-    // Generate a verification code
-    const verificationCode = generateVerificationCode();
+    try {
+      setLoading(true);
+      // Generate a verification code
+      const code = generateVerificationCode();
+      setVerificationCode(code);
 
-    // Send the verification code to the fetched email address
-    const response = await fetch(`http://localhost:3000/Users/${userId}`);
-    const userData = await response.json();
+      // Send the verification code to the fetched email address
+      const response = await axios.post(`http://localhost:3000/Users/verifyUser/${userId}/${code}`);
 
-    // Extract the email address from the fetched user data
-    const email = userData.Email;
 
-    // Create a nodemailer transporter
-    const transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user: "edenzewdu434@gmail.com",
-        pass: "gyefcyzofjjpvheh",
-      },
-    });
-
-    // Define the email message
-    const mailOptions = {
-      from: "edenzewdu434@gmail.com",
-      to: email,
-      subject: "Verification Code",
-      text: `Your verification code is: ${verificationCode}`,
-    };
-
-    // Send the email
-    transporter.sendMail(mailOptions, (error, info) => {
-      if (error) {
-        console.log("Error sending email:", error);
-      } else {
-        console.log("Email sent:", info.response);
-        // Do something when the email is successfully sent
-      }
-    });
-
-    // Update the state or perform any other necessary actions
-    setVerificationCode(verificationCode);
+      console.log('Email sent successfully');
+      message.success('Email sent successfully');
+      setLoading(false);
+      // Do something when the email is successfully sent
+    } catch (error) {
+      console.error('Error sending email:', error);
+      message.error('Error sending email:', error);
+    }
   };
 
   const handleDownload = (fileType) => {
@@ -183,9 +168,26 @@ const Payment = () => {
 
   const handleBankAccountSubmit = async () => {
     try {
+      let errorMessage = {};
+      if (!verifyCode || !bankAccount.bankAccountNumber || !bankAccount.AgentName) {
+        
+  
+        if (!bankAccount.bankAccountNumber || !bankAccount.AgentName) {
+          errorMessage.bankAccount  = "Bank Account Number and Bank selection are required";
+        }
+        if (!verifyCode) {
+          errorMessage.verificationCode = "Verification code is required";
+        }
+  
+        setErrorMessage(errorMessage);
+        return;
+      }
 
-      // Send verification email
-      await sendVerificationEmail(userId);
+      else if (verifyCode !== verificationCode) {
+        errorMessage.verificationCode = "Invallid Verification code";
+        setErrorMessage(errorMessage);
+        return;
+      }
 
       // Generate random transaction number and get current date
       const randomNumber = Math.floor(Math.random() * 1000000000);
@@ -220,6 +222,7 @@ const Payment = () => {
         // Payment succeeded
         console.log("Paid");
         message.success('Payment successful');
+        setErrorMessage("");
         setDownloadModalVisible(true);
         setPayments(paymentData);
         console.log(payments);
@@ -250,6 +253,11 @@ const Payment = () => {
     }
 
     return code;
+  };
+
+
+  const handleVerificationCodeChange = (event) => {
+    setVerifyCode(event.target.value);
   };
 
 
@@ -301,42 +309,48 @@ const Payment = () => {
       {showBankAccountForm && (
         <div className="input-container">
           <h2>Bank Account Details</h2>
-          <Input
-            className="shorter-input"
-            name="bankAccountNumber"
-            value={bankAccount.bankAccountNumber}
-            onChange={handleChange}
-            placeholder="Bank Account Number"
-          />
-          <select
-            className="bank-dropdown"
-            name="AgentName"
-            value={bankAccount.AgentName}
-            onChange={handleChange}
-          >
-            <option value="">Select Bank</option>
-            {banks.map((bank) => (
-              <option key={bank.id} value={bank.agentName}>
-                {bank.agentName}
-              </option>
-            ))}
-          </select>
+      <Input
+        className="shorter-input"
+        name="bankAccountNumber"
+        value={bankAccount.bankAccountNumber}
+        onChange={handleChange}
+        placeholder="Bank Account Number"
+      />
+      <select
+        className="bank-dropdown"
+        name="AgentName"
+        value={bankAccount.AgentName}
+        onChange={handleChange}
+      >
+        <option value="">Select Bank</option>
+        {banks.map((bank) => (
+          <option key={bank.id} value={bank.agentName}>
+            {bank.agentName}
+          </option>
+        ))}
+      </select>
+      <br />
+
+      {errors.bankAccount && <span className="error-message">{errors.bankAccount}</span>}
           <br />
           <Input
             className="verification-input"
-            value={verificationCode}
-            onChange={(e) => setVerificationCode(e.target.value)}
+            value={verifyCode}
+            onChange={handleVerificationCodeChange}
             placeholder="Verification Code"
           />
           <Button
             className="verify-email-btn"
             icon={<MailOutlined />}
             onClick={sendVerificationEmail}
+            loading={loading}
           >
-            send Verification Email
+            {loading ? 'Sending Verification Code' : 'Send Verification Code'}
           </Button>
           <br />
 
+          {errors.verificationCode && <span className="error-message">{errors.verificationCode}</span>}
+          <br />
 
           <Button className="pay" onClick={handleBankAccountSubmit}>
             Pay

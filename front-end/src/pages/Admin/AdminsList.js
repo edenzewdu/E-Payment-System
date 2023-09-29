@@ -2,21 +2,18 @@ import React, { useState, useEffect } from 'react';
 import { Table, Button, message, Modal, Form, Input, Upload } from 'antd';
 import { DeleteOutlined, EditOutlined, UploadOutlined } from '@ant-design/icons';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+//import { useNavigate } from 'react-router-dom';
 import Dashboard from './Dashboard';
 
 const AdminsList = ({ isLoggedIn, setIsLoggedIn }) => {
   const [userData, setUserData] = useState([]);
-  const [form] = Form.useForm();
-  const [editMode, setEditMode] = useState(false);
-  const [user, setUser] = useState(null);
-  const [selectedMenu, setSelectedMenu] = useState(['7']);
-  const navigate = useNavigate();
+  const [searchInput, setSearchInput] = useState('');
+
+  //const navigate = useNavigate();
 
   useEffect(() => {
-    localStorage.setItem("selectedMenu", selectedMenu);
     fetchUsers();
-  }, [selectedMenu]);
+  }, []);
 
   const fetchUsers = async () => {
     try {
@@ -27,89 +24,21 @@ const AdminsList = ({ isLoggedIn, setIsLoggedIn }) => {
     }
   };
 
-  const handleEdit = (user) => {
-    form.setFieldsValue(user);
-    setEditMode(true);
-    setUser(user);
+
+
+  const handleSearch = (value) => {
+    setSearchInput(value);
   };
 
-  const handleSave = () => {
-    Modal.confirm({
-      title: 'Confirm Edit',
-      content: 'Are you sure you want to edit this user?',
-      okText: 'Edit',
-      okType: 'danger',
-      cancelText: 'Cancel',
-      onOk: () => {
-        // Get form values
-        form.validateFields().then((values) => {
-          const updatedUser = { ...values, id: user.id };
-  
-          // Create FormData object
-          const formData = new FormData();
-          formData.append('ProfilePicture', values.ProfilePicture[0]); // Assuming only one file is selected
-  
-          // Update user data
-          axios
-            .put(`http://localhost:3000/Users/${updatedUser.id}`, updatedUser)
-            .then((response) => {
-              if (response.status === 200) {
-                // Upload file separately
-                axios
-                  .put(`http://localhost:3000/Users/${updatedUser.id}`, formData)
-                  .then((uploadResponse) => {
-                    if (uploadResponse.status === 200) {
-                      message.success('User data and file updated successfully.');
-                      const updatedData = userData.map((user) =>
-                        user.id === updatedUser.id ? updatedUser : user
-                      );
-                      setUserData(updatedData);
-                      setEditMode(false);
-                      form.resetFields();
-                    } else {
-                      message.error('Failed to upload file.');
-                    }
-                  })
-                  .catch((error) => {
-                    message.error('Failed to upload file.');
-                  });
-              } else {
-                message.error('Failed to update user data.');
-              }
-            })
-            .catch((error) => {
-              message.error('Failed to update user data.');
-            });
-        });
-      },
-    });
-  };
-
-  const handleDelete = (userId) => {
-    Modal.confirm({
-      title: 'Confirm Delete',
-      content: 'Are you sure you want to delete this user?',
-      okText: 'Delete',
-      okType: 'danger',
-      cancelText: 'Cancel',
-      onOk: () => {
-        axios
-          .delete(`http://localhost:3000/Users/${userId}`)
-          .then((response) => {
-            if (response.status === 200) {
-              message.success('User deleted successfully.');
-              const updatedData = userData.filter((user) => user.id !== userId);
-              setUserData(updatedData);
-            } else {
-              message.error('Failed to delete user.');
-            }
-          })
-          .catch((error) => {
-            message.error('Failed to delete user.');
-          });
-      },
-    });
-  };
+  const filteredUsers = userData.filter((user) =>
+  user.Role === 'Admin' &&
+  (user.UserName.toLowerCase().includes(searchInput.toLowerCase()) ||
+    user.FirstName.toLowerCase().includes(searchInput.toLowerCase()) ||
+    user.LastName.toLowerCase().includes(searchInput.toLowerCase()) ||
+    user.Email.toLowerCase().includes(searchInput.toLowerCase()) ||
+    (typeof user.PhoneNumber === 'string' &&
+      user.PhoneNumber.toLowerCase().includes(searchInput.toLowerCase())))
+);
 
   const columns = [
     {
@@ -180,74 +109,27 @@ const AdminsList = ({ isLoggedIn, setIsLoggedIn }) => {
         </div>
       ),
     },
-    {
-      title: 'Actions',
-      dataIndex: 'actions',
-      key: 'actions',
-      render: (_, user) => (
-        <div>
-          <Button icon={<EditOutlined />} onClick={() => handleEdit(user)}>
-            Edit
-          </Button>
-          <Button icon={<DeleteOutlined />} onClick={() => handleDelete(user.id)} danger>
-            Delete
-          </Button>
-        </div>
-      ),
-    },
+   
+   
   ];
 
   return (
-    <Dashboard selectedMenu={selectedMenu} content={
+    <Dashboard isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} content={
       <div>
-        <Table dataSource={userData.filter(user => user.Role === 'Admin')} columns={columns} rowKey="id" scroll={{ x: true }} />
-        <Modal
-          title="Edit User"
-          visible={editMode}
-          onCancel={() => {
-            setEditMode(false);
-            form.resetFields();
-          }}
-          onOk={handleSave}
-        >
-          <Form form={form}>
-            <Form.Item name="UserID" label="UserID">
-              <Input />
-            </Form.Item>
-            <Form.Item name="FirstName" label="First Name">
-              <Input />
-            </Form.Item>
-            <Form.Item name="LastName" label="Last Name">
-              <Input />
-            </Form.Item>
-            <Form.Item name="Gender" label="Gender">
-              <Input />
-            </Form.Item>
-            <Form.Item name="UserName" label="User Name">
-              <Input />
-            </Form.Item>
-            <Form.Item name="Email" label="Email">
-              <Input type="email" />
-            </Form.Item>
-            <Form.Item name="PhoneNumber" label="Phone Number">
-              <Input type="tel" />
-            </Form.Item>
-            <Form.Item name="Address" label="Address">
-              <Input />
-            </Form.Item>
-            <Form.Item name="Role" label="Role">
-              <Input />
-            </Form.Item>
-            <Form.Item name="ProfilePicture" label="Profile Picture">
-              <Upload accept=".jpeg, .jpg, .png, .gif" beforeUpload={() => false}>
-                <Button icon={<UploadOutlined />}>Select File</Button>
-              </Upload>
-            </Form.Item>
-            <Button type="primary" onClick={handleSave}>
-              Save
-            </Button>
-          </Form>
-        </Modal>
+       <h1>Admin List</h1>
+        <Input.Search
+          placeholder="Search Admin"
+          value={searchInput}
+          onChange={(e) => handleSearch(e.target.value)}
+          style={{ marginBottom: '16px' }}
+        />
+        <Table
+          dataSource={filteredUsers}
+          columns={columns}
+          rowKey="id"
+          scroll={{ x: true }}
+        />
+    
       </div>} />
   );
 };

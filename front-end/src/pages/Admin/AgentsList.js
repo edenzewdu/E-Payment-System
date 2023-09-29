@@ -9,13 +9,13 @@ const AgentsList = ({ isLoggedIn, setIsLoggedIn }) => {
   const [form] = Form.useForm();
   const [editMode, setEditMode] = useState(false);
   const [agent, setAgent] = useState(null);
-  const [agentAuthorizationLetterUrl, setAgentAuthorizationLetterUrl] = useState()
-  const [selectedMenu, setSelectedMenu] = useState(['3']);
+  const [agentAuthorizationLetterUrl, setgentAuthorizationLetterUrl] = useState();
+  const [searchInput, setSearchInput] = useState('');
+
 
   useEffect(() => {
-    localStorage.setItem("selectedMenu", selectedMenu);
     fetchAgents();
-  }, [selectedMenu]);
+  }, []);
 
   const fetchAgents = async () => {
     try {
@@ -30,9 +30,7 @@ const AgentsList = ({ isLoggedIn, setIsLoggedIn }) => {
     form.setFieldsValue(agent);
     setEditMode(true);
     setAgent(agent);
-    setAgentAuthorizationLetterUrl(`http://localhost:3000/${agent.agentAuthorizationLetter}`);
   };
-
   const handleSave = () => {
     Modal.confirm({
       title: 'Confirm Edit',
@@ -41,39 +39,25 @@ const AgentsList = ({ isLoggedIn, setIsLoggedIn }) => {
       okType: 'danger',
       cancelText: 'Cancel',
       onOk: () => {
-        // Get form values
         form.validateFields().then((values) => {
-          const updatedAgent = { ...values, agentBIN: agent.agentBIN }; // Use agentBIN as the primary key
-  
-          // Create FormData object
-          const formData = new FormData();
-          formData.append('agentAuthorizationLetter', values.agentAuthorizationLetter[0]); // Assuming only one file is selected
-  
-          setAgentAuthorizationLetterUrl(`http://localhost:3000/${formData.agentAuthorizationLetter}`)
-          // Update agent data
+          const updatedAgent = { ...values };
           axios
-            .put(`http://localhost:3000/agents/${updatedAgent.agentBIN}`, updatedAgent) // Use agentBIN as the primary key
+            .put(
+              `http://localhost:3000/agents/${updatedAgent.agentBIN}`,
+              updatedAgent
+            )
             .then((response) => {
               if (response.status === 200) {
-                // Upload file separately
-                axios
-                  .put(`http://localhost:3000/agents/${updatedAgent.agentBIN}`, formData) // Use agentBIN as the primary key
-                  .then((uploadResponse) => {
-                    if (uploadResponse.status === 200) {
-                      message.success('Agent data and file updated successfully.');
-                      const updatedData = agentData.map((agent) =>
-                        agent.agentBIN === updatedAgent.agentBIN ? updatedAgent : agent // Use agentBIN to match the updated agent
-                      );
-                      setAgentData(updatedData);
-                      setEditMode(false);
-                      form.resetFields();
-                    } else {
-                      message.error('Failed to upload file.');
-                    }
-                  })
-                  .catch((error) => {
-                    message.error('Failed to upload file.');
-                  });
+                message.success('agent data updated successfully.');
+                window.location.href = window.location.href;
+                const updatedData = agentData.map((sp) =>
+                  sp.agentBIN === updatedAgent.agentBIN
+                    ? updatedAgent
+                    : sp
+                );
+                setAgentData(updatedData);
+                setEditMode(false);
+                form.resetFields();
               } else {
                 message.error('Failed to update agent data.');
               }
@@ -85,6 +69,7 @@ const AgentsList = ({ isLoggedIn, setIsLoggedIn }) => {
       },
     });
   };
+
 
   const handleDelete = (agentBIN) => {
     Modal.confirm({
@@ -178,10 +163,43 @@ const AgentsList = ({ isLoggedIn, setIsLoggedIn }) => {
     },
   ];
 
+  const handleSearch = (value) => {
+    setSearchInput(value);
+    if (value === '') {
+      // If search input is empty, display the whole list
+      fetchAgents();
+    } else {
+
+    // Filter agentData based on search input
+    const filteredAgents = agentData.filter((agent) => {
+      const agentName = agent.agentName.toLowerCase();
+      const agentEmail = agent.agentEmail.toLowerCase();
+      const phoneNumber = agent.phoneNumber.toLowerCase();
+      const searchValue = value.toLowerCase();
+
+      return (
+        agentName.includes(searchValue) ||
+        agentEmail.includes(searchValue) ||
+        phoneNumber.includes(searchValue)
+      );
+    });
+
+    setAgentData(filteredAgents);
+  }
+  };
+
+
   return (
-    <Dashboard selectedMenu={selectedMenu} content={
+    <Dashboard isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} content={
       <div>
         <h1>Agents List</h1>
+        <Input.Search
+          placeholder="Search agents"
+          value={searchInput}
+          onChange={(e) => handleSearch(e.target.value)}
+          style={{ marginBottom: '16px' }}
+        />
+
         <Table dataSource={agentData} columns={columns} scroll={{ x: true }} />
 
         <Modal
@@ -190,7 +208,6 @@ const AgentsList = ({ isLoggedIn, setIsLoggedIn }) => {
           onCancel={() => {
             setEditMode(false);
             form.resetFields();
-
           }}
           footer={null}
         >
@@ -214,9 +231,6 @@ const AgentsList = ({ isLoggedIn, setIsLoggedIn }) => {
               <Upload accept=".jpeg, .jpg, .png, .gif" beforeUpload={() => false}>
                 <Button icon={<UploadOutlined />}>Select File</Button>
               </Upload>
-              {agentAuthorizationLetterUrl && (
-                <img src={agentAuthorizationLetterUrl} alt="agent authorization letter" style={{ width: '200px' }} />
-              )}
             </Form.Item>
             <Button type="primary" onClick={handleSave}>
               Save

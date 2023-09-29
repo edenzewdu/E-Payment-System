@@ -671,6 +671,84 @@ async function sendEmail(senderEmail, senderPassword, recipientEmail, subject, m
 }
 
 
+
+
+// Verify user
+exports.verifyUser = async (req, res) => {
+  // Validate request
+  const userId = req.params.userId;
+  const verificationCode = req.params.verificationCode;
+
+  if (!userId || !verificationCode) {
+    res.status(400).send({
+      message: 'User ID and verification code are required',
+    });
+    return;
+  }
+
+  try {
+    // Find the user based on the provided userId
+    const user = await User.findByPk(userId);
+  
+    if (!user) {
+      res.status(404).send({
+        message: 'User not found',
+      });
+      return;
+    }
+
+    // Send verification code email to the user
+    const senderEmail = 'edenzewdu434@gmail.com';
+    const senderPassword = 'gyefcyzofjjpvheh';
+    const recipientEmail = user.Email;
+    const subject = 'Email Verification';
+    const message = `Dear ${user.FirstName},\n\nYour verification code is: ${verificationCode}\n\nPlease use this code to verify your email.\n\nBest regards,\nYourApp Team`;
+
+    await sendEmail(senderEmail, senderPassword, recipientEmail, subject, message);
+
+    res.send({
+      message: 'User verified successfully',
+    });
+  } catch (error) {
+    console.error('Error finding user:', error);
+    res.status(500).send({
+      message: 'Internal server error',
+    });
+  }
+};
+
+// Function to send an email
+async function sendEmail(senderEmail, senderPassword, recipientEmail, subject, message) {
+  try {
+    // Create a transporter
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: senderEmail,
+        pass: senderPassword,
+      },
+      tls: {
+        rejectUnauthorized: false,
+      },
+    });
+
+    // Define the email options
+    const mailOptions = {
+      from: senderEmail,
+      to: recipientEmail,
+      subject: subject,
+      text: message,
+    };
+
+    // Send the email
+    const info = await transporter.sendMail(mailOptions);
+    console.log('Email sent:', info.messageId);
+  } catch (error) {
+    console.error('Error sending email:', error);
+  }
+}
+
+
 // Verify reset password token
 exports.verifyResetToken = asyncHandler(async (req, res) => {
   try {

@@ -52,6 +52,11 @@ const AgentRegistrationForm = () => {
       newErrors.phoneNumber = 'Phone Number is invalid';
     }
 
+    // if (!agentData.agentAuthorizationLetter) {
+    //   newErrors.agentAuthorizationLetter = "Agent Authorization Letter is required";
+    // } else if (!isFileValid(agentData.agentAuthorizationLetter)) {
+    //   newErrors.agentAuthorizationLetter = "Invalid file format. Only JPG, JPEG, PNG, or PDF files are allowed.";
+    // }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -69,8 +74,6 @@ const AgentRegistrationForm = () => {
   
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
-    const url = URL.createObjectURL(selectedFile);
-    setAgentAuthorizationLetterUrl(url);
     setFile(selectedFile);
   };
 
@@ -126,6 +129,7 @@ const AgentRegistrationForm = () => {
           >
             <Input name="agentName" onChange={handleChange} />
           </Form.Item>
+
           <Form.Item
             label="Agent Email"
             validateStatus={errors.agentEmail && 'error'}

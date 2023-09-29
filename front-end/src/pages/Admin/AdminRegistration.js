@@ -36,7 +36,7 @@ const AdminRegistrationForm = () => {
     UserName: '',
     Password: '',
     Email: '',
-    PhoneNumber: '+251',
+    PhoneNumber: '',
     Address: '',
     Role: 'Admin',
   });
@@ -176,6 +176,7 @@ const AdminRegistrationForm = () => {
           <div className="admin-registration-wrapper">
             <div className="admin-registration-header">
             </div>
+            <h1>ADMIN REGISTRATION</h1>
             <Form
               form={form}
               layout="vertical"
@@ -186,10 +187,19 @@ const AdminRegistrationForm = () => {
               <Form.Item label="UserID" name="UserID" rules={[{ required: true }]}>
                 <Input defaultValue={`${formData.UserID}`} disabled />
               </Form.Item>
-              <Form.Item label="First Name" name="FirstName" rules={[{ required: true }]}>
+              
+              
+              <Form.Item label="First Name" 
+              name="FirstName" rules={[{ required: true }]}>
                 <Input placeholder="Enter First Name" />
               </Form.Item>
-              {errors.FirstName && <p className="error-message">{errors.FirstName}</p>}
+              {errors.FirstName &&
+               <p className="error-message"
+               >{errors.FirstName}</p>}
+              
+              
+              
+              
               <Form.Item label="Last Name" name="LastName" rules={[{ required: true }]}>
                 <Input placeholder="Enter Last Name" />
               </Form.Item>
