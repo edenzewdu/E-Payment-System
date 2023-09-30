@@ -4,6 +4,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { UserOutlined } from '@ant-design/icons';
 import { Layout, Menu, Avatar, Button, message, Form, Input, Upload, Modal, Select } from 'antd';
 import Dashboard from './Dashboard';
+import  {addActivity} from './ActivitiesPage.js';
 
 const AdminRegistrationForm = () => {
   const navigate = useNavigate();
@@ -159,6 +160,7 @@ const AdminRegistrationForm = () => {
         form.resetFields();
         window.location.href = window.location.href;
         message.success('Admin Registered updated successfully');
+        addActivity(`Admin ${adminData.FirstName}`, ` registered admin ${response.FirstName}`);
       } else {
         message.error('Failed to register admin');
       }

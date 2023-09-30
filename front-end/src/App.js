@@ -22,6 +22,7 @@ import Header from './pages/Header';
 import ContactUs from './pages/contactUs';
 import AboutUsPage from './pages/aboutUs';
 import PaymentHistory from './pages/paymentHistory';
+import ActivitiesPage from './pages/Admin/ActivitiesPage';
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -63,6 +64,8 @@ function App() {
         />
         <Route path="/admin/user/registration/:adminId" element={<AdminRegistrationForm />} />
         <Route path="/admin/transactions/:adminId" element={<PaymentList />} />
+        <Route path="/admin/activities/:adminId" element={<ActivitiesPage />} />
+        
       </Routes>
     </Router>
   );

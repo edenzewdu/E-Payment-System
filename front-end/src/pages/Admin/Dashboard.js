@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import companyLogo from '../../image/logoimage.jpg';
-import { Layout, Menu, Avatar, Button, Form, Input, Upload, Modal, message } from 'antd';
+import { Layout, Menu, Button, Form, Input, Upload, Modal, message, Breadcrumb } from 'antd';
 import {
   UserOutlined,
   BankOutlined,
@@ -9,7 +9,8 @@ import {
   TransactionOutlined,
   LogoutOutlined,
   UploadOutlined,
-  HomeOutlined
+  HomeOutlined,
+  AppstoreOutlined
 } from '@ant-design/icons';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 
@@ -170,34 +171,58 @@ const Dashboard = ({ content }) => {
         width={isSiderCollapsed ? 190 : 350}
         onMouseEnter={() => handleSiderHover(true)}
         onMouseLeave={() => handleSiderHover(false)}
+        style={{
+          backgroundColor: '#333333',
+          color: '#ffffff',
+        }}
       >
-        <Menu
-          theme="dark"
-          defaultSelectedKeys={['1']}
-          mode="inline"
-          selectedKeys={[selectedMenu]}
-          onSelect={handleMenuSelect}
-        >
-          <Menu theme="dark" mode="inline" selectedKeys={[selectedMenu]} onClick={(e) => setSelectedMenu(e.key)}></Menu>
-
-          <div className="avatar" style={{ display: 'flex', alignItems: 'center', maxWidth: '100%' }}>
+       <div
+            className="avatar"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              padding: '20px',
+            }}
+          >
             <div
-              backgroundcolor='#fffff'
-              className='avatar'
-              size="large"
+              className="avatar-circle"
+              style={{
+                backgroundColor: '#ffffff',
+                width: '100px',
+                height: '100px',
+                borderRadius: '50%',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}
             >
-
               <div className="company-name">
                 <div className="logo-container">
-                  <div className="circle-image" style={{ width: '75px', height: '75px', marginLeft: '30px' }}>
+                  <div
+                    className="circle-image"
+                    style={{
+                      width: '75px',
+                      height: '75px',
+                      marginLeft: '30px',
+                    }}
+                  >
                     <div className="coin-animation">
                       <div className="coin-inner-animation">
-                       <img src={companyLogo} alt="Logo" className="logo-image" style={{ width: '100%', height: '100%', borderRadius: '50%' }} />
+                        <img
+                          src={companyLogo}
+                          alt="Logo"
+                          className="logo-image"
+                          style={{
+                            width: '100%',
+                            height: '100%',
+                            borderRadius: '50%',
+                          }}
+                        />
                         <div className="splash-animation" />
                       </div>
                     </div>
                   </div>
-                  <div className="slogan-container" style={{ display: 'flex', flexDirection: 'column' }}>
+                  <div className="slogan-container">
                     <div className="slogan" style={{ '--delay': '0s' }}>
                       your
                     </div>
@@ -216,60 +241,141 @@ const Dashboard = ({ content }) => {
                   </div>
                 </div>
               </div>
-
             </div>
           </div>
-          <Menu.SubMenu key="submenu" icon={<HomeOutlined />} title="E-Payment System" style={{ marginTop: '40px' }}>
+           <Menu
+          theme="dark"
+          defaultSelectedKeys={['1']}
+          mode="inline"
+          selectedKeys={[selectedMenu]}
+          onSelect={handleMenuSelect}
+          style={{
+            backgroundColor: '#333333',
+            
+          }}
+        >
+          
+          <Menu.SubMenu
+            key="submenu"
+            icon={<HomeOutlined />}
+            title="E-Payment System"
+            style={{ marginTop: '40px', minWidth:'190px',width: isSiderCollapsed ? '190px' : '350px', }}
+          >
             <Menu.Item key="2" icon={<BankOutlined />}>
-              <Link to={`/admin/agents/registration/${formData.id}`}>Agents Registration</Link>
+              <Link
+                to={`/admin/agents/registration/${formData.id}`}
+                style={{ color: '#ffffff' }}
+              >
+                Agents Registration
+              </Link>
             </Menu.Item>
             <Menu.Item key="3" icon={<BankOutlined />}>
-              <Link to={`/admin/agents/${formData.id}`}>Agents List</Link>
+              <Link
+                to={`/admin/agents/${formData.id}`}
+                style={{ color: '#ffffff' }}
+              >
+                Agents List
+              </Link>
             </Menu.Item>
             <Menu.Item key="4" icon={<SolutionOutlined />}>
-              <Link to={`/admin/service-providers/registration/${formData.id}`}>Service Providers Registration</Link>
+              <Link
+                to={`/admin/service-providers/registration/${formData.id}`}
+                style={{ color: '#ffffff' }}
+              >
+                Service Providers Registration
+              </Link>
             </Menu.Item>
             <Menu.Item key="5" icon={<SolutionOutlined />}>
-              <Link to={`/admin/service-providers/${formData.id}`}>Service Providers List</Link>
+              <Link
+                to={`/admin/service-providers/${formData.id}`}
+                style={{ color: '#ffffff' }}
+              >
+                Service Providers List
+              </Link>
             </Menu.Item>
             <Menu.Item key="6" icon={<UserOutlined />}>
-              <Link to={`/admin/user/registration/${formData.id}`}>Admin Registration</Link>
+              <Link
+                to={`/admin/user/registration/${formData.id}`}
+                style={{ color: '#ffffff' }}
+              >
+                Admin Registration
+              </Link>
             </Menu.Item>
             <Menu.Item key="7" icon={<UserOutlined />}>
-              <Link to={`/admin/adminsList/${formData.id}`}>Admin List</Link>
+              <Link
+                to={`/admin/adminsList/${formData.id}`}
+                style={{ color: '#ffffff' }}
+              >
+                Admin List
+              </Link>
             </Menu.Item>
             <Menu.Item key="8" icon={<UserOutlined />}>
-              <Link to={`/admin/usersList/${formData.id}`}>Users List</Link>
+              <Link
+                to={`/admin/usersList/${formData.id}`}
+                style={{ color: '#ffffff' }}
+              >
+                Users List
+              </Link>
             </Menu.Item>
             <Menu.Item key="9" icon={<TransactionOutlined />}>
-              <Link to={`/admin/transactions/${formData.id}`}>Transactions</Link>
+              <Link
+                to={`/admin/transactions/${formData.id}`}
+                style={{ color: '#ffffff' }}
+              >
+                Transactions
+              </Link>
             </Menu.Item>
+            <Menu.Item key="10" icon={<AppstoreOutlined />}>
+            <Link
+                to={`/admin/activities/${formData.id}`}
+                style={{ color: '#ffffff' }}
+              >
+                 Activities
+                 </Link>
+          </Menu.Item>
+
+
           </Menu.SubMenu>
         </Menu>
       </Sider>
-      <Layout className="site-layout">
-        <Header className="site-layout-background" style={{ padding: 0, display: 'flex', justifyContent: 'space-between' }}>
-          <div className="user-profile" style={{ display: 'flex', alignItems: 'center' }}>
-            <Link type="primary" onClick={() => handleEdit(adminData)}>
-              <div style={{ display: 'flex', alignItems: 'center' }}>
-                {profilePictureUrl != null ? (
-                  <img src={profilePictureUrl} alt="Profile" className="logo-image" style={{ width: '50px', height: '50px', margin: '10px', borderRadius: '50%' }} />
-                ) : JSON.parse(localStorage.adminData) && JSON.parse(localStorage.adminData).FirstName ? JSON.parse(localStorage.adminData).FirstName.charAt(0) : null}
-                <span className="user-name">{formData.FirstName} {formData.LastName}</span>
-              </div>
-            </Link>
+      <Layout>
+      <Header
+        className="site-layout-background"
+        style={{ padding: 0, display: 'flex', justifyContent: 'space-between' }}
+      >
+        <div className="user-profile" style={{ display: 'flex', alignItems: 'center' }}>
+          <Link type="primary" onClick={() => handleEdit(adminData)}>
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              {profilePictureUrl !== 'http://localhost:3000/null' ? (
+                <img
+                  src={profilePictureUrl}
+                  alt="Profile"
+                  className="logo-image"
+                  style={{
+                    width: '50px',
+                    height: '50px',
+                    borderRadius: '50%',
+                    marginRight: '10px',
+                  }}
+                />
+              ) : (
+                    <div style={{ width: '45px', height: '45px', margin: '17px', marginRight: '10px', borderRadius: '50%', backgroundImage: 'linear-gradient(to right, rgb(95, 174, 230), rgb(3, 55, 100))', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                    <span style={{ fontSize: '24px', color: 'white', justifyContent: 'center' }}>
+                      {JSON.parse(localStorage.adminData) && JSON.parse(localStorage.adminData).FirstName ? JSON.parse(localStorage.adminData).FirstName.charAt(0) : null}
+                      </span>
+                      </div>)}
+                  <span className="user-name">{formData.FirstName} {formData.LastName}</span>
+                </div>
+              </Link>
           </div>
           <Link to="/admin/login" onClick={handleLogout} style={{ paddingRight: 20 }}>
             <LogoutOutlined />
             Logout
           </Link>
         </Header>
-        <Content style={{ margin: '0 16px' }} >
-          <div className="site-layout-background" style={{ padding: 24, minHeight: 360 }}>
-            {content}
-          </div>
-        </Content>
-
+        <Content style={{ padding: '10px ' }}>
+          {content}
+      </Content>
         <Modal
           title={editMode ? 'Edit Admin' : 'Create Admin'}
           visible={editMode}
@@ -321,16 +427,13 @@ const Dashboard = ({ content }) => {
             </Button>
           </Form>
         </Modal>
-        <Footer>E-Payment System ©2023 Created by [____ Name]</Footer>
-      </Layout>
-    </Layout>
-  );
+        
+      <Footer style={{ textAlign: 'center' }}>
+        E-Payment System ©{new Date().getFullYear()} Created by INSA
+      </Footer>
+    </Layout >
+  </Layout >
+);
 };
 
 export default Dashboard;
-
-
-
-
-
-
