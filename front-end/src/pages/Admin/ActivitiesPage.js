@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import firebase from 'firebase/compat/app'; // Update the import statement
 import 'firebase/compat/database'; // Update the import statement
+import Dashboard from './Dashboard';
+import { Layout } from 'antd';
+import AdminRegistrationForm from './AdminRegistration';
 
 const firebaseConfig = {
   apiKey: "AIzaSyB8mItXSr5tNsGnwwyXNX6T3dR_fs0KE1M",
@@ -44,14 +47,19 @@ const ActivitiesPage = () => {
   };
 
   return (
-    <div>
-      <h1>Activities Page</h1>
+    <Layout>
+      <Dashboard content={
+        <div>
+           <h1>Activities Page</h1>
       <ul>
         {activities.map((activity) => (
           <li key={activity.id}>{activity.description}</li>
         ))}
       </ul>
-    </div>
+      </div>
+    } />
+    <AdminRegistrationForm addActivity={addActivity} />
+    </Layout>
   );
 };
 

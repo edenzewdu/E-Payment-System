@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
-import { Modal } from "antd";
-import  './payment.css';
-import  Header  from "./Header.js";
+import { Modal, Table } from "antd";
+import "./payment.css";
+import Header from "./Header.js";
 
 const PaymentHistory = () => {
   const [paymentHistory, setPaymentHistory] = useState([]);
@@ -78,44 +78,65 @@ const PaymentHistory = () => {
     });
   };
 
+  const columns = [
+    {
+      title: "No",
+      dataIndex: "id",
+      key: "id",
+    },
+    {
+      title: "Transaction No",
+      dataIndex: "TransactionNo",
+      key: "TransactionNo",
+    },
+    {
+      title: "Payment Method",
+      dataIndex: "paymentMethod",
+      key: "paymentMethod",
+    },
+    {
+      title: "Description",
+      dataIndex: "paymentDescription",
+      key: "paymentDescription",
+    },
+    {
+      title: "Reference Number",
+      dataIndex: "ReferenceNo",
+      key: "ReferenceNo",
+    },
+    {
+      title: "Total Amount",
+      dataIndex: "amount",
+      key: "amount",
+    },
+    {
+      title: "Payment Date",
+      dataIndex: "paymentDate",
+      key: "paymentDate",
+    },
+    {
+      title: "Payer",
+      dataIndex: "payerId",
+      key: "payerId",
+    },
+    {
+      title: "Action",
+      key: "action",
+      render: (text, payment) => (
+        <span>
+          <button onClick={() => generatePicture(payment)}>Generate Picture</button>
+          <button onClick={() => generatePDF(payment)}>Generate PDF</button>
+        </span>
+      ),
+    },
+  ];
+
   return (
-    <div >
-      <Header/>
-      <h1 style={{padding:'10% 0% 0% 2%'}}>Payment History</h1>
+    <div>
+      <Header />
+      <h1 style={{ padding: "170px 0% 0% 2%" }}>Payment History</h1>
       {paymentHistory.length > 0 ? (
-        <table>
-          <thead>
-            <tr>
-              <th>No</th>
-              <th>Transaction No</th>
-              <th>Payment Method</th>
-              <th>Description</th>
-              <th>Reference Number</th>
-              <th>Total Amount</th>
-              <th>Payment Date</th>
-              <th>Payer</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {paymentHistory.map((payment) => (
-              <tr key={payment.id} id={`payment-row-${payment.id}`}>
-                <td>{payment.id}</td>
-                <td>{payment.TransactionNo}</td>
-                <td>{payment.paymentMethod}</td>
-                <td>{payment.paymentDescription}</td>
-                <td>{payment.ReferenceNo}</td>
-                <td>{payment.amount}</td>
-                <td>{payment.paymentDate}</td>
-                <td>{payment.payerId}</td>
-                <td>
-                  <button onClick={() => generatePicture(payment)}>Generate Picture</button>
-                  <button onClick={() => generatePDF(payment)}>Generate PDF</button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <Table dataSource={paymentHistory} columns={columns} scroll={{ x: true }} />
       ) : (
         <p>No payment history available.</p>
       )}
@@ -128,7 +149,7 @@ const PaymentHistory = () => {
           <button key="picture" onClick={() => handleDownload("picture")}>
             Generate Picture
           </button>,
-          <button key="pdf" onClick={() => handleDownload("pdf")}>
+          <button key="pdf" onClick={() =>handleDownload("pdf")}>
             Generate PDF
           </button>,
         ]}

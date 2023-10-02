@@ -56,7 +56,7 @@ function HomePage() {
               </div>
             </div>
           </div>
-
+<br/>
           <div className='body-2'>
             <div className='msg'>
               <img src={Bill} alt="billimage" className='bill-icon'></img>

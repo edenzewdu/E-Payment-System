@@ -96,79 +96,93 @@ const ServiceProviderRegistrationForm = () => {
   return (
     <Dashboard
       content={
-        <Form name="serviceProviderRegistrationForm" onFinish={handleSubmit}>
+        <Form name="serviceProviderRegistrationForm" 
+        layout="vertical"
+        onFinish={handleSubmit}>
           <h1>Service provider Registration</h1>
-
+  
           <Form.Item
             label="Business Identification Number"
+            name="serviceProviderBIN"
             validateStatus={errors.serviceProviderBIN && 'error'}
             help={errors.serviceProviderBIN}
+            rules={[{ required: true }]}
           >
-            <Input name="serviceProviderBIN" onChange={handleChange} />
+            <Input name="serviceProviderBIN" onChange={handleChange} placeholder="Enter BIN" />
           </Form.Item>
-
+  
           <Form.Item
             label="Service Provider Name"
+            name="serviceProviderName"
             validateStatus={errors.serviceProviderName && 'error'}
             help={errors.serviceProviderName}
+            rules={[{ required: true }]}
           >
-            <Input name="serviceProviderName" onChange={handleChange} />
+            <Input name="serviceProviderName" onChange={handleChange} placeholder="Enter Name" />
           </Form.Item>
-
+  
           <Form.Item
             label="Services Offered"
+            name="servicesOffered"
             validateStatus={errors.servicesOffered && 'error'}
             help={errors.servicesOffered}
+            rules={[{ required: true }]}
           >
-            <Input name="servicesOffered" onChange={handleChange} />
+            <Input name="servicesOffered" onChange={handleChange} placeholder="Enter Services Offered" />
           </Form.Item>
-
+  
           <Form.Item
             label="Bank Name"
+            name="BankName"
             validateStatus={errors.BankName && 'error'}
             help={errors.BankName}
+            rules={[{ required: true }]}
           >
-            <Input name="BankName" onChange={handleChange} />
+            <Input name="BankName" onChange={handleChange} placeholder="Enter Bank Name" />
           </Form.Item>
-
+  
           <Form.Item
             label="Bank Account Number"
-            validateStatus={errors.BankAccountNumber
-               && 'error'}
+            name="BankAccountNumber"
+            validateStatus={errors.BankAccountNumber && 'error'}
             help={errors.BankAccountNumber}
+            rules={[{ required: true }]}
           >
-            <Input name="BankAccountNumber" onChange={handleChange} />
+            <Input name="BankAccountNumber" onChange={handleChange} placeholder="Enter Bank Account Number" />
           </Form.Item>
-
+  
           <Form.Item
             label="Phone Number"
+            name="phoneNumber"
             validateStatus={errors.phoneNumber && 'error'}
             help={errors.phoneNumber}
+            rules={[{ required: true }]}
           >
-            <Input name="phoneNumber" onChange={handleChange} />
+            <Input name="phoneNumber" onChange={handleChange} placeholder="Enter Phone Number" />
           </Form.Item>
-
-          <Form.Item >
-          <label htmlFor="serviceProviderAuthorizationLetter">Authorization Letter:</label>
-              <input
-                type="file"
-                id="serviceProvider"
-                accept=".jpeg, .jpg, .png, .gif"
-                onChange={handleFileChange}
-              />
-              {serviceProviderAuthorizationLetterUrl && (
-                <img src={serviceProviderAuthorizationLetterUrl} alt="Auth Letter" style={{ width: '200px' }} />
-              )}
+  
+          <Form.Item>
+            <label htmlFor="serviceProviderAuthorizationLetter">Authorization Letter:</label>
+            <input
+              type="file"
+              id="serviceProvider"
+              accept=".jpeg, .jpg, .png, .gif"
+              onChange={handleFileChange}
+            />
+            {serviceProviderAuthorizationLetterUrl && (
+              <img src={serviceProviderAuthorizationLetterUrl} alt="Auth Letter" style={{ width: '200px' }} />
+            )}
           </Form.Item>
-
+  
           <Form.Item>
             <Button type="primary" htmlType="submit">
-            Register
-                </Button>
-              </Form.Item>
-            </Form>
-        } />
+              Register
+            </Button>
+          </Form.Item>
+        </Form>
+      }
+    />
   );
-};
+    };
 
 export default ServiceProviderRegistrationForm;

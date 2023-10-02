@@ -13,13 +13,14 @@ const { Sider } = Layout;
 
 
 const Header = () => {
+  const [userData, setUserData] = useState();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSmallScreen, setIsSmallScreen] = useState(false);
-  const [profilePictureUrl, setProfilePictureUrl] = useState(null);
-  const [isLoggedInUser, setIsLoggedInUser] = useState();
+  const [profilePictureUrl, setProfilePictureUrl] = useState();
+  const [isLoggedInUser, setIsLoggedInUser] = useState(localStorage.getItem('isLoggedInUser') || false);
   const navigate = useNavigate();
 
-  const [userData, setUserData] = useState({});
+
   const [form] = Form.useForm();
   const [editMode, setEditMode] = useState(false);
   const { UserId } = useParams();
@@ -37,23 +38,13 @@ const Header = () => {
   });
 
   useEffect(() => {
-    const userDataString = localStorage.getItem('userData');
-    const userData = JSON.parse(userDataString);
-    console.log(userData);
-
-    if (userData !== null) {
-      setIsLoggedInUser(localStorage.getItem('isLoggedInUser') || false);
-      setUserData(userData.user);
-      console.log(userData.user);
-      const pp = userData.user;
-      console.log(pp.ProfilePicture);
-
-      if (userData.user.ProfilePicture !== null) {
-        setProfilePictureUrl(`http://localhost:3001/${userData.user.ProfilePicture}`);
-      }
-
+    if (localStorage.getItem('isLoggedInUser')) {
       try {
-        setFormData(userData);
+        const parsedUserData = (JSON.parse(localStorage.getItem('userData')));
+        setFormData(parsedUserData);
+        setUserData(localStorage.getItem('userData'));
+        console.log(userData);
+        setProfilePictureUrl(`http://localhost:3000/${parsedUserData.ProfilePicture}`);
       } catch (error) {
         console.error('Error parsing user data:', error);
         message.error('Error parsing user data');
@@ -62,7 +53,7 @@ const Header = () => {
     }
     const handleResize = () => {
 
-      setIsSmallScreen(window.innerWidth <= 768);
+      setIsSmallScreen(window.innerWidth <= 800);
     };
 
 
@@ -148,7 +139,7 @@ const Header = () => {
           console.log(abcd);
           // Update the user data in local storage and state
           const updatedUser = response.data;
-          localStorage.setItem('adminData', JSON.stringify(updatedUser.user));
+          localStorage.setItem('userData', JSON.stringify(updatedUser));
           setUserData(updatedUser);
           console.log(formData);
           console.log(formData.ProfilePicture);
@@ -177,6 +168,7 @@ const Header = () => {
       onOk: async () => {
         // Clear local storage and navigate to the login page
         localStorage.removeItem('userData');
+        localStorage.removeItem('isLoggedInUser')
         setUserData(null);
         navigate('/login');
       },
@@ -200,16 +192,21 @@ const Header = () => {
             {isLoggedInUser ? (
               <div className='ppp' >
                 <div className='profile-picture' onClick={() => handleEdit(userData)}>
-                  {(profilePictureUrl != null) ? (
-                    <img src={profilePictureUrl} alt="Profile" className="logo-image" onClick={() => handleEdit(userData)} />
+                  {profilePictureUrl !== 'http://localhost:3000/null' ? (
+                    <img src={profilePictureUrl} alt="Profile" className="logo-image" onClick={() => handleEdit(userData)} style={{
+                      width: '50px',
+                      height: '50px',
+                      borderRadius: '50%',
+                      marginRight: '10px',
+                    }} />
                   ) : (
                     <div style={{ width: '45px', height: '45px', margin: '17px', marginRight: '10px', borderRadius: '50%', backgroundImage: 'linear-gradient(to right, rgb(95, 174, 230), rgb(3, 55, 100))', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                       <span style={{ fontSize: '24px', color: 'white', justifyContent: 'center' }}>
-                        {localStorage.userData && JSON.parse(localStorage.userData).user && JSON.parse(localStorage.userData).user.FirstName ? (JSON.parse(localStorage.userData).user.FirstName.charAt(0)) : (null)}
+                        {localStorage.userData && JSON.parse(localStorage.userData) && JSON.parse(localStorage.userData).FirstName ? (JSON.parse(localStorage.userData).FirstName.charAt(0)) : (null)}
                       </span>
                     </div>
                   )}
-                  <div style={{ fontSize: '17px', fontStyle: 'italic', fontWeight: 'bold', justifyContent: 'center', marginTop: '30px', marginRight: '10px' }}>{JSON.parse(localStorage.userData).user && JSON.parse(localStorage.userData).user.FirstName}</div>
+                  <div style={{ fontSize: '17px', fontStyle: 'italic', fontWeight: 'bold', justifyContent: 'center', marginTop: '30px', marginRight: '10px' }}>{JSON.parse(localStorage.userData) && JSON.parse(localStorage.userData).FirstName}</div>
                 </div>
                 <div className='login-box' style={{ justifyContent: 'right' }}>
                   <LogoutOutlined className='login' />
@@ -271,75 +268,75 @@ const Header = () => {
               </div>) : (
               <div className='login-section'>
                 <div className='login-box' style={{
-                  textAlign: 'right'
+                  textAlign: 'right', width: '110PX'
                 }}>
-                  <img src={USER} alt='login-icon' className='login-icon'></img>
+                  <img src={USER} alt='login-icon' className='login-icon' style={{ width: '20PX' }}></img>
                   <Link to="/login" className='login'>Login</Link>
                 </div>
               </div>)}
           </div>
           <div className='logo-menu'>
-          {isSmallScreen ? (
-            <div className='nav' style={{minWidth:'100px'}}>
-              <MenuOutlined  style={{fontSize:'40px', position:'relative'}} onClick={toggleMenu}/>
-              {isMenuOpen && (
-              <Sider
-                theme="light"
-                trigger={null}
-                collapsible
-                collapsed={isSmallScreen && !isMenuOpen}
-                breakpoint="lg"
-                collapsedWidth="0"
-                className='sider'
-                onBreakpoint={(broken) => {
-                  setIsSmallScreen(broken);
-                }} >
-                  
-                <Menu theme="light" mode="vertical" className='sider' >
-                  {/* Sidebar menu items */}
-                  <Menu.Item key="1" className='nav-item'>
-                    <Link to="/users">Home</Link>
-                  </Menu.Item>
-                  <Menu.Item key="2" className='nav-item'>
-                    <Link to="/aboutUs">About Us</Link>
-                  </Menu.Item>
-                  <Menu.Item key="3" className='nav-item'>
-                    <Link to="/contactUs">Contact Us</Link>
-                  </Menu.Item>
-                  {isLoggedInUser && (
+            {isSmallScreen ? (
+              <div className='nav' style={{ minWidth: '100px' }}>
+                <MenuOutlined style={{ fontSize: '40px', position: 'relative' }} onClick={toggleMenu} />
+                {isMenuOpen && (
+                  <Sider
+                    theme="light"
+                    trigger={null}
+                    collapsible
+                    collapsed={isSmallScreen && !isMenuOpen}
+                    breakpoint="lg"
+                    collapsedWidth="0"
+                    className='sider'
+                    onBreakpoint={(broken) => {
+                      setIsSmallScreen(broken);
+                    }} >
+
+                    <Menu theme="light" mode="vertical" className='sider' >
+                      {/* Sidebar menu items */}
+                      <Menu.Item key="1" className='nav-item'>
+                        <Link to="/users">Home</Link>
+                      </Menu.Item>
+                      <Menu.Item key="2" className='nav-item'>
+                        <Link to="/aboutUs">About Us</Link>
+                      </Menu.Item>
+                      <Menu.Item key="3" className='nav-item'>
+                        <Link to="/contactUs">Contact Us</Link>
+                      </Menu.Item>
+                      {isLoggedInUser && (
+                        <>
+                          <Menu.Item key="4" className='nav-item'>
+                            <Link to="/serviceProviders">Payment</Link>
+                          </Menu.Item>
+                          <Menu.Item key="5" className='nav-item'>
+                            <Link to="/history">History</Link>
+                          </Menu.Item>
+                        </>
+                      )}
+                    </Menu>
+                  </Sider>)}</div>) : (
+              <div className="menu">
+                <div className='nav' >
+                  <Link to="/users" className="nav-item">Home</Link>
+                  <Link to="/contactUs" className='nav-item'>Contact Us</Link>
+                  <Link to="/aboutUs" className='nav-item'>About Us</Link>
+                  {isLoggedInUser ? (
                     <>
-                      <Menu.Item key="4" className='nav-item'>
-                        <Link to="/serviceProviders">Payment</Link>
-                      </Menu.Item>
-                      <Menu.Item key="5" className='nav-item'>
-                        <Link to="/history">History</Link>
-                      </Menu.Item>
+                      <Link to="/serviceProviders" className='nav-item'>Payment</Link>
+                      <Link to="/history" className='nav-item'>History</Link>
                     </>
-                  )}
-                </Menu>
-              </Sider>)}</div>) : (
-            <div className="menu">
-              <div className='nav' >
-                <Link to="/users" className="nav-item">Home</Link>
-                <Link to="/contactUs" className='nav-item'>Contact Us</Link>
-                <Link to="/aboutUs" className='nav-item'>About Us</Link>
-                {isLoggedInUser ? (
-                  <>
-                    <Link to="/serviceProviders" className='nav-item'>Payment</Link>
-                    <Link to="/history" className='nav-item'>History</Link>
-                  </>
-                ) : null}
+                  ) : null}
+                </div>
+              </div>
+            )}
+
+            <div className='logo'>
+              <img src={companyLogo} alt='company logo' />
+              <div className='company-name'>
+                E-payment-system
+                <div className='slogan'>your trusted online payment system</div>
               </div>
             </div>
-          )}
-
-          <div className='logo'>
-            <img src={companyLogo} alt='company logo' />
-            <div className='company-name'>
-              E-payment-system
-              <div className='slogan'>your trusted online payment system</div>
-            </div>
-          </div>
           </div>
         </div>
       </div>

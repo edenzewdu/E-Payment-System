@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Form, Button, Input, message } from 'antd';
+import { Form, Button, Input, message, Layout } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
@@ -42,8 +42,9 @@ const UserLogin = () => {
       if (response.status === 200) {
         setIsLoggedInUser(true);
         localStorage.setItem('isLoggedInUser', true);
-        localStorage.setItem('userData', JSON.stringify(response.data));
+        localStorage.setItem('userData', JSON.stringify(response.data.user));
         console.log('User logged in successfully');
+        message.success('User logged in successfully')
         // Perform navigation to the service providers
         navigate('/users');
       } else if (response.status === 400) {
@@ -63,24 +64,24 @@ const UserLogin = () => {
 
 
   return (
-    <div className="container">
-      <div className="header">
-        <div className="logo">
-          <img src={companyLogo} alt="company logo" />
+    <Layout>
+      <div style={{ alignItems: 'center', marginTop: '25px', width: '80%', position: 'relative' }}>
+        <div style={{ display: 'flex', alignItems: 'center', height: 'fit-content', width: '60%', margin: '2%', position: 'absolute' }}>
+          <img src={companyLogo} alt="company-logo" style={{ width: '50px', height: '50px', borderRadius: '50%' }} />
           <div className="company-name">
             E-payment-system
             <div className="slogan">your trusted online payment system</div>
           </div>
-
         </div>
-      
-      <div className="menu" style={{ marginLeft: 'auto', padding:'50px' }}>
-        <div className="nav">
-          <Link to="/users" className="nav-item">HomePage</Link>
+        <div style={{ marginLeft: 'auto', padding: '50px' }}>
+          <div style={{ paddingLeft: '90%' }} >
+            <Link to="/users" className="nav-item">
+              HomePage
+            </Link>
+          </div>
         </div>
       </div>
-      </div>
-      <div className="body">
+      <div className='body' style={{padding: '0 ', height: '70vh', display: 'inline-flex', justifyContent: 'center', alignItems: 'center', backgroundColor: 'white'}}>
 
 
 
@@ -156,7 +157,7 @@ const UserLogin = () => {
           <div className="g_id_signin"></div>
         </Form>
       </div>
-    </div>
+    </Layout>
   );
 };
 

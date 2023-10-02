@@ -109,49 +109,63 @@ const AgentRegistrationForm = () => {
 
   return (
     <Dashboard content={
-      <Form name="serviceProviderRegistrationForm" onFinish={handleSubmit}>
+      <Layout.Content className="agent-registration-content">
+      <Form name="serviceProviderRegistrationForm" 
+      form={form}
+      layout="vertical"
+    >
 
 
         <h1>Agent Registration</h1>
 
         <Form.Item
             label="Business Identification Number"
+            name="agentBIN"
             validateStatus={errors.agentBIN && 'error'}
             help={errors.agentBIN}
+            rules={[{ required: true }]}
           >
-            <Input name="agentBIN" onChange={handleChange} />
+            <Input name="agentBIN" onChange={handleChange} placeholder="Enter the agent business Identification Number" />
           </Form.Item>
 
           <Form.Item
             label="Agent Name"
+            name="agentName"
             validateStatus={errors.agentName && 'error'}
             help={errors.agentName}
+            rules={[{ required: true }]}
           >
-            <Input name="agentName" onChange={handleChange} />
+            <Input name="agentName" onChange={handleChange} placeholder="Enter Agent's Name"/>
           </Form.Item>
 
           <Form.Item
             label="Agent Email"
+            name="agentEmail"
             validateStatus={errors.agentEmail && 'error'}
             help={errors.agentEmail}
+            rules={[{ required: true }]}
           >
-            <Input name="agentEmail" onChange={handleChange} />
+            <Input name="agentEmail" onChange={handleChange} placeholder="Enter Agent's Email address"/>
           </Form.Item>
 
         <Form.Item
             label="Services Offered"
+            name="servicesOffered"
             validateStatus={errors.servicesOffered && 'error'}
             help={errors.servicesOffered}
+            rules={[{ required: true }]}
           >
-            <Input name="servicesOffered" onChange={handleChange} />
+            <Input name="servicesOffered" onChange={handleChange} placeholder="List the services that this Agent would give" />
           </Form.Item>
 
         <Form.Item
             label="Phone Number"
+            name="phoneNumber"
             validateStatus={errors.phoneNumber && 'error'}
             help={errors.phoneNumber}
+            rules={[{ required: true }]}
           >
-            <Input name="phoneNumber" onChange={handleChange} />
+            <Input name="phoneNumber" onChange={handleChange} placeholder="Enter Agent's Phonenumber"/>
           </Form.Item>
 
 
@@ -163,6 +177,7 @@ const AgentRegistrationForm = () => {
             id="agentAuthorizationLetter"
             accept=".jpeg, .jpg, .png, .gif"
             onChange={handleFileChange}
+            rules={[{ required: true }]}
           />
           {agentAuthorizationLetterUrl && (
             <img src={agentAuthorizationLetterUrl} alt="Auth Letter" style={{ width: '200px' }} />
@@ -173,6 +188,7 @@ const AgentRegistrationForm = () => {
           <Button type="primary" htmlType="submit">Register</Button>
         </Form.Item>
       </Form>
+      </Layout.Content>
     } />
   );
 };

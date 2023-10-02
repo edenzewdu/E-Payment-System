@@ -3,6 +3,7 @@ import { Form, Button, message } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import companyLogo from '../../image/logoimage.jpg';
 
 const AdminLogin = () => {
   const [Identifier, setIdentifier] = useState('');
@@ -37,7 +38,7 @@ const AdminLogin = () => {
       if (response.ok) {
         if (data && data.token) {
           localStorage.setItem('adminToken', data.token);
-          localStorage.setItem('adminData', JSON.stringify(data.user)); // Store adminData as JSON
+          localStorage.setItem('adminData', JSON.stringify(data)); // Store adminData as JSON
           setIsLoggedIn(true);
           console.log('Admin logged in successfully');
           console.log(`${data.token},${data.user.id}`);
@@ -73,9 +74,18 @@ const AdminLogin = () => {
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor:'#435165'
+        backgroundColor:'#435165',
       }}
     >
+
+<div className='logo' style={{ position: 'absolute', top: '16px', left: '16px' }}>
+    <img src={companyLogo} alt='company logo' />
+    <div className='company-name'>
+      E-payment-system
+      <div className='slogan'>your trusted online payment system</div>
+    </div>
+  </div>
+
       <div
         className="login"
         style={{
@@ -97,7 +107,11 @@ const AdminLogin = () => {
         >
           Login
         </h1>
-        <Form className="form" onFinish={handleSubmit}>
+        <Form style={{
+  display: 'flex',
+  flexWrap: 'wrap',
+  justifyContent: 'center',
+  paddingTop: '20px'}}className="form" onFinish={handleSubmit}>
           <label
             htmlFor="identifier"
             style={{
@@ -110,7 +124,7 @@ const AdminLogin = () => {
               color: '#ffffff',
             }}
           >
-            <UserOutlined className="icon" />
+            <UserOutlined className="icon" style={{color:'white'}} />
           </label>
           <input
             type="text"
@@ -140,7 +154,7 @@ const AdminLogin = () => {
               color: '#ffffff',
             }}
           >
-            <LockOutlined className="icon" />
+            <LockOutlined className="icon" style={{color:'white'}}/>
           </label>
           <input
             type="password"
@@ -166,13 +180,11 @@ const AdminLogin = () => {
             disabled={loading}
             style={{
               width: '100%',
-              padding: '15px',
               marginTop: '20px',
               backgroundColor: '#3274d6',
               border: '0',
               cursor: 'pointer',
               fontWeight: 'bold',
-              color: '#ffffff',
               transition: 'background-color 0.2s',
               height: '50px',
             }}

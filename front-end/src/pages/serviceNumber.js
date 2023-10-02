@@ -7,6 +7,37 @@ import companyLogo from '../image/logoimage.jpg';
 import Header from './Header';
 
 const ServiceNumber = () => {
+  const bodyStyles = {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: '100vh',
+    width: '100%',
+    padding: '0',
+    margin:'0',
+    position: 'relative',
+    overflowY: 'auto',
+  };
+
+ 
+  const formContainerStyles = {
+    maxWidth: '550px',
+    padding: '30px 80px',
+    border: '1px solid #ccc',
+    borderRadius: '4px',
+    backgroundColor: '#e5e4e0',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: '15px',
+    position: 'fixed',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    height: '400px',
+    marginTop:'115px'
+  };
+
   const [serviceNumber, setServiceNumber] = useState('');
   const [serviceProviderBIN, setServiceProviderBIN] = useState(localStorage.getItem('serviceProviderBIN'));
   const [bill, setBill] = useState(null);
@@ -21,9 +52,7 @@ const ServiceNumber = () => {
       try {
         // Retrieve user data from localStorage or API
         const userData = localStorage.getItem('userData');
-        const parsedUserData = JSON.parse(userData);
-        const user = parsedUserData?.user || {};
-        setUser(user);
+        setUser(userData);
         console.log(user);
 
         // Fetch the user data including service providers
@@ -84,9 +113,9 @@ return (
         <p>P</p>
       </div>
       
-        <div className='bodyy'>
-          <div className='form-container'>
-            <form onSubmit={handleSubmit}>
+        <div className="bodyy" style={bodyStyles}>
+      <div className="form-container" style={formContainerStyles}>
+         <form onSubmit={handleSubmit}>
             <div className='title'>Payment Page
             <div
               className="title-line"

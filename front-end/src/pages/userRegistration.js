@@ -5,7 +5,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import companyLogo from '../image/logoimage.jpg';
 import { Link, useNavigate } from 'react-router-dom';
 
-import { Select, message } from 'antd';
+import { Layout, Select, message } from 'antd';
 
 
 
@@ -214,24 +214,24 @@ const RegistrationForm = () => {
     }));
   };
   return (
-    <div className="container">
-      <div className="header">
-        <div className="logo">
-          <img src={companyLogo} alt="company logo" />
+    <Layout  >
+      <div style={{ alignItems: 'center', marginTop: '25px', width: '80%', position: 'relative' }}>
+        <div style={{ display: 'flex', alignItems: 'center', height: 'fit-content', width: '60%', margin: '2%', position: 'absolute' }}>
+          <img src={companyLogo} alt="company-logo" style={{ width: '50px', height: '50px', borderRadius: '50%' }} />
           <div className="company-name">
             E-payment-system
             <div className="slogan">your trusted online payment system</div>
           </div>
-
         </div>
-      
-      <div className="menu" style={{ marginLeft: 'auto', padding:'50px' }}>
-        <div className="nav">
-          <Link to="/users" className="nav-item">HomePage</Link>
+        <div style={{ marginLeft: 'auto', padding: '50px' }}>
+          <div style={{ paddingLeft: '90%' }} >
+            <Link to="/users" className="nav-item">
+              HomePage
+            </Link>
+          </div>
         </div>
       </div>
-      </div>
-      <div className="user-body" style={{ marginTop: '33px' }}>
+      <div className="user-body" >
         <ToastContainer />
 
         <form onSubmit={handleSubmit}>
@@ -377,7 +377,7 @@ const RegistrationForm = () => {
         </form>
 
       </div>
-    </div>
+    </Layout>
   );
 };
 export default RegistrationForm;

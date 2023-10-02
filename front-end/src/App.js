@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import AdminLogin from './pages/Admin/AdminLogin';
 import AgentsList from './pages/Admin/AgentsList';
 import ServiceProvidersList from './pages/Admin/ServiceList';
-import UsersList from './pages/Admin/AdminsList';
+import UsersList from './pages/Admin/UsersList';
 import ServiceProviderRegistrationForm from './pages/Admin/ServiceProvidersRegistration';
 import AdminRegistrationForm from './pages/Admin/AdminRegistration';
 import AgentRegistrationForm from './pages/Admin/AgentRegistration';
