@@ -4,15 +4,23 @@ import jsPDF from "jspdf";
 import { Modal, Table } from "antd";
 import "./payment.css";
 import Header from "./Header.js";
+import { useNavigate } from "react-router-dom";
+
 
 const PaymentHistory = () => {
+  const [userData, setUserData] = useState(JSON.parse(localStorage.getItem("userData")));
   const [paymentHistory, setPaymentHistory] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedPayment, setSelectedPayment] = useState(null);
-
+  const navigate = useNavigate();
   useEffect(() => {
+    if (!userData) {
+      navigate("/users"); // Replace "/user" with the desired URL for the user page
+      return;
+    }
     // Fetch payment history from local storage
-    const storedPaymentHistory = JSON.parse(localStorage.getItem("paymentHistorys")) || [];
+    console.log(userData.Payments);
+    const storedPaymentHistory = userData.Payments;
     setPaymentHistory(storedPaymentHistory);
   }, []);
 

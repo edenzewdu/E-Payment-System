@@ -1,31 +1,27 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import companyLogo from '../../image/logoimage.jpg';
-import { Layout, Menu, Button, Form, Input, Upload, Modal, message, Breadcrumb } from 'antd';
+import { Layout, Menu, Button, Form, Input, Upload, Modal, message } from 'antd';
 import {
   UserOutlined,
   BankOutlined,
   SolutionOutlined,
   TransactionOutlined,
   LogoutOutlined,
-  UploadOutlined,
   HomeOutlined,
   AppstoreOutlined
 } from '@ant-design/icons';
 import { Link, useNavigate, useParams } from 'react-router-dom';
+import AdminActivityPage from './AdminActivityPage';
 
 const { Header, Content, Footer, Sider } = Layout;
 
 const Dashboard = ({ content }) => {
 
-  const navigate = useNavigate();
-  if (!(localStorage.getItem('adminData'))) {
-    navigate('/admin/login');
-  }
   const [adminData, setAdminData] = useState(JSON.parse(localStorage.getItem('adminData')));
   const [form] = Form.useForm();
   const [editMode, setEditMode] = useState(false);
-  const [profilePictureUrl, setProfilePictureUrl] = useState(`http://localhost:3000/${adminData.ProfilePicture}`);
+  const [profilePictureUrl, setProfilePictureUrl] = useState(`http://localhost:3000/${adminData.user.ProfilePicture}`);
   const [admin, setAdmin] = useState(null);
   const [isSiderCollapsed, setIsSiderCollapsed] = useState(true);
   const { adminId } = useParams();
@@ -42,19 +38,26 @@ const Dashboard = ({ content }) => {
     ProfilePicture: null,
   });
   const [selectedMenu, setSelectedMenu] = useState(localStorage.getItem("selectedMenu") || "1");
+  const navigate = useNavigate();
+
 
   const handleMenuSelect = ({ key }) => {
     setSelectedMenu([key]);
   };
 
   useEffect(() => {
+
+    if (!adminData) {
+      navigate('/admin/login');
+    }
     localStorage.setItem("selectedMenu", selectedMenu);
     const loggedInAdmin = localStorage.getItem('adminData');
     if (loggedInAdmin) {
       try {
         const parsedAdminData = JSON.parse(loggedInAdmin);
-        setFormData(parsedAdminData);
+        setFormData(parsedAdminData.user);
         setAdminData(parsedAdminData);
+        console.log(formData);
       } catch (error) {
         console.error('Error parsing admin data:', error);
         message.error('Error parsing admin data');
@@ -158,11 +161,22 @@ const Dashboard = ({ content }) => {
   };
 
   const handleLogout = () => {
-    // Clear local storage and navigate to the login page
-    localStorage.removeItem('adminToken');
-    localStorage.removeItem('adminData');
-    setAdminData(null);
-    navigate('/admin/login');
+    setEditMode(false);
+    Modal.confirm({
+      title: 'Confirm Logout',
+      content: 'Are you sure you want to Logout ?',
+      okText: 'LOGOUT',
+      okType: 'danger',
+      cancelText: 'Cancel',
+      onOk: async () => {
+
+        // Clear local storage and navigate to the login page
+        localStorage.removeItem('adminToken');
+        localStorage.removeItem('adminData');
+        setAdminData(null);
+        navigate('/admin/login');
+      },
+    });
   };
 
   return (
@@ -177,243 +191,243 @@ const Dashboard = ({ content }) => {
         }}
       >
         {isSiderCollapsed ? (
-                <div className='logo' style={{ position: 'relative', width: '100%' }} >
-                  <img src={companyLogo} alt='company logo' />
-                  <div className='company-name'style={{ marginTop:'10%' }} >
-                    E-pay...
-                    <div className="slogan-container" >
-                      <div className="slogan" style={{ '--delay': '0s' }}>
-                        your
-                      </div>
-                      <div className="slogan" style={{ '--delay': '0.2s' }}>
-                        trusted
-                      </div>
-                      <div className="slogan" style={{ '--delay': '0.4s' }}>
-                        online
-                      </div>
-                      <div className="slogan" style={{ '--delay': '0.6s' }}>
-                        payment
-                      </div>
-                      <div className="slogan" style={{ '--delay': '0.8s' }}>
-                        system
-                      </div>
-                    </div>
-                  </div>
+          <div className='logo' style={{ position: 'relative', width: '100%' }} >
+            <img src={companyLogo} alt='company logo' />
+            <div className='company-name' style={{ marginTop: '10%' }} >
+              E-pay...
+              <div className="slogan-container" >
+                <div className="slogan" style={{ '--delay': '0s' }}>
+                  your
                 </div>
-              ) : (
-              <div className='logo' style={{ position: 'relative', top: '8px', left: '10px', width: '100%' }} >
-                <img src={companyLogo} alt='company logo' />
-                <div className='company-name'>
-                  E-payment-system
-                  <div className='slogan'>your trusted online payment system</div>
+                <div className="slogan" style={{ '--delay': '0.2s' }}>
+                  trusted
+                </div>
+                <div className="slogan" style={{ '--delay': '0.4s' }}>
+                  online
+                </div>
+                <div className="slogan" style={{ '--delay': '0.6s' }}>
+                  payment
+                </div>
+                <div className="slogan" style={{ '--delay': '0.8s' }}>
+                  system
                 </div>
               </div>
+            </div>
+          </div>
+        ) : (
+          <div className='logo' style={{ position: 'relative', top: '8px', left: '10px', width: '100%' }} >
+            <img src={companyLogo} alt='company logo' />
+            <div className='company-name'>
+              E-payment-system
+              <div className='slogan'>your trusted online payment system</div>
+            </div>
+          </div>
         )}
 
-              <Menu
-                theme="dark"
-                defaultSelectedKeys={['1']}
-                mode="inline"
-                selectedKeys={[selectedMenu]}
-                onSelect={handleMenuSelect}
-                style={{
-                  backgroundColor: '#333333',
+        <Menu
+          theme="dark"
+          defaultSelectedKeys={['1']}
+          mode="inline"
+          selectedKeys={[selectedMenu]}
+          onSelect={handleMenuSelect}
+          style={{
+            backgroundColor: '#333333',
 
-                }}
+          }}
+        >
+
+          <Menu.SubMenu
+            key="submenu"
+            icon={<HomeOutlined />}
+            title="E-Payment System"
+            style={{ marginTop: '40px', minWidth: '190px', width: isSiderCollapsed ? '190px' : '350px', }}
+          >
+            <Menu.Item key="2" icon={<BankOutlined />}>
+              <Link
+                to={`/admin/agents/registration/${formData.id}`}
+                style={{ color: '#ffffff' }}
               >
-
-                <Menu.SubMenu
-                  key="submenu"
-                  icon={<HomeOutlined />}
-                  title="E-Payment System"
-                  style={{ marginTop: '40px', minWidth: '190px', width: isSiderCollapsed ? '190px' : '350px', }}
-                >
-                  <Menu.Item key="2" icon={<BankOutlined />}>
-                    <Link
-                      to={`/admin/agents/registration/${formData.id}`}
-                      style={{ color: '#ffffff' }}
-                    >
-                      Agents Registration
-                    </Link>
-                  </Menu.Item>
-                  <Menu.Item key="3" icon={<BankOutlined />}>
-                    <Link
-                      to={`/admin/agents/${formData.id}`}
-                      style={{ color: '#ffffff' }}
-                    >
-                      Agents List
-                    </Link>
-                  </Menu.Item>
-                  <Menu.Item key="4" icon={<SolutionOutlined />}>
-                    <Link
-                      to={`/admin/service-providers/registration/${formData.id}`}
-                      style={{ color: '#ffffff' }}
-                    >
-                      Service Providers Registration
-                    </Link>
-                  </Menu.Item>
-                  <Menu.Item key="5" icon={<SolutionOutlined />}>
-                    <Link
-                      to={`/admin/service-providers/${formData.id}`}
-                      style={{ color: '#ffffff' }}
-                    >
-                      Service Providers List
-                    </Link>
-                  </Menu.Item>
-                  <Menu.Item key="6" icon={<UserOutlined />}>
-                    <Link
-                      to={`/admin/user/registration/${formData.id}`}
-                      style={{ color: '#ffffff' }}
-                    >
-                      Admin Registration
-                    </Link>
-                  </Menu.Item>
-                  <Menu.Item key="7" icon={<UserOutlined />}>
-                    <Link
-                      to={`/admin/adminsList/${formData.id}`}
-                      style={{ color: '#ffffff' }}
-                    >
-                      Admin List
-                    </Link>
-                  </Menu.Item>
-                  <Menu.Item key="8" icon={<UserOutlined />}>
-                    <Link
-                      to={`/admin/usersList/${formData.id}`}
-                      style={{ color: '#ffffff' }}
-                    >
-                      Users List
-                    </Link>
-                  </Menu.Item>
-                  <Menu.Item key="9" icon={<TransactionOutlined />}>
-                    <Link
-                      to={`/admin/transactions/${formData.id}`}
-                      style={{ color: '#ffffff' }}
-                    >
-                      Transactions
-                    </Link>
-                  </Menu.Item>
-                  <Menu.Item key="10" icon={<AppstoreOutlined />}>
-                    <Link
-                      to={`/admin/activities/${formData.id}`}
-                      style={{ color: '#ffffff' }}
-                    >
-                      Activities
-                    </Link>
-                  </Menu.Item>
-
-
-                </Menu.SubMenu>
-              </Menu>
-            </Sider>
-            <Layout>
-              <Header
-                className="site-layout-background"
-                style={{ padding: 0, display: 'flex', justifyContent: 'space-between' }}
+                Agents Registration
+              </Link>
+            </Menu.Item>
+            <Menu.Item key="3" icon={<BankOutlined />}>
+              <Link
+                to={`/admin/agents/${formData.id}`}
+                style={{ color: '#ffffff' }}
               >
-                <div className="user-profile" style={{ display: 'flex', alignItems: 'center' }}>
-                  <Link type="primary" onClick={() => handleEdit(adminData)}>
-                  <div className="profile-picture" style={{ display: 'flex', alignItems: 'center' }}>
-  {profilePictureUrl !== 'http://localhost:3000/null' ? (
-    <img
-      src={profilePictureUrl}
-      alt="Profile"
-      className="logo-image"
-      style={{
-        width: '50px',
-        height: '50px',
-        borderRadius: '50%',
-        marginRight: '10px',
-      }}
-    />
-  ) : (
-    <div
-      style={{
-        width: '45px',
-        height: '45px',
-        margin: '17px',
-        marginRight: '10px',
-        borderRadius: '50%',
-        backgroundImage: 'linear-gradient(to right, rgb(95, 174, 230), rgb(3, 55, 100))',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-      }}
-    >
-      <span style={{ fontSize: '24px', color: 'white', justifyContent: 'center' }}>
-        {JSON.parse(localStorage.adminData) && JSON.parse(localStorage.adminData).FirstName ? JSON.parse(localStorage.adminData).FirstName.charAt(0) : null}
-      </span>
-    </div>
-  )}
-  <span className="user-name">{formData.FirstName} {formData.LastName}</span>
-</div>
-                  </Link>
-                </div>
-                <Link to="/admin/login" onClick={handleLogout} style={{ paddingRight: 20 }}>
-                  <LogoutOutlined />
-                  Logout
-                </Link>
-              </Header>
-              <Content style={{ padding: '10px ' }}>
-                {content}
-              </Content>
-              <Modal
-                title={editMode ? 'Edit Admin' : 'Create Admin'}
-                visible={editMode}
-                onCancel={() => {
-                  setEditMode(false);
-                  form.resetFields();
-                }}
-                onOk={handleSave}
+                Agents List
+              </Link>
+            </Menu.Item>
+            <Menu.Item key="4" icon={<SolutionOutlined />}>
+              <Link
+                to={`/admin/service-providers/registration/${formData.id}`}
+                style={{ color: '#ffffff' }}
               >
-                <Form form={form} onSubmit={handleSave} initialValues={admin}>
-                  <Form.Item name="UserID" label="UserID" >
-                    <Input onChange={handleFormChange} name="UserID" disabled />
-                  </Form.Item>
-                  <Form.Item name="FirstName" label="First Name" >
-                    <Input onChange={handleFormChange} name="FirstName" />
-                  </Form.Item>
-                  <Form.Item name="LastName" label="Last Name" >
-                    <Input onChange={handleFormChange} name="LastName" />
-                  </Form.Item>
-                  <Form.Item name="Gender" label="Gender">
-                    <Input onChange={handleFormChange} name="Gender" />
-                  </Form.Item>
-                  <Form.Item name="UserName" label="User Name" >
-                    <Input onChange={handleFormChange} name="UserName" />
-                  </Form.Item>
-                  <Form.Item name="Email" label="Email" >
-                    <Input type="email" onChange={handleFormChange} name="Email" />
-                  </Form.Item>
-                  <Form.Item name="PhoneNumber" label="Phone Number" >
-                    <Input type="tel" onChange={handleFormChange} name="PhoneNumber" />
-                  </Form.Item>
-                  <Form.Item name="Address" label="Address" onChange={handleFormChange}>
-                    <Input onChange={handleFormChange} name="Address" />
-                  </Form.Item>
-                  <Form.Item name="ProfilePicture" >
-                    <label htmlFor="profilePicture">Profile Picture:</label>
-                    <input
-                      type="file"
-                      id="profilePicture"
-                      accept=".jpeg, .jpg, .png, .gif"
-                      onChange={handleProfilePictureChange}
-                    />
-                    {profilePictureUrl && (
-                      <img src={profilePictureUrl} alt="Profile" style={{ width: '200px' }} />
-                    )}
-                  </Form.Item>
-                  <Button type="primary" onClick={handleSave}>
-                    Save
-                  </Button>
-                </Form>
-              </Modal>
+                Service Providers Registration
+              </Link>
+            </Menu.Item>
+            <Menu.Item key="5" icon={<SolutionOutlined />}>
+              <Link
+                to={`/admin/service-providers/${formData.id}`}
+                style={{ color: '#ffffff' }}
+              >
+                Service Providers List
+              </Link>
+            </Menu.Item>
+            <Menu.Item key="6" icon={<UserOutlined />}>
+              <Link
+                to={`/admin/user/registration/${formData.id}`}
+                style={{ color: '#ffffff' }}
+              >
+                Admin Registration
+              </Link>
+            </Menu.Item>
+            <Menu.Item key="7" icon={<UserOutlined />}>
+              <Link
+                to={`/admin/adminsList/${formData.id}`}
+                style={{ color: '#ffffff' }}
+              >
+                Admin List
+              </Link>
+            </Menu.Item>
+            <Menu.Item key="8" icon={<UserOutlined />}>
+              <Link
+                to={`/admin/usersList/${formData.id}`}
+                style={{ color: '#ffffff' }}
+              >
+                Users List
+              </Link>
+            </Menu.Item>
+            <Menu.Item key="9" icon={<TransactionOutlined />}>
+              <Link
+                to={`/admin/transactions/${formData.id}`}
+                style={{ color: '#ffffff' }}
+              >
+                Transactions
+              </Link>
+            </Menu.Item>
+            <Menu.Item key="10" icon={<AppstoreOutlined />}>
+              <Link
+                to={`/admin/activities/${formData.id}`}
+                style={{ color: '#ffffff' }}
+              >
+                Activities
+              </Link>
+              </Menu.Item>
 
-              <Footer style={{ textAlign: 'center' }}>
-                E-Payment System ©{new Date().getFullYear()} Created by INSA
-              </Footer>
-            </Layout >
-          </Layout >
-        );
+
+          </Menu.SubMenu>
+        </Menu>
+      </Sider>
+      <Layout>
+        <Header
+          className="site-layout-background"
+          style={{ padding: 0, display: 'flex', justifyContent: 'space-between' }}
+        >
+          <div className="user-profile" style={{ display: 'flex', alignItems: 'center' }}>
+            <Link type="primary" onClick={() => handleEdit(adminData)}>
+              <div className="profile-picture" style={{ display: 'flex', alignItems: 'center' }}>
+                {profilePictureUrl !== 'http://localhost:3000/null' ? (
+                  <img
+                    src={profilePictureUrl}
+                    alt="Profile"
+                    className="logo-image"
+                    style={{
+                      width: '50px',
+                      height: '50px',
+                      borderRadius: '50%',
+                      marginRight: '10px',
+                    }}
+                  />
+                ) : (
+                  <div
+                    style={{
+                      width: '45px',
+                      height: '45px',
+                      margin: '17px',
+                      marginRight: '10px',
+                      borderRadius: '50%',
+                      backgroundImage: 'linear-gradient(to right, rgb(95, 174, 230), rgb(3, 55, 100))',
+                      display: 'flex',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                    }}
+                  >
+                    <span style={{ fontSize: '24px', color: 'white', justifyContent: 'center' }}>
+                      {JSON.parse(localStorage.adminData) && JSON.parse(localStorage.adminData).user.FirstName ? JSON.parse(localStorage.adminData).user.FirstName.charAt(0) : null}
+                    </span>
+                  </div>
+                )}
+                <span className="user-name">{formData.FirstName} {formData.LastName}</span>
+              </div>
+            </Link>
+          </div>
+          <Link onClick={handleLogout} style={{ paddingRight: 20 }}>
+            <LogoutOutlined />
+            Logout
+          </Link>
+        </Header>
+        <Content style={{ padding: '10px ' }}>
+          {content}
+        </Content>
+        <Modal
+          title={editMode ? 'Edit Admin' : 'Create Admin'}
+          visible={editMode}
+          onCancel={() => {
+            setEditMode(false);
+            form.resetFields();
+          }}
+          onOk={handleSave}
+        >
+          <Form form={form} onSubmit={handleSave} initialValues={formData}>
+            <Form.Item name="UserID" label="UserID" >
+              <Input onChange={handleFormChange} name="UserID" disabled />
+            </Form.Item>
+            <Form.Item name="FirstName" label="First Name" >
+              <Input onChange={handleFormChange} name="FirstName" />
+            </Form.Item>
+            <Form.Item name="LastName" label="Last Name" >
+              <Input onChange={handleFormChange} name="LastName" />
+            </Form.Item>
+            <Form.Item name="Gender" label="Gender">
+              <Input onChange={handleFormChange} name="Gender" />
+            </Form.Item>
+            <Form.Item name="UserName" label="User Name" >
+              <Input onChange={handleFormChange} name="UserName" />
+            </Form.Item>
+            <Form.Item name="Email" label="Email" >
+              <Input type="email" onChange={handleFormChange} name="Email" />
+            </Form.Item>
+            <Form.Item name="PhoneNumber" label="Phone Number" >
+              <Input type="tel" onChange={handleFormChange} name="PhoneNumber" />
+            </Form.Item>
+            <Form.Item name="Address" label="Address" onChange={handleFormChange}>
+              <Input onChange={handleFormChange} name="Address" />
+            </Form.Item>
+            <Form.Item name="ProfilePicture" >
+              <label htmlFor="profilePicture">Profile Picture:</label>
+              <input
+                type="file"
+                id="profilePicture"
+                accept=".jpeg, .jpg, .png, .gif"
+                onChange={handleProfilePictureChange}
+              />
+              {profilePictureUrl && (
+                <img src={profilePictureUrl} alt="Profile" style={{ width: '200px' }} />
+              )}
+            </Form.Item>
+            <Button type="primary" onClick={handleSave}>
+              Save
+            </Button>
+          </Form>
+        </Modal>
+
+        <Footer style={{ textAlign: 'center' }}>
+          E-Payment System ©{new Date().getFullYear()} Created by INSA
+        </Footer>
+      </Layout >
+    </Layout >
+  );
 };
 
-        export default Dashboard;
+export default Dashboard;

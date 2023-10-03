@@ -5,9 +5,11 @@ import jsPDF from "jspdf";
 import axios from "axios";
 import "./payment.css";
 import { MailOutlined } from "@ant-design/icons";
+import { useNavigate } from "react-router-dom";
 
 
 const Payment = () => {
+  const [userData, setUserData] = useState(localStorage.getItem('userData'));
   const [serviceNo, setServiceNumber] = useState(localStorage.getItem('serviceNo'));
   const [user, setUser] = useState(null);
   const [payments, setPayments] = useState([]);
@@ -22,7 +24,7 @@ const Payment = () => {
   const [errors, setErrorMessage] = useState('');
   const [showBankAccountForm, setShowBankAccountForm] = useState(false);
   const [loading, setLoading] = useState(false);
-
+  const navigate = useNavigate();
 
 
   const [bankAccount, setBankAccount] = useState({
@@ -34,6 +36,10 @@ const Payment = () => {
 
 
   useEffect(() => {
+    if (!userData) {
+      navigate("/users"); // Replace "/user" with the desired URL for the user page
+      return;
+    }
     const fetchData = async () => {
       try {
         const response = await axios.get(`http://localhost:3000/Users/serviceNo/${serviceNo}`);
@@ -44,7 +50,7 @@ const Payment = () => {
         const serviceProviderBIN = response.data.ServiceProviders[0].serviceProviderBIN;
         const userId = response.data.id;
         setUserId(userId);
-        console.log(serviceProviderBIN);
+        console.log("serviceProviderBIN: ", serviceProviderBIN);
 
         const userBillResponse = await axios.get(`http://localhost:3000/bills/findOne`, {
           params: {
@@ -53,6 +59,7 @@ const Payment = () => {
           }
         });
         setUserBill(userBillResponse.data);
+        console.log(verificationCode);
       } catch (error) {
         console.error(error);
       }
@@ -94,6 +101,7 @@ const Payment = () => {
       setVerificationCode(code);
 
       // Send the verification code to the fetched email address
+      console.log('userId:', userId)
       const response = await axios.post(`http://localhost:3000/Users/verifyUser/${userId}/${code}`);
 
 
@@ -194,6 +202,7 @@ const Payment = () => {
       const random = `TXN${randomNumber}`;
       const today = new Date().toISOString().split('T')[0];
 
+      console.log(userbill);
       // Prepare payment data
       const paymentData = {
         TransactionNo: random,
@@ -259,7 +268,9 @@ const Payment = () => {
   const handleVerificationCodeChange = (event) => {
     setVerifyCode(event.target.value);
   };
-
+  const navigateToUserPage = () => {
+    navigate('/serviceProviders');
+  };
 
   return (
     <div className="payment-container">
@@ -360,7 +371,10 @@ const Payment = () => {
       <Modal
         title="Bank Account Details"
         visible={downloadModalVisible}
-        onCancel={() => setDownloadModalVisible(false)}
+        onCancel={() => {
+          setDownloadModalVisible(false);
+          navigateToUserPage();
+        }}
         footer={[
           <Button key="back" onClick={() => setDownloadModalVisible(false)}>
             Close

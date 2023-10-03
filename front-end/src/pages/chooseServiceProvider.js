@@ -7,10 +7,15 @@ import companyLogo from '../image/logoimage.jpg';
 import Header from './Header';
 
 const ServiceProvidersDetails = () => {
+  const [userData, setUserData] = useState(localStorage.getItem('userData'));
   const navigate = useNavigate();
   const [serviceProviderData, setServiceProviderData] = useState([]);
 
   useEffect(() => {
+    if (!userData) {
+      navigate("/users"); // Replace "/user" with the desired URL for the user page
+      return;
+    }
     fetchServiceProviders();
   }, []);
 

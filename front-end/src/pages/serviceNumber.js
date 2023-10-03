@@ -37,7 +37,7 @@ const ServiceNumber = () => {
     height: '400px',
     marginTop:'115px'
   };
-
+  const [userData, setUserData] = useState(localStorage.getItem('userData'));
   const [serviceNumber, setServiceNumber] = useState('');
   const [serviceProviderBIN, setServiceProviderBIN] = useState(localStorage.getItem('serviceProviderBIN'));
   const [bill, setBill] = useState(null);
@@ -51,12 +51,18 @@ const ServiceNumber = () => {
     const fetchData = async () => {
       try {
         // Retrieve user data from localStorage or API
-        const userData = localStorage.getItem('userData');
+        const userData = JSON.parse(localStorage.getItem('userData'));
+        if (!userData) {
+          navigate("/users");
+          return;
+        }
+    
         setUser(userData);
-        console.log(user);
-
+        console.log(userData.id);
+    
+      
         // Fetch the user data including service providers
-        const response = await axios.get(`http://localhost:3000/Users/${user.id}`);
+        const response = await axios.get(`http://localhost:3000/Users/${userData.id}`);
         const { data } = response;
         console.log(data);
 

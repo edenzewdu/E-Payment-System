@@ -42,7 +42,7 @@ exports.create = asyncHandler(async (req, res) => {
       servicePeriod: req.body.servicePeriod,
       TotalAmount: totalAmount,
       UserId: req.body.UserId,
-      ServiceProviderServiceProviderBIN: req.body.ServiceProviderServiceProviderBIN,
+      serviceProviderBIN: req.body.serviceProviderBIN,
       PaymentId: req.body.PaymentId,
     };
 
@@ -50,31 +50,30 @@ exports.create = asyncHandler(async (req, res) => {
     if (req.body.UserId) {
       // Retrieve the associated user
       const user = await User.findByPk(req.body.UserId);
-    
+
       if (!user) {
         res.status(404).send({
           message: `User with id=${req.body.UserId} not found`,
         });
         return;
       }
-    
-      bill.customerName = (user.FirstName + " " + user.LastName); // Use the associated user's name
+
+      bill.customerName = user.UserName; // Use the associated user's name
     }
 
-// Check if serviceProviderBIN is provided
-if (req.body.ServiceProviderServiceProviderBIN) {
-  const serviceProvider = await ServiceProviders.findByPk(req.body.ServiceProviderServiceProviderBIN);
-  if (!serviceProvider) {
-    res.status(404).send({
-      message: `Service provider with id=${req.body.ServiceProviderServiceProviderBIN} not found`,
-    });
-    return;
-  }
+     // Check if serviceProviderBIN is provided
+  if (req.body.serviceProviderBIN) {
+    const serviceProvider = await ServiceProviders.findByPk(req.body.serviceProviderBIN);
+    if (!serviceProvider) {
+      res.status(404).send({
+        message: `Service provider with id=${req.body.serviceProviderBIN} not found`,
+      });
+      return;
+    }
 
-  // Associate the service provider with the bill
-  bill.ServiceProviderServiceProviderBIN = serviceProvider.ServiceProviderServiceProviderBIN;
-  console.log(bill.ServiceProviderServiceProviderBIN)
-}
+    // Associate the service provider with the bill
+    bill.ServiceProviderServiceProviderBIN = serviceProvider.serviceProviderBIN;
+  }
 
     const data = await Bill.create(bill, {
       include: [

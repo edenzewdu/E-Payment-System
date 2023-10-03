@@ -13,7 +13,7 @@ const { Sider } = Layout;
 
 
 const Header = () => {
-  const [userData, setUserData] = useState();
+  const [userData, setUserData] = useState({});
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSmallScreen, setIsSmallScreen] = useState(false);
   const [profilePictureUrl, setProfilePictureUrl] = useState();
@@ -23,7 +23,6 @@ const Header = () => {
 
   const [form] = Form.useForm();
   const [editMode, setEditMode] = useState(false);
-  const { UserId } = useParams();
   const [formData, setFormData] = useState({
     UserID: '',
     FirstName: '',
@@ -42,8 +41,9 @@ const Header = () => {
       try {
         const parsedUserData = (JSON.parse(localStorage.getItem('userData')));
         setFormData(parsedUserData);
-        setUserData(localStorage.getItem('userData'));
-        console.log(userData);
+        const userData = localStorage.getItem('userData');
+        setUserData(userData);
+        console.log(formData);
         setProfilePictureUrl(`http://localhost:3000/${parsedUserData.ProfilePicture}`);
       } catch (error) {
         console.error('Error parsing user data:', error);
@@ -193,7 +193,7 @@ const Header = () => {
               <div className='ppp' >
                 <div className='profile-picture' onClick={() => handleEdit(userData)}>
                   {profilePictureUrl !== 'http://localhost:3000/null' ? (
-                    <img src={profilePictureUrl} alt="Profile" className="logo-image" onClick={() => handleEdit(userData)} style={{
+                    <img src={profilePictureUrl} alt="Profile" className="logo-image" style={{
                       width: '50px',
                       height: '50px',
                       borderRadius: '50%',
@@ -214,57 +214,6 @@ const Header = () => {
                     Logout
                   </Link>
                 </div>
-                <Modal
-                  title={editMode ? 'Edit User' : 'Create User'}
-                  visible={editMode}
-                  onCancel={() => {
-                    setEditMode(false);
-                    form.resetFields();
-                  }}
-                  onOk={handleSave}
-                >
-                  <Form form={form} onSubmit={handleSave} initialValues={userData}>
-                    <Form.Item name="UserID" label="UserID" >
-                      <Input onChange={handleFormChange} name="UserID" disabled />
-                    </Form.Item>
-                    <Form.Item name="FirstName" label="First Name" >
-                      <Input onChange={handleFormChange} name="FirstName" />
-                    </Form.Item>
-                    <Form.Item name="LastName" label="Last Name" >
-                      <Input onChange={handleFormChange} name="LastName" />
-                    </Form.Item>
-                    <Form.Item name="Gender" label="Gender">
-                      <Input onChange={handleFormChange} name="Gender" />
-                    </Form.Item>
-                    <Form.Item name="UserName" label="User Name" >
-                      <Input onChange={handleFormChange} name="UserName" />
-                    </Form.Item>
-                    <Form.Item name="Email" label="Email" >
-                      <Input type="email" onChange={handleFormChange} name="Email" />
-                    </Form.Item>
-                    <Form.Item name="PhoneNumber" label="Phone Number" >
-                      <Input type="tel" onChange={handleFormChange} name="PhoneNumber" />
-                    </Form.Item>
-                    <Form.Item name="Address" label="Address" onChange={handleFormChange}>
-                      <Input onChange={handleFormChange} name="Address" />
-                    </Form.Item>
-                    <Form.Item name="ProfilePicture" >
-                      <label htmlFor="profilePicture">Profile Picture:</label>
-                      <input
-                        type="file"
-                        id="profilePicture"
-                        accept=".jpeg, .jpg, .png, .gif"
-                        onChange={handleProfilePictureChange}
-                      />
-                      {profilePictureUrl && (
-                        <img src={profilePictureUrl} alt="Profile" style={{ width: '200px' }} />
-                      )}
-                    </Form.Item>
-                    <Button type="primary" onClick={handleSave}>
-                      Save
-                    </Button>
-                  </Form>
-                </Modal>
               </div>) : (
               <div className='login-section'>
                 <div className='login-box' style={{
@@ -330,6 +279,57 @@ const Header = () => {
               </div>
             )}
 
+            <Modal
+              title={editMode ? 'Edit User' : 'Create User'}
+              visible={editMode}
+              onCancel={() => {
+                setEditMode(false);
+                form.resetFields();
+              }}
+              onOk={handleSave}
+            >
+              <Form form={form} onSubmit={handleSave} initialValues={formData}>
+                <Form.Item name="UserID" label="UserID" >
+                  <Input onChange={handleFormChange} name="UserID" disabled />
+                </Form.Item>
+                <Form.Item name="FirstName" label="First Name" >
+                  <Input onChange={handleFormChange} name="FirstName" />
+                </Form.Item>
+                <Form.Item name="LastName" label="Last Name" >
+                  <Input onChange={handleFormChange} name="LastName" />
+                </Form.Item>
+                <Form.Item name="Gender" label="Gender">
+                  <Input onChange={handleFormChange} name="Gender" />
+                </Form.Item>
+                <Form.Item name="UserName" label="User Name" >
+                  <Input onChange={handleFormChange} name="UserName" />
+                </Form.Item>
+                <Form.Item name="Email" label="Email" >
+                  <Input type="email" onChange={handleFormChange} name="Email" />
+                </Form.Item>
+                <Form.Item name="PhoneNumber" label="Phone Number" >
+                  <Input type="tel" onChange={handleFormChange} name="PhoneNumber" />
+                </Form.Item>
+                <Form.Item name="Address" label="Address" onChange={handleFormChange}>
+                  <Input onChange={handleFormChange} name="Address" />
+                </Form.Item>
+                <Form.Item name="ProfilePicture" >
+                  <label htmlFor="profilePicture">Profile Picture:</label>
+                  <input
+                    type="file"
+                    id="profilePicture"
+                    accept=".jpeg, .jpg, .png, .gif"
+                    onChange={handleProfilePictureChange}
+                  />
+                  {profilePictureUrl && (
+                    <img src={profilePictureUrl} alt="Profile" style={{ width: '200px' }} />
+                  )}
+                </Form.Item>
+                <Button type="primary" onClick={handleSave}>
+                  Save
+                </Button>
+              </Form>
+            </Modal>
             <div className='logo'>
               <img src={companyLogo} alt='company logo' />
               <div className='company-name'>

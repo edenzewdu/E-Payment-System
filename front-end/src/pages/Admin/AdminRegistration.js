@@ -159,7 +159,23 @@ const AdminRegistrationForm = ({ addActivity }) => {
         form.resetFields();
         window.location.href = window.location.href;
         message.success('Admin Registered successfully');
-        addActivity(`Admin ${adminData.FirstName}`, ` registered admin ${response.FirstName}`);
+        // Register admin activity
+      const currentDate = new Date();
+      const activity = {
+        adminName: adminData.user.FirstName,
+        action: 'registered',
+        targetAdminName: values.FirstName,
+        timestamp: currentDate.toISOString(),
+      };
+
+      // Get the existing admin activities from localStorage or initialize an empty array
+      const adminActivities = JSON.parse(localStorage.getItem('adminActivities')) || [];
+
+      // Add the new activity to the array
+      adminActivities.push(activity);
+
+      // Update the admin activities in localStorage
+      localStorage.setItem('adminActivities', JSON.stringify(adminActivities));
       } else {
         message.error('Failed to register admin');
       }

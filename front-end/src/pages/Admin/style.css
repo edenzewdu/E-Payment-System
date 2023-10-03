@@ -85,22 +85,6 @@
   }
 }
 
-.coin-inner-animation {
-  width: 100%;
-  height: 100%;
-  transform-style: preserve-3d;
-  animation: rotateY 1s linear infinite;
-}
-
-@keyframes rotateY {
-  0% {
-    transform: rotateY(0deg);
-  }
-
-  100% {
-    transform: rotateY(360deg);
-  }
-}
 
 
 .ant-menu-dark .ant-menu-item-selected {
@@ -362,3 +346,19 @@ html {
 .ant-menu-dark .ant-menu-submenu-title {
   color: #fff;
 } */
+.coin-inner-animation {
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  animation: rotateY 1s linear infinite;
+}
+
+@keyframes rotateY {
+  0% {
+    transform: rotateY(0deg);
+  }
+
+  100% {
+    transform: rotateY(360deg);
+  }
+}
