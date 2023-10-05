@@ -5,7 +5,7 @@ import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import companyLogo from '../image/logoimage.jpg';
 import USER from '../image/himage3.jpg';
-import './homePage.css'; // Import custom CSS file
+import './style.css'; // Import custom CSS file
 import axios from 'axios';
 import Lock from '../image/simage2.png';
 

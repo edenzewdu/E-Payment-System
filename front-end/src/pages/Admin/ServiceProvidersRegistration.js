@@ -1,13 +1,14 @@
 
                  
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { UserOutlined } from '@ant-design/icons';
 import { Layout, Menu, Avatar, Button, message, Form, Input, Upload, Modal } from 'antd';
 import Dashboard from './Dashboard';
 
 const ServiceProviderRegistrationForm = () => {
+  const [adminData, setAdminData] = useState(JSON.parse(localStorage.getItem('adminData')));
   const [form] = Form.useForm();
   const [formData, setFormData] = useState({
     serviceProviderBIN: '',
@@ -21,6 +22,10 @@ const ServiceProviderRegistrationForm = () => {
   const [file, setFile] = useState(null);
   const [errors, setErrors] = useState({});
   const [serviceProviderAuthorizationLetterUrl, setServiceProviderAuthorizationLetterUrl] = useState();
+
+  useEffect(()=>{
+    localStorage.setItem("selectedMenu", 4);
+  },[])
 
   const validateForm = () => {
     const newErrors = {};
@@ -66,6 +71,12 @@ const ServiceProviderRegistrationForm = () => {
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
     setFile(selectedFile);
+    const url = URL.createObjectURL(file);
+    setServiceProviderAuthorizationLetterUrl(url);
+    setFormData((prevData) => ({
+      ...prevData,
+      agentAuthorizationLetter: file,
+    }));
   };
 
   const handleSubmit = async () => {
@@ -83,6 +94,23 @@ const ServiceProviderRegistrationForm = () => {
         await axios.post('http://localhost:3000/serviceproviders', formDataToSend);
         message.success('Service provider registered successfully!');
         console.log('Service provider registered successfully!');
+        
+        const currentDate = new Date();
+        const activity = {
+          adminName: `Admin ${adminData.user.FirstName}`,
+          action: 'registered',
+          targetAdminName: `Service Provider ${formData.serviceProviderName}`,
+          timestamp: currentDate.toISOString(),
+        };
+
+        // Get the existing admin activities from localStorage or initialize an empty array
+        const adminActivities = JSON.parse(localStorage.getItem('adminActivities')) || [];
+
+        // Add the new activity to the array
+        adminActivities.push(activity);
+
+        // Update the admin activities in localStorage
+        localStorage.setItem('adminActivities', JSON.stringify(adminActivities));
         form.resetFields();
         window.location.href = window.location.href;
       } catch (error) {
@@ -161,13 +189,23 @@ const ServiceProviderRegistrationForm = () => {
             <Input name="phoneNumber" onChange={handleChange} placeholder="Enter Phone Number" />
           </Form.Item>
   
-          <Form.Item>
-            <label htmlFor="serviceProviderAuthorizationLetter">Authorization Letter:</label>
-            <input
+          <Form.Item
+            label="serviceProviderAuthorizationLetter"
+            name="serviceProviderAuthorizationLetter"
+            validateStatus={errors.serviceProviderAuthorizationLetter && 'error'}
+            help={errors.serviceProviderAuthorizationLetter}
+            rules={[{ required: true }]}
+            >
+              <Input
               type="file"
-              id="serviceProvider"
+              name="serviceProviderAuthorizationLetter"
+              id="serviceProviderAuthorizationLetter"
               accept=".jpeg, .jpg, .png, .gif"
+              validateStatus={errors.serviceProviderAuthorizationLetter && 'error'}
               onChange={handleFileChange}
+              help={errors.serviceProviderAuthorizationLetter}
+              rules={[{ required: true }]}
+              style={{width:'fit-content'}}
             />
             {serviceProviderAuthorizationLetterUrl && (
               <img src={serviceProviderAuthorizationLetterUrl} alt="Auth Letter" style={{ width: '200px' }} />

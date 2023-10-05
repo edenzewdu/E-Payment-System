@@ -1,5 +1,5 @@
 import React from 'react';
-import './homePage.css';
+import './style.css';
 import { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link} from 'react-router-dom';
 import companyLogo from '../image/logoimage.jpg';
@@ -21,12 +21,12 @@ import Header from './Header.js'
 const { Content, Footer, Sider } = Layout;
 
 
-function HomePage() {
+const HomePage = ()=> {
   
 
-  useEffect(() => {
-   
-  }, []);
+  useEffect(()=>{
+    localStorage.setItem("userSelectedMenu", 1);
+  },[])
 
   
  

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Dashboard from './Dashboard';
 
 const AdminActivityPage = () => {
@@ -7,6 +7,11 @@ const AdminActivityPage = () => {
   const adminActivities = JSON.parse(localStorage.getItem('adminActivities')) || [];
   const loggedInAdmin = `Admin ${adminData.user.FirstName}`;
 
+  useEffect(()=>{
+    localStorage.setItem("selectedMenu", 10);
+  },[])
+
+  // localStorage.removeItem('adminActivities');
   return (
     <Dashboard
       content={
@@ -31,12 +36,12 @@ const AdminActivityPage = () => {
                     </span>{' '}
                     <span style={{
                         color: activity.adminName === loggedInAdmin ? 'blue' : 'green',
-                      }}>registered</span>{' '}
+                      }}>{activity.action === loggedInAdmin ? 'You' : activity.action}</span>{' '}
                     <span style={{ color: 'purple' }}>{activity.targetAdminName}</span>{' '}
                     <span style={{
                         color: activity.adminName === loggedInAdmin ? 'blue' : 'green',
                       }}>at</span>{' '}
-                    <span style={{ color: 'orange' }}>
+                    <span style={{ color: 'teal' }}>
                      {new Date(activity.timestamp).toLocaleTimeString('en-US', {
                         hour: 'numeric',
                         minute: 'numeric',

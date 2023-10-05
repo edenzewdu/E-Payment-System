@@ -5,6 +5,7 @@ import axios from 'axios';
 import Dashboard from './Dashboard';
 
 const AgentsList = ({ isLoggedIn, setIsLoggedIn }) => {
+  const [adminData, setAdminData] = useState(JSON.parse(localStorage.getItem('adminData')));
   const [agentData, setAgentData] = useState([]);
   const [form] = Form.useForm();
   const [editMode, setEditMode] = useState(false);
@@ -16,6 +17,10 @@ const AgentsList = ({ isLoggedIn, setIsLoggedIn }) => {
   useEffect(() => {
     fetchAgents();
   }, []);
+
+  useEffect(()=>{
+    localStorage.setItem("selectedMenu", 3);
+  },[])
 
   const fetchAgents = async () => {
     try {
@@ -165,81 +170,87 @@ const AgentsList = ({ isLoggedIn, setIsLoggedIn }) => {
 
   const handleSearch = (value) => {
     setSearchInput(value);
-    if (value === '') {
-      // If search input is empty, display the whole list
-      fetchAgents();
-    } else {
+    const currentDate = new Date();
+    const activity = {
+      adminName: `Admin ${adminData.user.FirstName}`,
+      action: 'Searched for',
+      targetAdminName: `${value} in Admin List`,
+      timestamp: currentDate.toISOString(),
+    };
 
-    // Filter agentData based on search input
-    const filteredAgents = agentData.filter((agent) => {
-      const agentName = agent.agentName.toLowerCase();
-      const agentEmail = agent.agentEmail.toLowerCase();
-      const phoneNumber = agent.phoneNumber.toLowerCase();
-      const searchValue = value.toLowerCase();
+    // Get the existing admin activities from localStorage or initialize an empty array
+    const adminActivities = JSON.parse(localStorage.getItem('adminActivities')) || [];
 
-      return (
-        agentName.includes(searchValue) ||
-        agentEmail.includes(searchValue) ||
-        phoneNumber.includes(searchValue)
-      );
-    });
+    // Add the new activity to the array
+    adminActivities.push(activity);
 
-    setAgentData(filteredAgents);
-  }
+    // Update the admin activities in localStorage
+    localStorage.setItem('adminActivities', JSON.stringify(adminActivities));
   };
 
-
-  return (
-    <Dashboard isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} content={
-      <div>
-        <h1>Agents List</h1>
-        <Input.Search
-          placeholder="Search agents"
-          value={searchInput}
-          onChange={(e) => handleSearch(e.target.value)}
-          style={{ marginBottom: '16px' }}
-        />
-
-        <Table dataSource={agentData} columns={columns} scroll={{ x: true }} />
-
-        <Modal
-          title={editMode ? 'Edit Agent' : 'Create Agent'}
-          visible={editMode}
-          onCancel={() => {
-            setEditMode(false);
-            form.resetFields();
-          }}
-          footer={null}
-        >
-          <Form form={form}>
-            <Form.Item name="agentBIN" label="Agent BIN">
-              <Input />
-            </Form.Item>
-            <Form.Item name="agentName" label="Agent Name">
-              <Input />
-            </Form.Item>
-            <Form.Item name="agentEmail" label="Agent Email">
-              <Input />
-            </Form.Item>
-            <Form.Item name="servicesOffered" label="Services Offered">
-              <Input />
-            </Form.Item>
-            <Form.Item name="phoneNumber" label="Phone Number">
-              <Input />
-            </Form.Item>
-            <Form.Item name="agentAuthorizationLetter" label="Agent Authorization Letter">
-              <Upload accept=".jpeg, .jpg, .png, .gif" beforeUpload={() => false}>
-                <Button icon={<UploadOutlined />}>Select File</Button>
-              </Upload>
-            </Form.Item>
-            <Button type="primary" onClick={handleSave}>
-              Save
-            </Button>
-          </Form>
-        </Modal>
-      </div>}
-    />
+    const filteredAgents = agentData.filter((agent) =>
+    agent &&
+    (agent.agentBIN.toLowerCase().includes(searchInput.toLowerCase()) ||
+      agent.agentName.toLowerCase().includes(searchInput.toLowerCase()) ||
+      agent.agentEmail.toLowerCase().includes(searchInput.toLowerCase()) ||
+      agent.servicesOffered.toLowerCase().includes(searchInput.toLowerCase()) ||
+      (typeof agent.phoneNumber === 'string' &&
+        agent.phoneNumber.toLowerCase().includes(searchInput.toLowerCase())))
   );
+  
+
+
+return (
+  <Dashboard isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} content={
+    <div>
+      <h1>Agents List</h1>
+      <Input.Search
+        placeholder="Search agents"
+        value={searchInput}
+        onChange={(e) => handleSearch(e.target.value)}
+        style={{ marginBottom: '16px' }}
+      />
+
+      <Table dataSource={filteredAgents} columns={columns} scroll={{ x: true }} />
+
+      <Modal
+        title={editMode ? 'Edit Agent' : 'Create Agent'}
+        visible={editMode}
+        onCancel={() => {
+          setEditMode(false);
+          form.resetFields();
+        }}
+        footer={null}
+      >
+        <Form form={form}>
+          <Form.Item name="agentBIN" label="Agent BIN">
+            <Input />
+          </Form.Item>
+          <Form.Item name="agentName" label="Agent Name">
+            <Input />
+          </Form.Item>
+          <Form.Item name="agentEmail" label="Agent Email">
+            <Input />
+          </Form.Item>
+          <Form.Item name="servicesOffered" label="Services Offered">
+            <Input />
+          </Form.Item>
+          <Form.Item name="phoneNumber" label="Phone Number">
+            <Input />
+          </Form.Item>
+          <Form.Item name="agentAuthorizationLetter" label="Agent Authorization Letter">
+            <Upload accept=".jpeg, .jpg, .png, .gif" beforeUpload={() => false}>
+              <Button icon={<UploadOutlined />}>Select File</Button>
+            </Upload>
+          </Form.Item>
+          <Button type="primary" onClick={handleSave}>
+            Save
+          </Button>
+        </Form>
+      </Modal>
+    </div>}
+  />
+);
 };
 
 export default AgentsList;

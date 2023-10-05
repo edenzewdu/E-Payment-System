@@ -47,12 +47,14 @@ const Dashboard = ({ content }) => {
 
   useEffect(() => {
 
-    if (!adminData) {
-      navigate('/admin/login');
-    }
-    localStorage.setItem("selectedMenu", selectedMenu);
+    setSelectedMenu(localStorage.getItem("selectedMenu"));
     const loggedInAdmin = localStorage.getItem('adminData');
-    if (loggedInAdmin) {
+  
+  if (!loggedInAdmin) {
+    navigate('/admin/login');
+    return;
+  }
+  
       try {
         const parsedAdminData = JSON.parse(loggedInAdmin);
         setFormData(parsedAdminData.user);
@@ -63,7 +65,7 @@ const Dashboard = ({ content }) => {
         message.error('Error parsing admin data');
         // Handle error while parsing the data from localStorage
       }
-    }
+    
   }, [selectedMenu]);
 
   const handleFormChange = (e) => {
@@ -187,11 +189,11 @@ const Dashboard = ({ content }) => {
         onMouseLeave={() => handleSiderHover(false)}
         style={{
           backgroundColor: '#333333',
-          color: '#ffffff',
+          color: '#ffffff'
         }}
       >
         {isSiderCollapsed ? (
-          <div className='logo' style={{ position: 'relative', width: '100%' }} >
+          <div className='logo' style={{ position: 'relative', width: '100%', height:'110px'}} >
             <img src={companyLogo} alt='company logo' />
             <div className='company-name' style={{ marginTop: '10%' }} >
               E-pay...
@@ -215,7 +217,7 @@ const Dashboard = ({ content }) => {
             </div>
           </div>
         ) : (
-          <div className='logo' style={{ position: 'relative', top: '8px', left: '10px', width: '100%' }} >
+          <div className='logo' style={{ position: 'relative', width: '100%',height:'110px' }} >
             <img src={companyLogo} alt='company logo' />
             <div className='company-name'>
               E-payment-system
@@ -240,7 +242,7 @@ const Dashboard = ({ content }) => {
             key="submenu"
             icon={<HomeOutlined />}
             title="E-Payment System"
-            style={{ marginTop: '40px', minWidth: '190px', width: isSiderCollapsed ? '190px' : '350px', }}
+            style={{position:'fixed', marginTop: '40px', minWidth: '190px', width: isSiderCollapsed ? '190px' : '350px', }}
           >
             <Menu.Item key="2" icon={<BankOutlined />}>
               <Link

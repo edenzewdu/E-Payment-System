@@ -10,6 +10,10 @@ const PaymentList = () => {
     fetchPayments();
   }, []);
 
+  useEffect(()=>{
+    localStorage.setItem("selectedMenu", 9);
+  },[])
+
   const fetchPayments = async () => {
     try {
       const response = await axios.get('http://localhost:3000/payment');

@@ -3,10 +3,11 @@ import axios from 'axios';
 import Dashboard from './Dashboard';
 import { Layout } from 'antd';
 import LOGO from '../../image/logoimage.jpg';
-import './style.css';
+import { useNavigate } from 'react-router-dom';
 
 const Home = ({ content }) => {
   const [adminData, setAdminData] = useState(JSON.parse(localStorage.getItem('adminData')));
+  const navigate = useNavigate();
 
   const handleCoinClick = (event) => {
     const splashElement = document.querySelector('.splash-animation');
@@ -19,7 +20,12 @@ const Home = ({ content }) => {
   };
 
   useEffect(() => {
-    // Your useEffect logic here
+    const loggedInAdmin = localStorage.getItem('adminData');
+  console.log(loggedInAdmin);
+  if (!adminData) {
+    navigate('/admin/login');
+    return;
+  }
   }, []);
 
   return (

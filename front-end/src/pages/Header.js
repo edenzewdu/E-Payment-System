@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { MenuOutlined, LogoutOutlined } from '@ant-design/icons';
 import companyLogo from '../image/logoimage.jpg';
 import USER from '../image/himage3.jpg';
-import './homePage.css';
+import './style.css';
 import { Form } from 'antd';
 import { Layout, Button, Input, Modal, message, Menu } from 'antd';
 import axios from 'axios';
@@ -19,8 +19,9 @@ const Header = () => {
   const [profilePictureUrl, setProfilePictureUrl] = useState();
   const [isLoggedInUser, setIsLoggedInUser] = useState(localStorage.getItem('isLoggedInUser') || false);
   const navigate = useNavigate();
+  const location = useLocation();
 
-
+  const [userSelectedMenu, setUserSelectedMenu] = useState(localStorage.getItem("userSelectedMenu") || '1');
   const [form] = Form.useForm();
   const [editMode, setEditMode] = useState(false);
   const [formData, setFormData] = useState({
@@ -67,6 +68,12 @@ const Header = () => {
     };
   }, [window.innerWidth, isMenuOpen, isSmallScreen, editMode]);
 
+  useEffect(() => {
+
+    setUserSelectedMenu(localStorage.getItem("selectedMenu"));
+
+  }, [userSelectedMenu])
+
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
@@ -89,6 +96,10 @@ const Header = () => {
 
   const closeMenu = () => {
     setIsMenuOpen(false);
+  };
+
+  const handleMenuSelect = ({ key }) => {
+    setUserSelectedMenu([key]);
   };
 
   const handleSave = async (e) => {
@@ -241,24 +252,32 @@ const Header = () => {
                       setIsSmallScreen(broken);
                     }} >
 
-                    <Menu theme="light" mode="vertical" className='sider' >
+                    <Menu
+                      theme="light"
+                      defaultSelectedKeys={['1']}
+                      mode="inline"
+                      className='sider'
+                      selectedKeys={[userSelectedMenu]}
+                      onSelect={handleMenuSelect}
+                      
+                    >
                       {/* Sidebar menu items */}
                       <Menu.Item key="1" className='nav-item'>
-                        <Link to="/users">Home</Link>
+                        <Link to="/users" >Home</Link>
                       </Menu.Item>
                       <Menu.Item key="2" className='nav-item'>
-                        <Link to="/aboutUs">About Us</Link>
+                        <Link to="/aboutUs" >About Us</Link>
                       </Menu.Item>
                       <Menu.Item key="3" className='nav-item'>
-                        <Link to="/contactUs">Contact Us</Link>
+                        <Link to="/contactUs" >Contact Us</Link>
                       </Menu.Item>
                       {isLoggedInUser && (
                         <>
                           <Menu.Item key="4" className='nav-item'>
-                            <Link to="/serviceProviders">Payment</Link>
+                            <Link to="/serviceProviders" >Payment</Link>
                           </Menu.Item>
                           <Menu.Item key="5" className='nav-item'>
-                            <Link to="/history">History</Link>
+                            <Link to="/history" >History</Link>
                           </Menu.Item>
                         </>
                       )}
@@ -266,7 +285,7 @@ const Header = () => {
                   </Sider>)}</div>) : (
               <div className="menu">
                 <div className='nav' >
-                  <Link to="/users" className="nav-item">Home</Link>
+                  <Link to="/users" className="nav-item" >Home</Link>
                   <Link to="/contactUs" className='nav-item'>Contact Us</Link>
                   <Link to="/aboutUs" className='nav-item'>About Us</Link>
                   {isLoggedInUser ? (

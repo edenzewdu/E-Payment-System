@@ -43,6 +43,10 @@ const AdminRegistrationForm = ({ addActivity }) => {
 
   const [errors, setErrors] = useState({});
 
+  useEffect(()=>{
+    localStorage.setItem("selectedMenu", 6);
+  },[])
+
   const validateForm = () => {
     const newErrors = {};
 
@@ -155,9 +159,6 @@ const AdminRegistrationForm = ({ addActivity }) => {
 
       // Handle the response from the server
       if (response.status === 200) {
-
-        form.resetFields();
-        window.location.href = window.location.href;
         message.success('Admin Registered successfully');
         // Register admin activity
       const currentDate = new Date();
@@ -176,6 +177,9 @@ const AdminRegistrationForm = ({ addActivity }) => {
 
       // Update the admin activities in localStorage
       localStorage.setItem('adminActivities', JSON.stringify(adminActivities));
+
+      form.resetFields();
+      window.location.href = window.location.href;
       } else {
         message.error('Failed to register admin');
       }

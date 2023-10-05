@@ -78,7 +78,7 @@ const AdminLogin = () => {
       }}
     >
 
-<div className='logo' style={{ position: 'absolute', top: '16px', left: '16px' }}>
+<div className='logo' style={{ position: 'absolute', top: '66px', left: '16px' }}>
     <img src={companyLogo} alt='company logo' />
     <div className='company-name'>
       E-payment-system

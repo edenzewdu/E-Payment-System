@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { message } from 'antd';
 import { useNavigate } from 'react-router-dom';
-import './homePage.css';
+import './style.css';
 import axios from 'axios';
 import companyLogo from '../image/logoimage.jpg';
 import Header from './Header';
@@ -17,6 +17,7 @@ const ServiceProvidersDetails = () => {
       return;
     }
     fetchServiceProviders();
+    localStorage.setItem("userSelectedMenu", 5);
   }, []);
 
   const fetchServiceProviders = async () => {

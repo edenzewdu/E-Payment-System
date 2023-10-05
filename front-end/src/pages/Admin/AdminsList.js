@@ -6,6 +6,7 @@ import axios from 'axios';
 import Dashboard from './Dashboard';
 
 const AdminsList = ({ isLoggedIn, setIsLoggedIn }) => {
+  const [adminData, setAdminData] = useState(JSON.parse(localStorage.getItem('adminData')));
   const [userData, setUserData] = useState([]);
   const [searchInput, setSearchInput] = useState('');
 
@@ -14,6 +15,10 @@ const AdminsList = ({ isLoggedIn, setIsLoggedIn }) => {
   useEffect(() => {
     fetchUsers();
   }, []);
+
+  useEffect(()=>{
+    localStorage.setItem("selectedMenu", 7);
+  },[])
 
   const fetchUsers = async () => {
     try {
@@ -28,6 +33,22 @@ const AdminsList = ({ isLoggedIn, setIsLoggedIn }) => {
 
   const handleSearch = (value) => {
     setSearchInput(value);
+    const currentDate = new Date();
+    const activity = {
+      adminName: `Admin ${adminData.user.FirstName}`,
+      action: 'Searched for',
+      targetAdminName:`${value} in Admin List`,
+      timestamp: currentDate.toISOString(),
+    };
+
+    // Get the existing admin activities from localStorage or initialize an empty array
+    const adminActivities = JSON.parse(localStorage.getItem('adminActivities')) || [];
+
+    // Add the new activity to the array
+    adminActivities.push(activity);
+
+    // Update the admin activities in localStorage
+    localStorage.setItem('adminActivities', JSON.stringify(adminActivities));
   };
 
   const filteredUsers = userData.filter((user) =>
@@ -36,6 +57,7 @@ const AdminsList = ({ isLoggedIn, setIsLoggedIn }) => {
     user.FirstName.toLowerCase().includes(searchInput.toLowerCase()) ||
     user.LastName.toLowerCase().includes(searchInput.toLowerCase()) ||
     user.Email.toLowerCase().includes(searchInput.toLowerCase()) ||
+    user.Address.toLowerCase().includes(searchInput.toLowerCase()) ||
     (typeof user.PhoneNumber === 'string' &&
       user.PhoneNumber.toLowerCase().includes(searchInput.toLowerCase())))
 );

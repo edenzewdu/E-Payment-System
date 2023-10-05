@@ -1,42 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { message } from 'antd';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
-import './homePage.css';
+import './style.css';
 import axios from 'axios';
 import companyLogo from '../image/logoimage.jpg';
 import Header from './Header';
 
 const ServiceNumber = () => {
-  const bodyStyles = {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    minHeight: '100vh',
-    width: '100%',
-    padding: '0',
-    margin:'0',
-    position: 'relative',
-    overflowY: 'auto',
-  };
 
- 
-  const formContainerStyles = {
-    maxWidth: '550px',
-    padding: '30px 80px',
-    border: '1px solid #ccc',
-    borderRadius: '4px',
-    backgroundColor: '#e5e4e0',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: '15px',
-    position: 'fixed',
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
-    height: '400px',
-    marginTop:'115px'
-  };
+
   const [userData, setUserData] = useState(localStorage.getItem('userData'));
   const [serviceNumber, setServiceNumber] = useState('');
   const [serviceProviderBIN, setServiceProviderBIN] = useState(localStorage.getItem('serviceProviderBIN'));
@@ -47,6 +19,10 @@ const ServiceNumber = () => {
   const [errors, setErrorMessage] = useState('');
   const navigate = useNavigate();
 
+  useEffect(()=>{
+    localStorage.setItem("selectedMenu", 5);
+  },[])
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -56,11 +32,11 @@ const ServiceNumber = () => {
           navigate("/users");
           return;
         }
-    
+
         setUser(userData);
         console.log(userData.id);
-    
-      
+
+
         // Fetch the user data including service providers
         const response = await axios.get(`http://localhost:3000/Users/${userData.id}`);
         const { data } = response;
@@ -111,88 +87,89 @@ const ServiceNumber = () => {
     navigate('/payment', { state: { serviceNumber } });
   };
 
-  
-return (
+
+  return (
     <div className='container'>
-     <Header/>
-      <div className='circle'>
-        <p>P</p>
-      </div>
-      
-        <div className="bodyy" style={bodyStyles}>
-      <div className="form-container" style={formContainerStyles}>
-         <form onSubmit={handleSubmit}>
+      <Header />
+<div className='circle'>
+          <p>P</p>
+        </div>
+
+      <div className='bodyy' >
+        
+        <div className='form-container' >
+          <form onSubmit={handleSubmit}>
             <div className='title'>Payment Page
-            <div
-              className="title-line"
-              style={{
-                content: "",
-                position: "relative",
-                height: "3px",
-                width: "25px",
-                right: "16.9%",
-                transform: "translateX(-50%)",
-                backgroundImage:
-                  "linear-gradient(to right, rgb(3, 55, 100), rgb(95, 174, 230))"
-              }}
-            ></div></div>
-              <div>
+              <div
+                className="title-line"
+                style={{
+                  content: "",
+                  position: "relative",
+                  height: "3px",
+                  width: "25px",
+                  left:'10px',
+                  transform: "translateX(-50%)",
+                  backgroundImage:
+                    "linear-gradient(to right, rgb(3, 55, 100), rgb(95, 174, 230))"
+                }}
+              ></div></div>
+            <div>
+              <label>
+                <input
+                  type='radio'
+                  value='self'
+                  checked={paymentFor === 'self'}
+                  onChange={handlePaymentForChange}
+                />
+                Make payment for myself
+              </label>
+              <label>
+                <input
+                  type='radio'
+                  value='other'
+                  checked={paymentFor === 'other'}
+                  onChange={handlePaymentForChange}
+                />
+                Make payment for someone else
+              </label>
+            </div>
+            {paymentFor === 'self' && user && (
+              <>
+                <p>User ID: {user.UserID}</p>
+                <p>First Name: {user.FirstName}</p>
+                <p>Last Name: {user.LastName}</p>
+                {/* Display other user details */}
                 <label>
+                  <br></br>
+                  Service Number:
                   <input
-                    type='radio'
-                    value='self'
-                    checked={paymentFor === 'self'}
-                    onChange={handlePaymentForChange}
+                    type='text'
+                    value={serviceNumber}
+                    onChange={handleServiceNumberChange}
                   />
-                  Make payment for myself
                 </label>
+                <button className='button' type='submit'>NEXT</button>
+              </>
+            )}
+            {paymentFor === 'other' && (
+              <>
                 <label>
+                  Service Number:
                   <input
-                    type='radio'
-                    value='other'
-                    checked={paymentFor === 'other'}
-                    onChange={handlePaymentForChange}
+                    type='text'
+                    onChange={handleServiceNumberChange}
                   />
-                  Make payment for someone else
                 </label>
-              </div>
-              {paymentFor === 'self' && user && (
-                <>
-                  <p>User ID: {user.UserID}</p>
-                  <p>First Name: {user.FirstName}</p>
-                  <p>Last Name: {user.LastName}</p>
-                  {/* Display other user details */}
-                  <label>
-                    <br></br>
-                    Service Number:
-                    <input
-                      type='text'
-                      value={serviceNumber}
-                      onChange={handleServiceNumberChange}
-                    />
-                  </label>
-                  <button type='submit'>NEXT</button>
-                </>
-              )}
-              {paymentFor === 'other' && (
-                <>
-                  <label>
-                    Service Number:
-                    <input
-                      type='text'
-                      onChange={handleServiceNumberChange}
-                    />
-                  </label>
-                  <button type='submit'>NEXT</button>
-                </>
-              )}
-<br/>
-              {errors && <span>{errors}</span>}
-            </form>
-          </div>
+                <button type='submit'>NEXT</button>
+              </>
+            )}
+            <br />
+            {errors && <span>{errors}</span>}
+          </form>
         </div>
       </div>
-   
+    </div>
+
   );
 };
 

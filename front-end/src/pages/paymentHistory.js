@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import { Modal, Table } from "antd";
-import "./payment.css";
+import "./style.css";
 import Header from "./Header.js";
 import { useNavigate } from "react-router-dom";
 
@@ -13,6 +13,11 @@ const PaymentHistory = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedPayment, setSelectedPayment] = useState(null);
   const navigate = useNavigate();
+
+  useEffect(()=>{
+    localStorage.setItem("userSelectedMenu", 6);
+  },[])
+  
   useEffect(() => {
     if (!userData) {
       navigate("/users"); // Replace "/user" with the desired URL for the user page

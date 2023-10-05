@@ -5,6 +5,8 @@ import axios from 'axios';
 import Dashboard from './Dashboard';
 
 const ServiceProvidersList = ({ isLoggedIn, setIsLoggedIn }) => {
+ 
+  const [adminData, setAdminData] = useState(JSON.parse(localStorage.getItem('adminData')));
   const [serviceProviderData, setServiceProviderData] = useState([]);
   const [form] = Form.useForm();
   const [editMode, setEditMode] = useState(false);
@@ -16,6 +18,9 @@ const ServiceProvidersList = ({ isLoggedIn, setIsLoggedIn }) => {
     fetchServiceProviders();
   }, []);
   
+  useEffect(()=>{
+    localStorage.setItem("selectedMenu", 5);
+  },[])
 
   const fetchServiceProviders = async () => {
     try {
@@ -176,28 +181,34 @@ const ServiceProvidersList = ({ isLoggedIn, setIsLoggedIn }) => {
   ];
   const handleSearch = (value) => {
   setSearchInput(value);
+  const currentDate = new Date();
+  const activity = {
+    adminName: `Admin ${adminData.user.FirstName}`,
+    action: 'Searched for',
+    targetAdminName: `${value} in Service Providers List`,
+    timestamp: currentDate.toISOString(),
+  };
 
-  if (value === '') {
-    // If search input is empty, display the whole list
-    fetchServiceProviders();
-  } else {
-    // Filter serviceData based on search input
-    const filteredServiceProviders = serviceProviderData.filter((serviceProvider) => {
-      const serviceProviderName = serviceProvider.serviceProviderName.toLowerCase();
-      const serviceProviderBIN = serviceProvider.serviceProviderBIN.toLowerCase();
-      const phoneNumber = serviceProvider.phoneNumber.toLowerCase();
-      const searchValue = value.toLowerCase();
+  // Get the existing admin activities from localStorage or initialize an empty array
+  const adminActivities = JSON.parse(localStorage.getItem('adminActivities')) || [];
 
-      return (
-        serviceProviderName.includes(searchValue) ||
-        serviceProviderBIN.includes(searchValue) ||
-        phoneNumber.includes(searchValue)
-      );
-    });
+  // Add the new activity to the array
+  adminActivities.push(activity);
 
-    setServiceProviderData(filteredServiceProviders);
-  }
+  // Update the admin activities in localStorage
+  localStorage.setItem('adminActivities', JSON.stringify(adminActivities));
 };
+
+const filteredServiceProviders = serviceProviderData.filter((serviceProvider) =>
+serviceProvider &&
+  (serviceProvider.serviceProviderBIN.toLowerCase().includes(searchInput.toLowerCase()) ||
+  serviceProvider.serviceProviderName.toLowerCase().includes(searchInput.toLowerCase()) ||
+  serviceProvider.BankName.toLowerCase().includes(searchInput.toLowerCase()) ||
+  serviceProvider.servicesOffered.toLowerCase().includes(searchInput.toLowerCase()) ||
+  serviceProvider.BankAccountNumber.toLowerCase().includes(searchInput.toLowerCase()) ||
+    (typeof serviceProvider.phoneNumber === 'string' &&
+    serviceProvider.phoneNumber.toLowerCase().includes(searchInput.toLowerCase())))
+);
 
 
   return (
@@ -210,7 +221,7 @@ const ServiceProvidersList = ({ isLoggedIn, setIsLoggedIn }) => {
           onChange={(e) => handleSearch(e.target.value)}
           style={{ marginBottom: '16px' }}
         />
-        <Table dataSource={serviceProviderData} columns={columns} scroll={{ x: true }} />        <Modal
+        <Table dataSource={filteredServiceProviders} columns={columns} scroll={{ x: true }} />        <Modal
           title={editMode ? 'Edit Service Provider' : 'Create Service Provider'}
           visible={editMode}
           onCancel={() => {

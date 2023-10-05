@@ -3,7 +3,7 @@ import { Button, Form, Input, Modal, message } from "antd";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import axios from "axios";
-import "./payment.css";
+import "./style.css";
 import { MailOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 
@@ -29,15 +29,19 @@ const Payment = () => {
 
   const [bankAccount, setBankAccount] = useState({
     bankAccountNumber: "",
-    bankName: "", // Add the bankName field
+    bankName: "",
     account_holder_name: "",
     account_holder_type: "individual",
   });
 
 
+  useEffect(()=>{
+      localStorage.setItem("userSelectedMenu", 5);
+    },[])
+    
   useEffect(() => {
     if (!userData) {
-      navigate("/users"); // Replace "/user" with the desired URL for the user page
+      navigate("/users");
       return;
     }
     const fetchData = async () => {
@@ -64,6 +68,8 @@ const Payment = () => {
         console.error(error);
       }
     };
+
+    
 
     const fetchBanks = async () => {
       try {
@@ -178,15 +184,15 @@ const Payment = () => {
     try {
       let errorMessage = {};
       if (!verifyCode || !bankAccount.bankAccountNumber || !bankAccount.AgentName) {
-        
-  
+
+
         if (!bankAccount.bankAccountNumber || !bankAccount.AgentName) {
-          errorMessage.bankAccount  = "Bank Account Number and Bank selection are required";
+          errorMessage.bankAccount = "Bank Account Number and Bank selection are required";
         }
         if (!verifyCode) {
           errorMessage.verificationCode = "Verification code is required";
         }
-  
+
         setErrorMessage(errorMessage);
         return;
       }
@@ -197,20 +203,20 @@ const Payment = () => {
         return;
       }
 
-      // Generate random transaction number and get current date
+
       const randomNumber = Math.floor(Math.random() * 1000000000);
       const random = `TXN${randomNumber}`;
       const today = new Date().toISOString().split('T')[0];
 
       console.log(userbill);
-      // Prepare payment data
+
       const paymentData = {
         TransactionNo: random,
         paymentDate: today,
         amount: userbill.TotalAmount,
         UserId: userbill.UserId,
         serviceProviderBIN: localStorage.getItem('serviceProviderBIN'),
-        paymentMethod: "Credit card", // Add your payment method
+        paymentMethod: "Credit card",
         paymentDescription: `Payment for ${userbill.serviceDescription} services`,
         ReferenceNo: userbill.billNumber,
       };
@@ -291,7 +297,7 @@ const Payment = () => {
               <h4>Service Details</h4>
               <p>Description: {userbill.serviceDescription}</p>
               <p>Period: {userbill.servicePeriod}</p>
-              <p>Charges: {userbill.serviceCharges}</p>
+              <p>Service Charges: {userbill.serviceCharges}</p>
               <p>Additional Charges: {userbill.additionalCharges}</p>
             </div>
             <div className="bill-section">
@@ -320,30 +326,29 @@ const Payment = () => {
       {showBankAccountForm && (
         <div className="input-container">
           <h2>Bank Account Details</h2>
-      <Input
-        className="shorter-input"
-        name="bankAccountNumber"
-        value={bankAccount.bankAccountNumber}
-        onChange={handleChange}
-        placeholder="Bank Account Number"
-      />
-      <select
-        className="bank-dropdown"
-        name="AgentName"
-        value={bankAccount.AgentName}
-        onChange={handleChange}
-      >
-        <option value="">Select Bank</option>
-        {banks.map((bank) => (
-          <option key={bank.id} value={bank.agentName}>
-            {bank.agentName}
-          </option>
-        ))}
-      </select>
-      <br />
+          <Input
+            className="shorter-input"
+            name="bankAccountNumber"
+            value={bankAccount.bankAccountNumber}
+            onChange={handleChange}
+            placeholder="Bank Account Number"
+          />
+          <select
+            className="bank-dropdown"
+            name="AgentName"
+            value={bankAccount.AgentName}
+            onChange={handleChange}
+          >
+            <option value="">Select Bank</option>
+            {banks.map((bank) => (
+              <option key={bank.id} value={bank.agentName}>
+                {bank.agentName}
+              </option>
+            ))}
+          </select>
+<br />
+          {errors.bankAccount && <span className="error-message" >{errors.bankAccount}</span>}
 
-      {errors.bankAccount && <span className="error-message">{errors.bankAccount}</span>}
-          <br />
           <Input
             className="verification-input"
             value={verifyCode}
