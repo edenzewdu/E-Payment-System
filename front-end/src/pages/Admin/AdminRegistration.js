@@ -162,9 +162,9 @@ const AdminRegistrationForm = ({ addActivity }) => {
         // Register admin activity
       const currentDate = new Date();
       const activity = {
-        adminName: adminData.user.FirstName,
+        adminName: `Admin ${adminData.user.FirstName}`,
         action: 'registered',
-        targetAdminName: values.FirstName,
+        targetAdminName:`Admin ${values.FirstName}`,
         timestamp: currentDate.toISOString(),
       };
 
