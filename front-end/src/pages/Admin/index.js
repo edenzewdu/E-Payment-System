@@ -1,32 +1,33 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
 import Dashboard from './Dashboard';
-import { Layout } from 'antd';
-import LOGO from '../../image/logoimage.jpg';
+import { Layout, Spin, message } from 'antd';
 import { useNavigate } from 'react-router-dom';
 
 const Home = ({ content }) => {
   const [adminData, setAdminData] = useState(JSON.parse(localStorage.getItem('adminData')));
+  const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
 
-  const handleCoinClick = (event) => {
-    const splashElement = document.querySelector('.splash-animation');
-    splashElement.style.top = `${event.clientY}px`;
-    splashElement.style.left = `${event.clientX}px`;
-    splashElement.classList.add('show');
-    setTimeout(() => {
-      splashElement.classList.remove('show');
-    }, 1000);
-  };
-
   useEffect(() => {
-    const loggedInAdmin = localStorage.getItem('adminData');
-  console.log(loggedInAdmin);
-  if (!adminData) {
-    navigate('/admin/login');
-    return;
+    // Check if adminData exists
+    if (!adminData) {
+      setTimeout(() => {
+        navigate('/admin/login');
+        message.error('Please login to access the dashboard');
+      }, 5000);
+    } else {
+      setIsLoading(false);
+    }
+  }, [adminData, navigate]);
+
+  if (isLoading) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+        <Spin size="large" />
+        <p>Please wait while we check your login status...</p>
+      </div>
+    );
   }
-  }, []);
 
   return (
     <Dashboard
@@ -38,7 +39,7 @@ const Home = ({ content }) => {
           >
 
             <h1 style={{ fontSize: 24, fontWeight: 'bold', textAlign: 'center' }}>
-              Welcome to E-Payment, {adminData.FirstName}!
+              Welcome to E-Payment, {adminData.user.FirstName}!
             </h1>
 
             <h2 style={{ fontSize: 20, color: 'rgb(5, 145, 246)', textAlign: 'center', marginBottom: 24 }}>

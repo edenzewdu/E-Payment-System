@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Button, message, Modal, Form, Input } from 'antd';
+import { Table, Button, message, Modal, Form, Input, Spin } from 'antd';
 import { DeleteOutlined, EditOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import Dashboard from './Dashboard';
+import { useNavigate } from 'react-router-dom';
 
 const ServiceProvidersList = ({ isLoggedIn, setIsLoggedIn }) => {
  
@@ -13,23 +14,44 @@ const ServiceProvidersList = ({ isLoggedIn, setIsLoggedIn }) => {
   const [serviceProvider, setServiceProvider] = useState(null);
   const [serviceProviderAuthorizationLetterUrl, setServiceProviderAuthorizationLetterUrl] = useState();
   const [searchInput, setSearchInput] = useState('');
-
-  useEffect(() => {
-    fetchServiceProviders();
-  }, []);
+  const [isLoading, setIsLoading] = useState(true);
+  const navigate = useNavigate();
   
-  useEffect(()=>{
-    localStorage.setItem("selectedMenu", 5);
-  },[])
-
   const fetchServiceProviders = async () => {
     try {
       const response = await axios.get('http://localhost:3000/serviceProviders');
       setServiceProviderData(response.data);
+      localStorage.setItem('serviceProvidersData', JSON.stringify(response.data)); 
+      
     } catch (error) {
       message.error('Failed to fetch service providers.');
     }
   };
+ useEffect(() => {
+    if (!adminData) {
+      setTimeout(() => {
+        navigate('/admin/login');
+        message.error('Please login to access the dashboard');
+      }, 5000);
+    } else {
+      setIsLoading(false);
+    }
+    localStorage.setItem('selectedMenu', 5);
+    fetchServiceProviders();
+  }, [adminData, navigate]);
+
+
+  if (isLoading) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+        <Spin size="large" />
+        <p>Please wait while we check your login status...</p>
+      </div>
+    );
+  }
+  
+
+  
 
   const handleEdit = (serviceProvider) => {
     form.setFieldsValue(serviceProvider);
@@ -49,18 +71,80 @@ const ServiceProvidersList = ({ isLoggedIn, setIsLoggedIn }) => {
           const updatedServiceProvider = { ...values };
           axios
             .put(
-              `http://localhost:3000/serviceProviders/${updatedServiceProvider.serviceProviderBIN}`,
+              `http://localhost:3000/serviceProviders/${serviceProvider.serviceProviderBIN}`,
               updatedServiceProvider
             )
             .then((response) => {
               if (response.status === 200) {
                 message.success('Service provider data updated successfully.');
-                window.location.href = window.location.href;
-                const updatedData = serviceProviderData.map((sp) =>
-                  sp.serviceProviderBIN === updatedServiceProvider.serviceProviderBIN
-                    ? updatedServiceProvider
-                    : sp
-                );
+
+                
+                // Retrieve the previous serviceProvider data from localStorage
+                const previousData = JSON.parse(localStorage.getItem('serviceProvidersData')) || [];
+  
+                // Find the index of the updated serviceProvider in the previous data
+                const updatedIndex = previousData.findIndex((serviceProvider) => serviceProvider.serviceProviderBIN === updatedServiceProvider.serviceProviderBIN);
+  
+                // Create a copy of the previous data
+                const updatedData = [...previousData];
+  
+                // Get the previous serviceProvider data
+                const previousServiceProvider = updatedData[updatedIndex];
+  
+                // Create a change object to track the changes
+                const changes = {};
+  
+                // Compare each field of the updated serviceProvider with the previous serviceProvider
+                for (const key in updatedServiceProvider) {
+                  if ( key !== 'serviceProviderBIN' && updatedServiceProvider[key] !== previousServiceProvider[key]) {
+                    changes[key] = {
+                      from: previousServiceProvider[key],
+                      to: updatedServiceProvider[key],
+                    };
+                  }
+                }
+  
+                // Update the serviceProviderBIN if it has changed
+                if (updatedServiceProvider.serviceProviderBIN !== previousServiceProvider.serviceProviderBIN) {
+                  updatedData[updatedIndex].serviceProviderBIN = updatedServiceProvider.serviceProviderBIN;
+                  changes.serviceProviderBIN = {
+                    from: previousServiceProvider.serviceProviderBIN,
+                    to: updatedServiceProvider.serviceProviderBIN,
+                  };
+                }
+  
+                // Add the changes object to the updated serviceProvider data
+                updatedServiceProvider.changes = changes;
+  
+                // Replace the updated serviceProvider with the new serviceProvider data in the copy
+                updatedData[updatedIndex] = updatedServiceProvider;
+  
+                // Update the serviceProvider data in localStorage
+                localStorage.setItem('serviceProviderData', JSON.stringify(updatedData));
+
+                // Create a new activity object for the service provider edit action
+                const editActivity = {
+                  adminName: `Admin ${adminData.user.FirstName}`,
+                  action: 'Edited',
+                  targetAdminName: `Service Provider ${updatedServiceProvider.serviceProviderName}`,
+                  timestamp: new Date().getTime(),
+                  updatedData: updatedServiceProvider,
+                };
+  
+                // Get the existing admin activities from localStorage or initialize an empty array
+                const adminActivities = JSON.parse(localStorage.getItem('adminActivities')) || [];
+  
+                // Add the new activity to the array
+                adminActivities.push(editActivity);
+  
+                // Update the admin activities in localStorage
+                localStorage.setItem('adminActivities', JSON.stringify(adminActivities));
+  
+                // const UpdatedData = serviceProviderData.map((sp) =>
+                //   sp.serviceProviderBIN === updatedServiceProvider.serviceProviderBIN
+                //     ? updatedServiceProvider
+                //     : sp
+                // );
                 setServiceProviderData(updatedData);
                 setEditMode(false);
                 form.resetFields();
@@ -75,8 +159,12 @@ const ServiceProvidersList = ({ isLoggedIn, setIsLoggedIn }) => {
       },
     });
   };
-
+  
   const handleDelete = (serviceProviderBIN) => {
+    const deletedServiceProvider = serviceProviderData.find(
+      (sp) => sp.serviceProviderBIN === serviceProviderBIN
+    );
+  
     Modal.confirm({
       title: 'Confirm Delete',
       content: 'Are you sure you want to delete this service provider?',
@@ -89,7 +177,25 @@ const ServiceProvidersList = ({ isLoggedIn, setIsLoggedIn }) => {
           .then((response) => {
             if (response.status === 200) {
               message.success('Service provider deleted successfully.');
-              window.location.href = window.location.href;
+  
+              // Create a new activity object for the service provider delete action
+              const deleteActivity = {
+                adminName: `Admin ${adminData.user.FirstName}`,
+                action: 'Deleted',
+                targetAdminName: `Service Provider ${deletedServiceProvider.serviceProviderName}`,
+                timestamp: new Date().getTime(),
+                deletedData: deletedServiceProvider,
+              };
+  
+              // Get the existing admin activities from localStorage or initialize an empty array
+              const adminActivities = JSON.parse(localStorage.getItem('adminActivities')) || [];
+  
+              // Add the new activity to the array
+              adminActivities.push(deleteActivity);
+  
+              // Update the admin activities in localStorage
+              localStorage.setItem('adminActivities', JSON.stringify(adminActivities));
+  
               const updatedData = serviceProviderData.filter(
                 (sp) => sp.serviceProviderBIN !== serviceProviderBIN
               );

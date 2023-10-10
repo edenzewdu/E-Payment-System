@@ -10,9 +10,9 @@ const { Title, Paragraph } = Typography;
 
 const AboutUsPage = () => {
 
-  useEffect(()=>{
-    localStorage.setItem("userSelectedMenu", 2);
-  },[])
+  useEffect(() => {
+    localStorage.setItem("userSelectedMenu", 3);
+  }, [])
 
   return (
     <div className="about-us-container">

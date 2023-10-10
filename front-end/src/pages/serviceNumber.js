@@ -1,14 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { message } from 'antd';
-import { Link, Navigate, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import './style.css';
 import axios from 'axios';
-import companyLogo from '../image/logoimage.jpg';
 import Header from './Header';
 
 const ServiceNumber = () => {
 
-
+  // State variables
   const [userData, setUserData] = useState(localStorage.getItem('userData'));
   const [serviceNumber, setServiceNumber] = useState('');
   const [serviceProviderBIN, setServiceProviderBIN] = useState(localStorage.getItem('serviceProviderBIN'));
@@ -19,9 +18,9 @@ const ServiceNumber = () => {
   const [errors, setErrorMessage] = useState('');
   const navigate = useNavigate();
 
-  useEffect(()=>{
+  useEffect(() => {
     localStorage.setItem("selectedMenu", 5);
-  },[])
+  }, [])
 
   useEffect(() => {
     const fetchData = async () => {
@@ -91,12 +90,12 @@ const ServiceNumber = () => {
   return (
     <div className='container'>
       <Header />
-<div className='circle'>
-          <p>P</p>
-        </div>
+      <div className='circle'>
+        <p>P</p>
+      </div>
 
       <div className='bodyy' >
-        
+
         <div className='form-container' >
           <form onSubmit={handleSubmit}>
             <div className='title'>Payment Page
@@ -107,7 +106,7 @@ const ServiceNumber = () => {
                   position: "relative",
                   height: "3px",
                   width: "25px",
-                  left:'10px',
+                  left: '10px',
                   transform: "translateX(-50%)",
                   backgroundImage:
                     "linear-gradient(to right, rgb(3, 55, 100), rgb(95, 174, 230))"
@@ -139,7 +138,7 @@ const ServiceNumber = () => {
                 <p>First Name: {user.FirstName}</p>
                 <p>Last Name: {user.LastName}</p>
                 {/* Display other user details */}
-                <label>
+                <label >
                   <br></br>
                   Service Number:
                   <input

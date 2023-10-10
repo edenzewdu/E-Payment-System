@@ -5,7 +5,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import companyLogo from '../image/logoimage.jpg';
 import { Link, useNavigate } from 'react-router-dom';
 
-import { Layout, Select, message } from 'antd';
+import {  Input, Select, message } from 'antd';
 
 
 
@@ -184,12 +184,10 @@ const RegistrationForm = () => {
           const response = await axios.post('http://localhost:3000/Users', formDataToSend);
 
 
-          // Perform navigation to the service providers
           navigate('/login');
           localStorage.setItem('isLoggedInUser', true);
           localStorage.setItem('userData', JSON.stringify(response.data));
           message.success('Registered successfully!');
-          // Display success message using Toastify
           toast.success('Registered successfully!', {
             position: toast.POSITION.TOP_RIGHT,
             autoClose: 3000,
@@ -214,9 +212,9 @@ const RegistrationForm = () => {
     }));
   };
   return (
-    <Layout  >
+    <div  >
       <div style={{ alignItems: 'center', marginTop: '25px', width: '80%', position: 'relative' }}>
-        <div style={{ display: 'flex', alignItems: 'center', height: 'fit-content', width: '60%', margin: '2%', position: 'absolute' }}>
+        <div className='logo' style={{ display: 'flex', alignItems: 'center', height: 'fit-content', width: '60%', margin: '2%', position: 'absolute' }}>
           <img src={companyLogo} alt="company-logo" style={{ width: '50px', height: '50px', borderRadius: '50%' }} />
           <div className="company-name">
             E-payment-system
@@ -304,7 +302,7 @@ const RegistrationForm = () => {
               </div>
               <div className="item">
                 <label className="user-input">Password:</label>
-                <input
+                <Input.Password
                   type="password"
                   name="Password"
                   className="input-field"
@@ -316,7 +314,7 @@ const RegistrationForm = () => {
               </div>
               <div className="item">
                 <label className="user-input">Confirm Password:</label>
-                <input
+                <Input.Password
                   type="password"
                   name="ConfirmPassword"
                   className="input-field"
@@ -377,7 +375,7 @@ const RegistrationForm = () => {
         </form>
 
       </div>
-    </Layout>
+    </div>
   );
 };
 export default RegistrationForm;

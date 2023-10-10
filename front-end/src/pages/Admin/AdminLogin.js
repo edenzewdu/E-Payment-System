@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { Form, Button, message } from 'antd';
+import { Form, Button, message, Input } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import companyLogo from '../../image/logoimage.jpg';
 
 const AdminLogin = () => {
+  // State variables
   const [Identifier, setIdentifier] = useState('');
   const [Password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -36,15 +36,23 @@ const AdminLogin = () => {
       const data = await response.json();
 
       if (response.ok) {
-        if (data && data.token) {
+        if (data && data.token ) {
+          if(data.user.Role === "Admin" || data.user.Role === "SuperAdmin"){
           localStorage.setItem('adminToken', data.token);
           localStorage.setItem('adminData', JSON.stringify(data)); // Store adminData as JSON
           setIsLoggedIn(true);
           console.log('Admin logged in successfully');
+          message.success('Admin logged in successfully');
+          localStorage.setItem('isLoggedInAdmin', true);
           console.log(`${data.token},${data.user.id}`);
           console.log(localStorage.getItem('adminData'));
+          console.log(localStorage.getItem('isLoggedInAdmin'));
           navigate(`/admin/dashboard/${data.user.id}`);
-        } else {
+        } else if (data.user.Role !== 'Admin' && data.user.Role !== 'SuperAdmin') {
+          message.error('You are not authorized to access the admin panel');
+          console.error('Unauthorized access');
+        }
+      }else {
           message.error('server error');
           console.error('Invalid server response:', data);
         }
@@ -74,17 +82,17 @@ const AdminLogin = () => {
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor:'#435165',
+        backgroundColor: '#435165',
       }}
     >
 
-<div className='logo' style={{ position: 'absolute', top: '66px', left: '16px' }}>
-    <img src={companyLogo} alt='company logo' />
-    <div className='company-name'>
-      E-payment-system
-      <div className='slogan'>your trusted online payment system</div>
-    </div>
-  </div>
+      <div className='logo' style={{ position: 'absolute', top: '66px', left: '16px' }}>
+        <img src={companyLogo} alt='company logo' />
+        <div className='company-name'>
+          E-payment-system
+          <div className='slogan'>your trusted online payment system</div>
+        </div>
+      </div>
 
       <div
         className="login"
@@ -108,10 +116,11 @@ const AdminLogin = () => {
           Login
         </h1>
         <Form style={{
-  display: 'flex',
-  flexWrap: 'wrap',
-  justifyContent: 'center',
-  paddingTop: '20px'}}className="form" onFinish={handleSubmit}>
+          display: 'flex',
+          flexWrap: 'wrap',
+          justifyContent: 'center',
+          paddingTop: '20px'
+        }} className="form" onFinish={handleSubmit}>
           <label
             htmlFor="identifier"
             style={{
@@ -124,7 +133,7 @@ const AdminLogin = () => {
               color: '#ffffff',
             }}
           >
-            <UserOutlined className="icon" style={{color:'white'}} />
+            <UserOutlined className="icon" style={{ color: 'white' }} />
           </label>
           <input
             type="text"
@@ -154,9 +163,9 @@ const AdminLogin = () => {
               color: '#ffffff',
             }}
           >
-            <LockOutlined className="icon" style={{color:'white'}}/>
+            <LockOutlined className="icon" style={{ color: 'white' }} />
           </label>
-          <input
+          <Input.Password
             type="password"
             name="password"
             placeholder="Password"

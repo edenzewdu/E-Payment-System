@@ -13,17 +13,16 @@ var corOptions = {
 app.use(cors())
 app.use(bodyParser.json())
 app.use(express.json())
-app.use(express.urlencoded({extended : true}))
+app.use(express.urlencoded({ extended: true }))
 
-//
 const db = require('./models/index.js')
 db.sequelize.sync();
 
-db.sequelize.sync({force: false })
-.then(() => {
+db.sequelize.sync({ force: false })
+  .then(() => {
 
-  console.log('it is working');
-}); 
+    console.log('it is working');
+  });
 
 // Import controllers
 const billController = require('./controller/billController.js')
@@ -34,7 +33,6 @@ const AgentController = require('./controller/agentController.js');
 const AdminLoginController = require('./controller/AdminLoginController.js')
 
 // Import routes
-
 const billsRouter = require('./routes/billRoutes.js')
 const serviceProvidersRouter = require('./routes/serviceProviderRoute.js');
 const paymentRouter = require('./routes/paymentRoutes.js');
@@ -46,22 +44,19 @@ const AdminRouter = require('./routes/AdminRoutes.js')
 app.use('/bills', billsRouter);
 app.use('/serviceproviders', serviceProvidersRouter);
 app.use('/payment', paymentRouter);
-
-
 app.use('/Users', usersRouter);
 app.use('/agents', AgentsRouter);
 app.use('/api/admin', AdminRouter);
-app.use ('/Images',express.static('./Images'));
+app.use('/Images', express.static('./Images'));
 
 
 
 //testing api
-app.get('/',(req,res)=>{
-  res.json({message: 'Welcome to epayment'})
+app.get('/', (req, res) => {
+  res.json({ message: 'Welcome to epayment' })
 })
 
 //Port
-
 const PORT = process.env.PORT || 3000
 
 
@@ -69,26 +64,3 @@ const PORT = process.env.PORT || 3000
 app.listen(PORT, () => {
   console.log(`Server started on port ${PORT}`);
 });
-
-
-// app.use('/agents', agentController);
-// app.use('/bills', billController);
-// app.use('/payments', paymentController);
-// app.use('/services', serviceController);
-// app.use('/users', userController);
-// app.use('/agentHistory', agentHistoryController);
-// app.use('/serviceHistory', serviceHistoryController);
-// app.use('/userHistory', userHistoryController);
-
-// start server
-// app.listen(PORT, () => {
-
-//   console.log(Server started on port ${PORT});
-
-
-//   connection.connect(function(err){
-//     if (err) throw err;
-//     console.log('database connected');
-
-//   })
-// });

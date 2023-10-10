@@ -5,7 +5,7 @@ import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import companyLogo from '../image/logoimage.jpg';
 import USER from '../image/himage3.jpg';
-import './style.css'; // Import custom CSS file
+// import './style.css'; 
 import axios from 'axios';
 import Lock from '../image/simage2.png';
 
@@ -64,9 +64,9 @@ const UserLogin = () => {
 
 
   return (
-    <Layout>
+    <Layout style={{ backgroundColor: 'white'}}>
       <div style={{ alignItems: 'center', marginTop: '25px', width: '80%', position: 'relative' }}>
-        <div style={{ display: 'flex', alignItems: 'center', height: 'fit-content', width: '60%', margin: '2%', position: 'absolute' }}>
+        <div className='logo' style={{ display: 'flex', alignItems: 'center', height: 'fit-content', width: '60%', margin: '2%', position: 'absolute' }}>
           <img src={companyLogo} alt="company-logo" style={{ width: '50px', height: '50px', borderRadius: '50%' }} />
           <div className="company-name">
             E-payment-system

@@ -28,7 +28,7 @@
   margin: 20% 0% 0% 4%;
   position: relative;
   justify-self: right;
-  
+
 
 }
 
@@ -54,12 +54,13 @@
   transform: scale(1.1);
 }
 
-.logo-image{
-  width: 50px; 
+.logo-image {
+  width: 50px;
   height: 50px;
-  margin: 10px; 
+  margin: 10px;
   border-radius: '50%';
 }
+
 .company-name {
   font-size: 30px;
   font-weight: bold;
@@ -82,7 +83,7 @@
   width: 100%;
   position: absolute;
   padding: auto;
-  
+
 }
 
 
@@ -101,20 +102,20 @@
 .nav-item {
   padding-left: 15%;
   color: black;
-  
+
   text-decoration: none;
   font-weight: bold;
   font-size: 18px;
   transition: transform 0.3s;
- 
+
 }
 
-.sider{
+.sider {
   width: 135px;
   padding-left: 8%;
 }
 
-.sider:hover{
+.sider:hover {
   width: 150px;
   padding-left: 0%;
   color: rgb(58, 159, 231);
@@ -125,8 +126,12 @@
   transform: scale(1.1);
 }
 
-.nav-item::after {
+a.nav-item.active {
   color: blue;
+}
+
+.nav-item.ant-menu-item-selected {
+  color: #0000ff;
 }
 
 .login-box {
@@ -143,9 +148,9 @@
   transition: transform 0.3s;
 }
 
-.profile-picture{
-  display: flex; 
-  justify-content: right; 
+.profile-picture {
+  display: flex;
+  justify-content: right;
   text-align: center;
 }
 
@@ -162,13 +167,14 @@
   display: flex;
   justify-content: right;
 }
-.logo-menu{
+
+.logo-menu {
   display: inline-flex;
   width: 90%;
 }
 
 .menu {
-  display:contents;
+  display: contents;
   align-items: center;
   width: 100%;
   justify-content: space-between;
@@ -196,7 +202,7 @@
 
 }
 
-.body-1{
+.body-1 {
   display: inline-block;
   align-items: center;
   height: fit-content;
@@ -204,7 +210,7 @@
   margin: 13% 0% 0% 29%;
   position: relative;
   justify-self: right;
-  
+
 }
 
 .body-2 {
@@ -228,7 +234,7 @@
   opacity: 0.6;
   border-top-right-radius: 30px;
   position: relative;
-  
+
 }
 
 .side-two {
@@ -321,7 +327,7 @@
   margin-top: 20px;
 }
 
-.additional-info > h4 {
+.additional-info>h4 {
   margin-bottom: 10px;
 }
 
@@ -344,13 +350,14 @@
 }
 
 /*service list*/
-.class{
+.class {
   padding-top: 110px;
 }
+
 .list-header {
   font-size: 30px;
   color: #101111;
-  margin-top:100px ;
+  margin-top: 100px;
   text-align: center;
 }
 
@@ -425,7 +432,7 @@ li {
   padding: 0;
   margin: 0;
   position: absolute;
-  margin-top:250px;
+  margin-top: 250px;
   overflow-y: auto;
 
 }
@@ -440,7 +447,9 @@ li {
   justify-content: center;
   position: relative;
   height: fit-content;
-};
+}
+
+;
 
 .bodyy .button {
   background-image: linear-gradient(to right, rgb(95, 174, 230), rgb(43, 99, 147));
@@ -787,8 +796,9 @@ li {
     width: 60%;
     margin: 0% 2%;
     position: absolute;
-  
+
   }
+
   .logo img {
     width: 70px;
     height: 70px;
@@ -796,11 +806,11 @@ li {
     transition: transform 0.3s;
   }
 
-  .pp{
+  .pp {
     position: relative;
   }
-  
-  .body-1{
+
+  .body-1 {
     display: inline-flex;
     align-items: center;
     height: fit-content;
@@ -808,18 +818,19 @@ li {
     margin: 2% 0% 0% 2%;
     position: relative;
     justify-self: right;
-    
+
   }
 
-.body-2 {
-  white-space:inherit;
-  margin: 0%;
-  display: inline-flex;
-  height: fit-content;
-  width: 95%;
-  padding: 0% 0% 0% 0%;
-  position: absolute;
-}
+  .body-2 {
+    white-space: inherit;
+    margin: 0%;
+    display: inline-flex;
+    height: fit-content;
+    width: 95%;
+    padding: 0% 0% 0% 0%;
+    position: absolute;
+  }
+
   .side-one {
     width: 50%;
     flex: 0 0 40%;
@@ -836,25 +847,26 @@ li {
     width: 30%;
     max-width: none;
   }
+
   .nav {
     display: flex;
     align-items: baseline;
-    justify-content:flex-end;
+    justify-content: flex-end;
     padding: 40px 10% 10% 40%;
     width: 100%;
     position: absolute;
-}
+  }
 
   .nav-item {
     justify-content: space-evenly;
 
   }
-  .nav .nav-item > a.active {
+
+  .active-nav-item {
     color: blue;
     font-weight: bold;
     text-decoration: underline;
   }
-  
 
 
   /*about us page*/
@@ -865,13 +877,13 @@ li {
     padding-top: 200px;
     padding-left: 10%;
   }
-  
-  
+
+
   /*contact Us*/
-  .contactus{
-    padding:0% 0% 0% 4%;
+  .contactus {
+    padding: 0% 0% 0% 4%;
   }
-  
+
 
 }
 
@@ -960,7 +972,7 @@ h2 {
 
 .input-container {
   margin-bottom: 10px;
-    display: inline-block;
+  display: inline-block;
   align-items: center;
 }
 
@@ -1029,11 +1041,11 @@ h2 {
   justify-content: flex-end;
 }
 
-.modal-footer > *:not(:last-child) {
+.modal-footer>*:not(:last-child) {
   margin-right: 10px;
 }
 
-  /* payment history styles */
+/* payment history styles */
 
 h1 {
   font-size: 24px;
@@ -1093,4 +1105,3 @@ button:disabled {
   background-color: #ccc;
   cursor: not-allowed;
 }
-

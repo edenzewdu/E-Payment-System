@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { Link, useNavigate, useLocation, NavLink } from 'react-router-dom';
 import { MenuOutlined, LogoutOutlined } from '@ant-design/icons';
 import companyLogo from '../image/logoimage.jpg';
 import USER from '../image/himage3.jpg';
@@ -13,14 +13,15 @@ const { Sider } = Layout;
 
 
 const Header = () => {
-  const [userData, setUserData] = useState({});
+
+  // State variables
+  const [userData, setUserData] = useState(JSON.parse(localStorage.getItem('userData')) ? JSON.parse(localStorage.getItem('userData')) : {});
+  const [profilePictureUrl, setProfilePictureUrl] = useState(userData?.ProfilePicture ? `http://localhost:3000/${userData.ProfilePicture}` : '');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSmallScreen, setIsSmallScreen] = useState(false);
-  const [profilePictureUrl, setProfilePictureUrl] = useState();
   const [isLoggedInUser, setIsLoggedInUser] = useState(localStorage.getItem('isLoggedInUser') || false);
   const navigate = useNavigate();
   const location = useLocation();
-
   const [userSelectedMenu, setUserSelectedMenu] = useState(localStorage.getItem("userSelectedMenu") || '1');
   const [form] = Form.useForm();
   const [editMode, setEditMode] = useState(false);
@@ -40,12 +41,11 @@ const Header = () => {
   useEffect(() => {
     if (localStorage.getItem('isLoggedInUser')) {
       try {
-        const parsedUserData = (JSON.parse(localStorage.getItem('userData')));
-        setFormData(parsedUserData);
-        const userData = localStorage.getItem('userData');
-        setUserData(userData);
-        console.log(formData);
-        setProfilePictureUrl(`http://localhost:3000/${parsedUserData.ProfilePicture}`);
+        const loggedInUser = localStorage.getItem('userData');
+        const parsedAdminData = JSON.parse(loggedInUser);
+        setFormData(parsedAdminData.user);
+        setUserData(parsedAdminData);
+        setProfilePictureUrl(`http://localhost:3000/${userData.ProfilePicture}`);
       } catch (error) {
         console.error('Error parsing user data:', error);
         message.error('Error parsing user data');
@@ -69,10 +69,28 @@ const Header = () => {
   }, [window.innerWidth, isMenuOpen, isSmallScreen, editMode]);
 
   useEffect(() => {
+    const pathname = location.pathname;
+    const selectedMenu = getSelectedMenu(pathname); // Implement this function to map the current route to the corresponding menu item key
+    setUserSelectedMenu(selectedMenu);
+  }, [location]);
 
-    setUserSelectedMenu(localStorage.getItem("selectedMenu"));
 
-  }, [userSelectedMenu])
+  function getSelectedMenu(pathname) {
+    switch (pathname) {
+      case '/users':
+        return '1';
+      case '/aboutUs':
+        return '2';
+      case '/contactUs':
+        return '3';
+      case '/serviceProviders':
+        return '4';
+      case '/history':
+        return '5';
+      default:
+        return '1';
+    }
+  }
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -134,6 +152,7 @@ const Header = () => {
             }
           });
 
+
           // Send the updated user profile to the server
           const response = await axios.put(
             `http://localhost:3000/Users/${userData.id}`,
@@ -150,12 +169,12 @@ const Header = () => {
           console.log(abcd);
           // Update the user data in local storage and state
           const updatedUser = response.data;
-          localStorage.setItem('userData', JSON.stringify(updatedUser));
-          setUserData(updatedUser);
+          localStorage.setItem('userData', JSON.stringify(updatedUser.user));
+          setUserData(updatedUser.user);
           console.log(formData);
           console.log(formData.ProfilePicture);
           console.log(updatedUser);
-
+          setProfilePictureUrl(`http://localhost:3000/${formData.ProfilePicture}`);
           message.success('User data updated successfully.');
 
         } catch (error) {
@@ -259,7 +278,7 @@ const Header = () => {
                       className='sider'
                       selectedKeys={[userSelectedMenu]}
                       onSelect={handleMenuSelect}
-                      
+
                     >
                       {/* Sidebar menu items */}
                       <Menu.Item key="1" className='nav-item'>
@@ -284,14 +303,24 @@ const Header = () => {
                     </Menu>
                   </Sider>)}</div>) : (
               <div className="menu">
-                <div className='nav' >
-                  <Link to="/users" className="nav-item" >Home</Link>
-                  <Link to="/contactUs" className='nav-item'>Contact Us</Link>
-                  <Link to="/aboutUs" className='nav-item'>About Us</Link>
+                <div className="nav">
+                  <NavLink exact to="/users" className="nav-item" activeClassName="active-nav-item">
+                    Home
+                  </NavLink>
+                  <NavLink to="/contactUs" className="nav-item" activeClassName="active-nav-item">
+                    Contact Us
+                  </NavLink>
+                  <NavLink to="/aboutUs" className="nav-item" activeClassName="active-nav-item">
+                    About Us
+                  </NavLink>
                   {isLoggedInUser ? (
                     <>
-                      <Link to="/serviceProviders" className='nav-item'>Payment</Link>
-                      <Link to="/history" className='nav-item'>History</Link>
+                      <NavLink to="/serviceProviders" className="nav-item" activeClassName="active-nav-item">
+                        Payment
+                      </NavLink>
+                      <NavLink to="/history" className="nav-item" activeClassName="active-nav-item">
+                        History
+                      </NavLink>
                     </>
                   ) : null}
                 </div>

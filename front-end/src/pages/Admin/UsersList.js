@@ -1,20 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Input,Button } from 'antd';
+import { Table, Input, Button, Spin, message } from 'antd';
 import axios from 'axios';
 import Dashboard from './Dashboard';
+import { useNavigate } from 'react-router-dom';
 
 const UsersList = ({ isLoggedIn, setIsLoggedIn }) => {
+
+  // State variables
   const [adminData, setAdminData] = useState(JSON.parse(localStorage.getItem('adminData')));
   const [userData, setUserData] = useState([]);
   const [searchInput, setSearchInput] = useState('');
-
-  useEffect(() => {
-    fetchUsers();
-  }, []);
-
-  useEffect(()=>{
-    localStorage.setItem("selectedMenu", 8);
-  },[])
+  const [isLoading, setIsLoading] = useState(true);
+  const navigate = useNavigate();
 
   const fetchUsers = async () => {
     try {
@@ -25,13 +22,40 @@ const UsersList = ({ isLoggedIn, setIsLoggedIn }) => {
     }
   };
 
+  useEffect(() => {
+    // Check if adminData exists
+    if (!adminData) {
+      setTimeout(() => {
+        navigate('/admin/login');
+        message.error('Please login to access the dashboard');
+      }, 5000);
+    } else {
+      setIsLoading(false);
+    }
+    localStorage.setItem('selectedMenu', 8);
+    fetchUsers();
+  }, [adminData, navigate]);
+
+
+  if (isLoading) {
+    return (
+      // Show loading spinner while checking login status
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+        <Spin size="large" />
+        <p>Please wait while we check your login status...</p>
+      </div>
+    );
+  }
+
+
+
   const handleSearch = (value) => {
     setSearchInput(value);
     const currentDate = new Date();
     const activity = {
       adminName: `Admin ${adminData.user.FirstName}`,
       action: 'Searched for',
-      targetAdminName:`${value} in User List`,
+      targetAdminName: `${value} in User List`,
       timestamp: currentDate.toISOString(),
     };
 
@@ -46,15 +70,15 @@ const UsersList = ({ isLoggedIn, setIsLoggedIn }) => {
   };
 
   const filteredUsers = userData.filter((user) =>
-  user.Role === 'User' &&
-  (user.UserName.toLowerCase().includes(searchInput.toLowerCase()) ||
-    user.FirstName.toLowerCase().includes(searchInput.toLowerCase()) ||
-    user.LastName.toLowerCase().includes(searchInput.toLowerCase()) ||
-    user.Email.toLowerCase().includes(searchInput.toLowerCase()) ||
-    user.Address.toLowerCase().includes(searchInput.toLowerCase()) ||
-    (typeof user.PhoneNumber === 'string' &&
-      user.PhoneNumber.toLowerCase().includes(searchInput.toLowerCase())))
-);
+    user.Role === 'User' &&
+    (user.UserName.toLowerCase().includes(searchInput.toLowerCase()) ||
+      user.FirstName.toLowerCase().includes(searchInput.toLowerCase()) ||
+      user.LastName.toLowerCase().includes(searchInput.toLowerCase()) ||
+      user.Email.toLowerCase().includes(searchInput.toLowerCase()) ||
+      user.Address.toLowerCase().includes(searchInput.toLowerCase()) ||
+      (typeof user.PhoneNumber === 'string' &&
+        user.PhoneNumber.toLowerCase().includes(searchInput.toLowerCase())))
+  );
 
   const columns = [
     {

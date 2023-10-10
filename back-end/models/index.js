@@ -6,16 +6,16 @@ const sequelize = new Sequelize(
   dbConfig.DB,
   dbConfig.USER,
   dbConfig.PASSWORD, {
-    host: dbConfig.HOST,
-    dialect: dbConfig.dialect,
-    operatorsAliases: false,
-    pool: {
-      max: dbConfig.pool.max,
-      min: dbConfig.pool.min,
-      acquire: dbConfig.pool.acquire,
-      idle: dbConfig.pool.idle
-    }
+  host: dbConfig.HOST,
+  dialect: dbConfig.dialect,
+  operatorsAliases: false,
+  pool: {
+    max: dbConfig.pool.max,
+    min: dbConfig.pool.min,
+    acquire: dbConfig.pool.acquire,
+    idle: dbConfig.pool.idle
   }
+}
 );
 
 const db = {};
@@ -28,9 +28,6 @@ db.Agents = require('./agentModel.js')(sequelize, Sequelize);
 db.User = require('./UserModel.js')(sequelize, Sequelize);
 db.ServiceProviders = require('./ServiceProviderModel.js')(sequelize, Sequelize);
 db.Payment = require('./PaymentModel.js')(sequelize, Sequelize);
-// db.AgentHistory = require('./agentHistoryModel.js')(sequelize, Sequelize);
-// db.ServiceProviderHistory = require('./serviceProviderHistoryModel.js')(sequelize, Sequelize);
-// db.UserHistory = require('./userHistoryModel.js')(sequelize, Sequelize);
 
 // Define User-Agents junction table
 const UserAgent = sequelize.define('userAgent', {});

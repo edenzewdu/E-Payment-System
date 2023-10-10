@@ -12,7 +12,7 @@ const { Title, Paragraph } = Typography;
 const ContactUs = () => {
 
   useEffect(()=>{
-    localStorage.setItem("userSelectedMenu", 3);
+    localStorage.setItem("userSelectedMenu", 2);
   },[])
 
   return (

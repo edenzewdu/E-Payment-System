@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Button, message, Modal, Form, Input, Upload } from 'antd';
+import { Table, Button, message, Modal, Form, Input, Upload, Spin } from 'antd';
 import { DeleteOutlined, EditOutlined, UploadOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import Dashboard from './Dashboard';
+import { useNavigate } from 'react-router-dom';
+
 
 const AgentsList = ({ isLoggedIn, setIsLoggedIn }) => {
   const [adminData, setAdminData] = useState(JSON.parse(localStorage.getItem('adminData')));
@@ -10,32 +12,55 @@ const AgentsList = ({ isLoggedIn, setIsLoggedIn }) => {
   const [form] = Form.useForm();
   const [editMode, setEditMode] = useState(false);
   const [agent, setAgent] = useState(null);
-  const [agentAuthorizationLetterUrl, setgentAuthorizationLetterUrl] = useState();
+  const [agentAuthorizationLetterUrl, setAgentAuthorizationLetterUrl] = useState();
   const [searchInput, setSearchInput] = useState('');
-
-
-  useEffect(() => {
-    fetchAgents();
-  }, []);
-
-  useEffect(()=>{
-    localStorage.setItem("selectedMenu", 3);
-  },[])
-
+  const [isLoading, setIsLoading] = useState(true);
+  const navigate = useNavigate();
+  
+  
   const fetchAgents = async () => {
     try {
       const response = await axios.get('http://localhost:3000/agents');
       setAgentData(response.data);
+      localStorage.setItem('agentData', JSON.stringify(response.data)); // Store agent data in localStorage
     } catch (error) {
       message.error('Failed to fetch agents.');
     }
   };
+
+  
+ useEffect(() => {
+    if (!adminData) {
+      setTimeout(() => {
+        navigate('/admin/login');
+        message.error('Please login to access the dashboard');
+      }, 5000);
+    } else {
+      setIsLoading(false);
+    }
+    localStorage.setItem('selectedMenu', 3);
+    fetchAgents();
+  }, [adminData, navigate]);
+
+
+  if (isLoading) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+        <Spin size="large" />
+        <p>Please wait while we check your login status...</p>
+      </div>
+    );
+  }
+
+
+ 
 
   const handleEdit = (agent) => {
     form.setFieldsValue(agent);
     setEditMode(true);
     setAgent(agent);
   };
+
   const handleSave = () => {
     Modal.confirm({
       title: 'Confirm Edit',
@@ -47,20 +72,72 @@ const AgentsList = ({ isLoggedIn, setIsLoggedIn }) => {
         form.validateFields().then((values) => {
           const updatedAgent = { ...values };
           axios
-            .put(
-              `http://localhost:3000/agents/${updatedAgent.agentBIN}`,
-              updatedAgent
-            )
+            .put(`http://localhost:3000/agents/${agent.agentBIN}`, updatedAgent)
             .then((response) => {
               if (response.status === 200) {
-                message.success('agent data updated successfully.');
-                window.location.href = window.location.href;
-                const updatedData = agentData.map((sp) =>
-                  sp.agentBIN === updatedAgent.agentBIN
-                    ? updatedAgent
-                    : sp
-                );
-                setAgentData(updatedData);
+                message.success('Agent data updated successfully.');
+  
+                // Retrieve the previous agent data from localStorage
+                const previousData = JSON.parse(localStorage.getItem('agentData')) || [];
+  
+                // Find the index of the updated agent in the previous data
+                const updatedIndex = previousData.findIndex((agent) => agent.agentBIN === updatedAgent.agentBIN);
+  
+                // Create a copy of the previous data
+                const updatedData = [...previousData];
+  
+                // Get the previous agent data
+                const previousAgent = updatedData[updatedIndex];
+  
+                // Create a change object to track the changes
+                const changes = {};
+  
+                // Compare each field of the updated agent with the previous agent
+                for (const key in updatedAgent) {
+                  if ( key !== 'agentBIN' && updatedAgent[key] !== previousAgent[key]) {
+                    changes[key] = {
+                      from: previousAgent[key],
+                      to: updatedAgent[key],
+                    };
+                  }
+                }
+  
+                // Update the agentBIN if it has changed
+                if (updatedAgent.agentBIN !== previousAgent.agentBIN) {
+                  updatedData[updatedIndex].agentBIN = updatedAgent.agentBIN;
+                  changes.agentBIN = {
+                    from: previousAgent.agentBIN,
+                    to: updatedAgent.agentBIN,
+                  };
+                }
+  
+                // Add the changes object to the updated agent data
+                updatedAgent.changes = changes;
+  
+                // Replace the updated agent with the new agent data in the copy
+                updatedData[updatedIndex] = updatedAgent;
+  
+                // Update the agent data in localStorage
+                localStorage.setItem('agentData', JSON.stringify(updatedData));
+  
+                // Create a new activity object for the agent edit action
+                const editActivity = {
+                  adminName: `Admin ${adminData.user.FirstName}`,
+                  action: 'Edited',
+                  targetAdminName: `Agent ${updatedAgent.agentName}`,
+                  timestamp: new Date().getTime(),
+                  updatedData: updatedAgent,
+                };
+  
+                // Get the existing admin activities from localStorage or initialize an empty array
+                const adminActivities = JSON.parse(localStorage.getItem('adminActivities')) || [];
+  
+                // Add the new activity to the array
+                adminActivities.push(editActivity);
+  
+                // Update the admin activities in localStorage
+                localStorage.setItem('adminActivities', JSON.stringify(adminActivities));
+  
                 setEditMode(false);
                 form.resetFields();
               } else {
@@ -69,14 +146,16 @@ const AgentsList = ({ isLoggedIn, setIsLoggedIn }) => {
             })
             .catch((error) => {
               message.error('Failed to update agent data.');
+              console.log(error);
             });
         });
       },
     });
   };
 
-
   const handleDelete = (agentBIN) => {
+    const deletedAgent = agentData.find((agent) => agent.agentBIN === agentBIN); // Find the agent to be deleted
+  
     Modal.confirm({
       title: 'Confirm Delete',
       content: 'Are you sure you want to delete this agent?',
@@ -85,11 +164,30 @@ const AgentsList = ({ isLoggedIn, setIsLoggedIn }) => {
       cancelText: 'Cancel',
       onOk: () => {
         axios
-          .delete(`http://localhost:3000/agents/${agentBIN}`) // Use agentBIN as the primary key
+          .delete(`http://localhost:3000/agents/${agentBIN}`)
           .then((response) => {
             if (response.status === 200) {
               message.success('Agent deleted successfully.');
-              const updatedData = agentData.filter((agent) => agent.agentBIN !== agentBIN); // Use agentBIN to filter out the deleted agent
+  
+              // Create a new activity object for the agent delete action
+              const deleteActivity = {
+                adminName: `Admin ${adminData.user.FirstName}`,
+                action: 'Deleted',
+                targetAdminName: `Agent ${deletedAgent.agentName}`,
+                timestamp: new Date().getTime(),
+                deletedData: deletedAgent,
+              };
+  
+              // Get the existing admin activities from localStorage or initialize an empty array
+              const adminActivities = JSON.parse(localStorage.getItem('adminActivities')) || [];
+  
+              // Add the new activity to the array
+              adminActivities.push(deleteActivity);
+  
+              // Update the admin activities in localStorage
+              localStorage.setItem('adminActivities', JSON.stringify(adminActivities));
+  
+              const updatedData = agentData.filter((agent) => agent.agentBIN !== agentBIN);
               setAgentData(updatedData);
             } else {
               message.error('Failed to delete agent.');
@@ -188,7 +286,7 @@ const AgentsList = ({ isLoggedIn, setIsLoggedIn }) => {
     localStorage.setItem('adminActivities', JSON.stringify(adminActivities));
   };
 
-    const filteredAgents = agentData.filter((agent) =>
+  const filteredAgents = agentData.filter((agent) =>
     agent &&
     (agent.agentBIN.toLowerCase().includes(searchInput.toLowerCase()) ||
       agent.agentName.toLowerCase().includes(searchInput.toLowerCase()) ||
@@ -197,60 +295,60 @@ const AgentsList = ({ isLoggedIn, setIsLoggedIn }) => {
       (typeof agent.phoneNumber === 'string' &&
         agent.phoneNumber.toLowerCase().includes(searchInput.toLowerCase())))
   );
-  
 
 
-return (
-  <Dashboard isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} content={
-    <div>
-      <h1>Agents List</h1>
-      <Input.Search
-        placeholder="Search agents"
-        value={searchInput}
-        onChange={(e) => handleSearch(e.target.value)}
-        style={{ marginBottom: '16px' }}
-      />
 
-      <Table dataSource={filteredAgents} columns={columns} scroll={{ x: true }} />
+  return (
+    <Dashboard isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} content={
+      <div>
+        <h1>Agents List</h1>
+        <Input.Search
+          placeholder="Search agents"
+          value={searchInput}
+          onChange={(e) => handleSearch(e.target.value)}
+          style={{ marginBottom: '16px' }}
+        />
 
-      <Modal
-        title={editMode ? 'Edit Agent' : 'Create Agent'}
-        visible={editMode}
-        onCancel={() => {
-          setEditMode(false);
-          form.resetFields();
-        }}
-        footer={null}
-      >
-        <Form form={form}>
-          <Form.Item name="agentBIN" label="Agent BIN">
-            <Input />
-          </Form.Item>
-          <Form.Item name="agentName" label="Agent Name">
-            <Input />
-          </Form.Item>
-          <Form.Item name="agentEmail" label="Agent Email">
-            <Input />
-          </Form.Item>
-          <Form.Item name="servicesOffered" label="Services Offered">
-            <Input />
-          </Form.Item>
-          <Form.Item name="phoneNumber" label="Phone Number">
-            <Input />
-          </Form.Item>
-          <Form.Item name="agentAuthorizationLetter" label="Agent Authorization Letter">
-            <Upload accept=".jpeg, .jpg, .png, .gif" beforeUpload={() => false}>
-              <Button icon={<UploadOutlined />}>Select File</Button>
-            </Upload>
-          </Form.Item>
-          <Button type="primary" onClick={handleSave}>
-            Save
-          </Button>
-        </Form>
-      </Modal>
-    </div>}
-  />
-);
+        <Table dataSource={filteredAgents} columns={columns} scroll={{ x: true }} />
+
+        <Modal
+          title={editMode ? 'Edit Agent' : 'Create Agent'}
+          visible={editMode}
+          onCancel={() => {
+            setEditMode(false);
+            form.resetFields();
+          }}
+          footer={null}
+        >
+          <Form form={form}>
+            <Form.Item name="agentBIN" label="Agent BIN">
+              <Input />
+            </Form.Item>
+            <Form.Item name="agentName" label="Agent Name">
+              <Input />
+            </Form.Item>
+            <Form.Item name="agentEmail" label="Agent Email">
+              <Input />
+            </Form.Item>
+            <Form.Item name="servicesOffered" label="Services Offered">
+              <Input />
+            </Form.Item>
+            <Form.Item name="phoneNumber" label="Phone Number">
+              <Input />
+            </Form.Item>
+            <Form.Item name="agentAuthorizationLetter" label="Agent Authorization Letter">
+              <Upload accept=".jpeg, .jpg, .png, .gif" beforeUpload={() => false}>
+                <Button icon={<UploadOutlined />}>Select File</Button>
+              </Upload>
+            </Form.Item>
+            <Button type="primary" onClick={handleSave}>
+              Save
+            </Button>
+          </Form>
+        </Modal>
+      </div>}
+    />
+  );
 };
 
 export default AgentsList;

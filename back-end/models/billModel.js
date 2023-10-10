@@ -64,7 +64,7 @@ module.exports = (sequelize, DataTypes) => {
       as: 'Users',
     });
   };
-  
+
   return Bill;
 };
 

@@ -1,16 +1,11 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { Layout, Menu, Avatar, Button, message, Form, Input, Upload, Modal } from 'antd';
+import { Layout, Menu, Avatar, Button, message, Form, Input, Upload, Modal, Spin } from 'antd';
 import Dashboard from "./Dashboard";
 import { useNavigate, useParams } from "react-router-dom";
 import FormItem from "antd/es/form/FormItem";
 
 const AgentRegistrationForm = () => {
-  //const { adminId } = useParams();
-  // const navigate = useNavigate();
-  // if (!localStorage.getItem('adminData')) {
-  //   navigate('/admin/login');
-  // }
 
   const [adminData, setAdminData] = useState(JSON.parse(localStorage.getItem('adminData')));
   const [form] = Form.useForm();
@@ -25,10 +20,30 @@ const AgentRegistrationForm = () => {
   const [file, setFile] = useState(null);
   const [errors, setErrors] = useState({});
   const [agentAuthorizationLetterUrl, setAgentAuthorizationLetterUrl] = useState();
+  const [isLoading, setIsLoading] = useState(true);
+  const navigate = useNavigate();
+  
+ useEffect(() => {
+    if (!adminData) {
+      setTimeout(() => {
+        navigate('/admin/login');
+        message.error('Please login to access the dashboard');
+      }, 5000);
+    } else {
+      setIsLoading(false);
+    }
+    localStorage.setItem('selectedMenu', 2);
+  }, [adminData, navigate]);
 
-  useEffect(()=>{
-    localStorage.setItem("selectedMenu", 2);
-  },[])
+
+  if (isLoading) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+        <Spin size="large" />
+        <p>Please wait while we check your login status...</p>
+      </div>
+    );
+  }
 
   const validateForm = () => {
     const newErrors = {};
@@ -60,14 +75,22 @@ const AgentRegistrationForm = () => {
 
     if (!agentData.agentAuthorizationLetter) {
       newErrors.agentAuthorizationLetter = "Agent Authorization Letter is required";
-    }//  else if (!isFileValid(agentData.agentAuthorizationLetter)) {
-    //   newErrors.agentAuthorizationLetter = "Invalid file format. Only JPG, JPEG, PNG, or PDF files are allowed.";
-    // }
+    }
+     else if (!isFileValid(agentData.agentAuthorizationLetter)) {
+      newErrors.agentAuthorizationLetter = "Invalid file format. Only JPG, JPEG, or PNG files are allowed.";
+    }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
-
+ function isFileValid(file){
+  const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+  if (!allowedTypes.includes(file.type)) {
+    message.error('Invalid file type. Please select an image file (JPEG, JPG, PNG, GIF).');
+    return false;
+  }
+  else return true;
+}
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -132,7 +155,9 @@ const AgentRegistrationForm = () => {
           localStorage.setItem('adminActivities', JSON.stringify(adminActivities));
           form.resetFields();
           setFile(null);
-          window.location.href = window.location.href;
+          setAgentAuthorizationLetterUrl(null);
+          message.success('agent registered successfully!');
+          
         }
       } catch (error) {
         message.error('Error submitting form:')

@@ -1,25 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Button, message, Modal, Form, Input, Upload } from 'antd';
-import { DeleteOutlined, EditOutlined, UploadOutlined } from '@ant-design/icons';
+import { Table, Button, message, Input, Spin } from 'antd';
 import axios from 'axios';
-//import { useNavigate } from 'react-router-dom';
 import Dashboard from './Dashboard';
+import { useNavigate } from 'react-router-dom';
 
 const AdminsList = ({ isLoggedIn, setIsLoggedIn }) => {
+  // State variables
   const [adminData, setAdminData] = useState(JSON.parse(localStorage.getItem('adminData')));
   const [userData, setUserData] = useState([]);
   const [searchInput, setSearchInput] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
+  const navigate = useNavigate();
 
-  //const navigate = useNavigate();
 
-  useEffect(() => {
-    fetchUsers();
-  }, []);
-
-  useEffect(()=>{
-    localStorage.setItem("selectedMenu", 7);
-  },[])
-
+  //fetch users from database
   const fetchUsers = async () => {
     try {
       const response = await axios.get('http://localhost:3000/Users');
@@ -30,14 +24,39 @@ const AdminsList = ({ isLoggedIn, setIsLoggedIn }) => {
   };
 
 
+  useEffect(() => {
+    // Check if adminData exists
+    if (!adminData) {
+      setTimeout(() => {
+        message.error('Please login to access the dashboard');
+      }, 5000);
+    } else {
+      setIsLoading(false);
+    }
+    localStorage.setItem('selectedMenu', 7);
+    fetchUsers();
+  }, [adminData, navigate]);
 
+
+
+  if (isLoading) {
+    return (
+      // Show loading spinner while checking login status
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+        <Spin size="large" />
+        <p>Please wait while we check your login status...</p>
+      </div>
+    );
+  }
+
+  //search for Admin
   const handleSearch = (value) => {
     setSearchInput(value);
     const currentDate = new Date();
     const activity = {
       adminName: `Admin ${adminData.user.FirstName}`,
       action: 'Searched for',
-      targetAdminName:`${value} in Admin List`,
+      targetAdminName: `${value} in Admin List`,
       timestamp: currentDate.toISOString(),
     };
 
@@ -52,15 +71,15 @@ const AdminsList = ({ isLoggedIn, setIsLoggedIn }) => {
   };
 
   const filteredUsers = userData.filter((user) =>
-  user.Role === 'Admin' &&
-  (user.UserName.toLowerCase().includes(searchInput.toLowerCase()) ||
-    user.FirstName.toLowerCase().includes(searchInput.toLowerCase()) ||
-    user.LastName.toLowerCase().includes(searchInput.toLowerCase()) ||
-    user.Email.toLowerCase().includes(searchInput.toLowerCase()) ||
-    user.Address.toLowerCase().includes(searchInput.toLowerCase()) ||
-    (typeof user.PhoneNumber === 'string' &&
-      user.PhoneNumber.toLowerCase().includes(searchInput.toLowerCase())))
-);
+    user.Role === 'Admin' &&
+    (user.UserName.toLowerCase().includes(searchInput.toLowerCase()) ||
+      user.FirstName.toLowerCase().includes(searchInput.toLowerCase()) ||
+      user.LastName.toLowerCase().includes(searchInput.toLowerCase()) ||
+      user.Email.toLowerCase().includes(searchInput.toLowerCase()) ||
+      user.Address.toLowerCase().includes(searchInput.toLowerCase()) ||
+      (typeof user.PhoneNumber === 'string' &&
+        user.PhoneNumber.toLowerCase().includes(searchInput.toLowerCase())))
+  );
 
   const columns = [
     {
@@ -131,14 +150,14 @@ const AdminsList = ({ isLoggedIn, setIsLoggedIn }) => {
         </div>
       ),
     },
-   
-   
+
+
   ];
 
   return (
     <Dashboard isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} content={
       <div>
-       <h1>Admin List</h1>
+        <h1>Admin List</h1>
         <Input.Search
           placeholder="Search Admin"
           value={searchInput}
@@ -151,7 +170,7 @@ const AdminsList = ({ isLoggedIn, setIsLoggedIn }) => {
           rowKey="id"
           scroll={{ x: true }}
         />
-    
+
       </div>} />
   );
 };

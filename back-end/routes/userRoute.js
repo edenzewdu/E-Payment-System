@@ -10,7 +10,7 @@ userRouter.post('/verifyUser/:userId/:verificationCode', UserController.verifyUs
 userRouter.post('/updatePasswordWithToken', UserController.updatePasswordWithToken )
 userRouter.get('/', UserController.findAll)
 userRouter.get('/:id', UserController.findOne);
-userRouter.get('/serviceNo/:serviceNo', UserController.findOneByServiceNo);
+userRouter.get('/serviceNo/:serviceNo/:serviceProviderBIN', UserController.findOneByServiceNo);
 userRouter.put('/:id', UserController.upload, UserController.update)
 userRouter.delete('/:id', UserController.delete)
 userRouter.post('/requestPasswordReset', UserController.requestPasswordReset);

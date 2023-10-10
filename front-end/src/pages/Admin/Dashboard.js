@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import companyLogo from '../../image/logoimage.jpg';
-import { Layout, Menu, Button, Form, Input, Upload, Modal, message } from 'antd';
+import { Layout, Menu, Button, Form, Input, Modal, message, Spin } from 'antd';
 import {
   UserOutlined,
   BankOutlined,
@@ -12,17 +12,18 @@ import {
   AppstoreOutlined
 } from '@ant-design/icons';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import AdminActivityPage from './AdminActivityPage';
 
 const { Header, Content, Footer, Sider } = Layout;
 
 const Dashboard = ({ content }) => {
 
+  // State variables
   const [adminData, setAdminData] = useState(JSON.parse(localStorage.getItem('adminData')));
   const [form] = Form.useForm();
   const [editMode, setEditMode] = useState(false);
-  const [profilePictureUrl, setProfilePictureUrl] = useState(`http://localhost:3000/${adminData.user.ProfilePicture}`);
+  const [profilePictureUrl, setProfilePictureUrl] = useState(adminData?.user?.ProfilePicture ? `http://localhost:3000/${adminData.user.ProfilePicture}` : '');
   const [admin, setAdmin] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [isSiderCollapsed, setIsSiderCollapsed] = useState(true);
   const { adminId } = useParams();
   const [formData, setFormData] = useState({
@@ -46,27 +47,47 @@ const Dashboard = ({ content }) => {
   };
 
   useEffect(() => {
-
     setSelectedMenu(localStorage.getItem("selectedMenu"));
-    const loggedInAdmin = localStorage.getItem('adminData');
-  
-  if (!loggedInAdmin) {
-    navigate('/admin/login');
-    return;
-  }
-  
-      try {
-        const parsedAdminData = JSON.parse(loggedInAdmin);
-        setFormData(parsedAdminData.user);
-        setAdminData(parsedAdminData);
-        console.log(formData);
-      } catch (error) {
-        console.error('Error parsing admin data:', error);
-        message.error('Error parsing admin data');
-        // Handle error while parsing the data from localStorage
-      }
-    
+    try {
+      const loggedInAdmin = localStorage.getItem('adminData');
+      const parsedAdminData = JSON.parse(loggedInAdmin);
+      setFormData(parsedAdminData.user);
+      setAdminData(parsedAdminData);
+      console.log(profilePictureUrl);
+    } catch (error) {
+      console.error('Error parsing admin data:', error);
+      message.error('Error parsing admin data');
+      // Handle error while parsing the data from localStorage
+    }
   }, [selectedMenu]);
+
+  useEffect(() => {
+    // Check if adminData exists
+    if (!adminData) {
+      setTimeout(() => {
+        navigate('/admin/login');
+      }, 5000);
+
+    } else {
+      setIsLoading(false);
+    }
+    localStorage.setItem('selectedMenu', selectedMenu);
+
+  }, [adminData, navigate]);
+
+
+
+
+  if (isLoading) {
+    return (
+      // Show loading spinner while checking login status
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+        <Spin size="large" />
+        <p>Please wait while we check your login status...</p>
+      </div>
+    );
+  }
+
 
   const handleFormChange = (e) => {
     const { name, value } = e.target;
@@ -144,7 +165,7 @@ const Dashboard = ({ content }) => {
           console.log(abcd);
           // Update the admin data in local storage and state
           const updatedAdmin = response.data;
-          localStorage.setItem('adminData', JSON.stringify(updatedAdmin.user));
+          localStorage.setItem('adminData', JSON.stringify(updatedAdmin));
           setAdminData(updatedAdmin);
           console.log(formData);
           console.log(formData.ProfilePicture);
@@ -175,6 +196,7 @@ const Dashboard = ({ content }) => {
         // Clear local storage and navigate to the login page
         localStorage.removeItem('adminToken');
         localStorage.removeItem('adminData');
+        localStorage.removeItem('isLoggedInAdmin');
         setAdminData(null);
         navigate('/admin/login');
       },
@@ -193,7 +215,7 @@ const Dashboard = ({ content }) => {
         }}
       >
         {isSiderCollapsed ? (
-          <div className='logo' style={{ position: 'relative', width: '100%', height:'110px'}} >
+          <div className='logo' style={{ position: 'relative', width: '100%', height: '110px' }} >
             <img src={companyLogo} alt='company logo' />
             <div className='company-name' style={{ marginTop: '10%' }} >
               E-pay...
@@ -217,7 +239,7 @@ const Dashboard = ({ content }) => {
             </div>
           </div>
         ) : (
-          <div className='logo' style={{ position: 'relative', width: '100%',height:'110px' }} >
+          <div className='logo' style={{ position: 'relative', width: '100%', height: '110px' }} >
             <img src={companyLogo} alt='company logo' />
             <div className='company-name'>
               E-payment-system
@@ -242,7 +264,7 @@ const Dashboard = ({ content }) => {
             key="submenu"
             icon={<HomeOutlined />}
             title="E-Payment System"
-            style={{position:'fixed', marginTop: '40px', minWidth: '190px', width: isSiderCollapsed ? '190px' : '350px', }}
+            style={{ position: 'fixed', marginTop: '40px', minWidth: '190px', width: isSiderCollapsed ? '190px' : '350px', }}
           >
             <Menu.Item key="2" icon={<BankOutlined />}>
               <Link
@@ -315,7 +337,7 @@ const Dashboard = ({ content }) => {
               >
                 Activities
               </Link>
-              </Menu.Item>
+            </Menu.Item>
 
 
           </Menu.SubMenu>
@@ -329,7 +351,7 @@ const Dashboard = ({ content }) => {
           <div className="user-profile" style={{ display: 'flex', alignItems: 'center' }}>
             <Link type="primary" onClick={() => handleEdit(adminData)}>
               <div className="profile-picture" style={{ display: 'flex', alignItems: 'center' }}>
-                {profilePictureUrl !== 'http://localhost:3000/null' ? (
+                {adminData.user.ProfilePicture !== null ? (
                   <img
                     src={profilePictureUrl}
                     alt="Profile"

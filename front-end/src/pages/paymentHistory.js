@@ -5,7 +5,7 @@ import { Modal, Table } from "antd";
 import "./style.css";
 import Header from "./Header.js";
 import { useNavigate } from "react-router-dom";
-
+import axios from "axios";
 
 const PaymentHistory = () => {
   const [userData, setUserData] = useState(JSON.parse(localStorage.getItem("userData")));
@@ -14,28 +14,36 @@ const PaymentHistory = () => {
   const [selectedPayment, setSelectedPayment] = useState(null);
   const navigate = useNavigate();
 
-  useEffect(()=>{
-    localStorage.setItem("userSelectedMenu", 6);
-  },[])
-  
   useEffect(() => {
     if (!userData) {
-      navigate("/users"); // Replace "/user" with the desired URL for the user page
+      navigate("/users");
       return;
     }
-    // Fetch payment history from local storage
-    console.log(userData.Payments);
+
     const storedPaymentHistory = userData.Payments;
     setPaymentHistory(storedPaymentHistory);
-  }, []);
+    localStorage.setItem("userSelectedMenu", 5);
+  }, [userData, navigate]);
+
+  const fetchPaymentDetails = async (paymentId) => {
+    try {
+      const response = await axios.get(`http://localhost:3000/payment/${paymentId}`);
+      const paymentDetails = response.data;
+      const customerName = paymentDetails.Bill.customerName;
+
+      setSelectedPayment({ ...paymentDetails, customerName });
+    } catch (error) {
+      console.error("Error fetching payment details:", error);
+    }
+  };
 
   const generatePicture = (payment) => {
-    setSelectedPayment(payment);
+    fetchPaymentDetails(payment.id);
     setModalVisible(true);
   };
 
   const generatePDF = (payment) => {
-    setSelectedPayment(payment);
+    fetchPaymentDetails(payment.id);
     setModalVisible(true);
   };
 
@@ -128,11 +136,6 @@ const PaymentHistory = () => {
       key: "paymentDate",
     },
     {
-      title: "Payer",
-      dataIndex: "payerId",
-      key: "payerId",
-    },
-    {
       title: "Action",
       key: "action",
       render: (text, payment) => (
@@ -144,15 +147,12 @@ const PaymentHistory = () => {
     },
   ];
 
+
   return (
     <div>
       <Header />
       <h1 style={{ padding: "170px 0% 0% 2%" }}>Payment History</h1>
-      {paymentHistory.length > 0 ? (
-        <Table dataSource={paymentHistory} columns={columns} scroll={{ x: true }} />
-      ) : (
-        <p>No payment history available.</p>
-      )}
+      <Table dataSource={paymentHistory} columns={columns} scroll={{ x: true }} />
 
       <Modal
         title="Bank Information Details"
@@ -176,7 +176,8 @@ const PaymentHistory = () => {
             <p>Reference Number: {selectedPayment.ReferenceNo}</p>
             <p>Total Amount: {selectedPayment.amount}</p>
             <p>Payment Date: {selectedPayment.paymentDate}</p>
-            <p>Payer: {selectedPayment.payerId}</p>
+            <p>Payer: {userData.FirstName + ' '+ userData.LastName}</p>
+            <p>Customer Name: {selectedPayment.customerName}</p>
           </div>
         )}
       </Modal>

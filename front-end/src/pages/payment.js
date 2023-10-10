@@ -9,9 +9,11 @@ import { useNavigate } from "react-router-dom";
 
 
 const Payment = () => {
-  const [userData, setUserData] = useState(localStorage.getItem('userData'));
+  const [userData, setUserData] = useState(JSON.parse(localStorage.getItem("userData")));
   const [serviceNo, setServiceNumber] = useState(localStorage.getItem('serviceNo'));
+  const [serviceProvidersBIN, setServiceProvidersBIN] = useState(localStorage.getItem('serviceProviderBIN'));
   const [user, setUser] = useState(null);
+  const [payerId, setPayerId] = useState();
   const [payments, setPayments] = useState([]);
   const [userbill, setUserBill] = useState(null);
   const [banks, setBanks] = useState([]);
@@ -36,7 +38,7 @@ const Payment = () => {
 
 
   useEffect(()=>{
-      localStorage.setItem("userSelectedMenu", 5);
+      localStorage.setItem("userSelectedMenu", 4);
     },[])
     
   useEffect(() => {
@@ -46,9 +48,11 @@ const Payment = () => {
     }
     const fetchData = async () => {
       try {
-        const response = await axios.get(`http://localhost:3000/Users/serviceNo/${serviceNo}`);
+        const response = await axios.get(`http://localhost:3000/Users/serviceNo/${serviceNo}/${serviceProvidersBIN}`);
         setUser(response.data);
+        console.log(verificationCode);
         console.log(response.data);
+        setPayerId(userData.id);
 
         // Assuming user has a valid service provider association
         const serviceProviderBIN = response.data.ServiceProviders[0].serviceProviderBIN;
@@ -68,7 +72,6 @@ const Payment = () => {
         console.error(error);
       }
     };
-
     
 
     const fetchBanks = async () => {
@@ -76,6 +79,7 @@ const Payment = () => {
         const response = await axios.get("http://localhost:3000/Agents"); // Replace with your actual endpoint
         setBanks(response.data);
       } catch (error) {
+       
         console.error(error);
       }
     };
@@ -86,7 +90,6 @@ const Payment = () => {
 
   const handlePayment = (billNumber, serviceProviderBIN) => {
     setShowBankAccountForm(true);
-    // Handle the payment logic here
   };
 
 
@@ -112,9 +115,10 @@ const Payment = () => {
 
 
       console.log('Email sent successfully');
+      console.log(code);
       message.success('Email sent successfully');
       setLoading(false);
-      // Do something when the email is successfully sent
+      // email is successfully sent
     } catch (error) {
       console.error('Error sending email:', error);
       message.error('Error sending email:', error);
@@ -198,7 +202,7 @@ const Payment = () => {
       }
 
       else if (verifyCode !== verificationCode) {
-        errorMessage.verificationCode = "Invallid Verification code";
+        errorMessage.verificationCode = "Invalid Verification code";
         setErrorMessage(errorMessage);
         return;
       }
@@ -214,7 +218,7 @@ const Payment = () => {
         TransactionNo: random,
         paymentDate: today,
         amount: userbill.TotalAmount,
-        UserId: userbill.UserId,
+        UserId: payerId,
         serviceProviderBIN: localStorage.getItem('serviceProviderBIN'),
         paymentMethod: "Credit card",
         paymentDescription: `Payment for ${userbill.serviceDescription} services`,
@@ -242,10 +246,7 @@ const Payment = () => {
         setPayments(paymentData);
         console.log(payments);
 
-        const paymentHistory = JSON.parse(localStorage.getItem("paymentHistorys")) || [];
-        paymentHistory.push(paymentData);
-        localStorage.setItem("paymentHistorys", JSON.stringify(paymentHistory));
-        console.log(localStorage.getItem('paymentHistory'))
+        
 
       } else {
         // Payment failed
@@ -257,6 +258,7 @@ const Payment = () => {
 
   };
 
+  
   const generateVerificationCode = () => {
     const length = 6; // Length of the verification code
     const characters = "0123456789"; // Characters to use for the code
@@ -275,6 +277,7 @@ const Payment = () => {
     setVerifyCode(event.target.value);
   };
   const navigateToUserPage = () => {
+    setDownloadModalVisible(false);
     navigate('/serviceProviders');
   };
 
@@ -381,7 +384,8 @@ const Payment = () => {
           navigateToUserPage();
         }}
         footer={[
-          <Button key="back" onClick={() => setDownloadModalVisible(false)}>
+          <Button key="back" onClick = {() => {setDownloadModalVisible(false); 
+            navigateToUserPage();}}>
             Close
           </Button>,
           <Button key="picture" type="primary" onClick={() => handleDownload("picture")}>
@@ -405,6 +409,7 @@ const Payment = () => {
             <p>
               Reference Number:  {payments.ReferenceNo}
             </p>
+            <p>Customer Name: {userbill.customerName}</p>
             <p>
               Total Amount:  {payments.amount}
             </p>
@@ -412,7 +417,7 @@ const Payment = () => {
               Payment Date:  {payments.paymentDate}
             </p>
             <p>
-              Payer:  {payments.payerId}
+              Payer:  {userData.FirstName + ' ' + userData.LastName}
             </p>
             <p> </p>
             <p>

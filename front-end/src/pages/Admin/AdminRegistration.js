@@ -1,33 +1,32 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
-import { UserOutlined } from '@ant-design/icons';
-import { Layout, Menu, Avatar, Button, message, Form, Input, Upload, Modal, Select } from 'antd';
+import { Layout, Button, message, Form, Input, Select, Spin } from 'antd';
 import Dashboard from './Dashboard';
 
-const AdminRegistrationForm = ({ addActivity }) => {
-  const navigate = useNavigate();
-  if (!localStorage.getItem('adminData')) {
-    navigate('/admin/login');
-  }
+const AdminRegistrationForm = () => {
 
   const { Option } = Select;
   const [counter, setCounter] = useState(1);
+  const navigate = useNavigate();
 
+  // State variables
+  const [adminData, setAdminData] = useState(JSON.parse(localStorage.getItem('adminData')));
+  const [isLoading, setIsLoading] = useState(true);
+  const [form] = Form.useForm();
+  const [profilePictureUrl, setProfilePictureUrl] = useState(JSON.parse(localStorage.getItem('adminData'))?.ProfilePicture);
+  const { adminId } = useParams();
+  
   const getNextUserID = () => {
     const timestamp = Date.now().toString(); // Get the current timestamp
     const randomNumber = Math.floor(Math.random() * 10000).toString(); // Generate a random number between 0 and 9999
     return `P${timestamp}${randomNumber}`;
   };
 
+  //increment to next user
   const incrementCounter = () => {
     setCounter((prevCounter) => prevCounter + 1);
   };
-
-  const [adminData, setAdminData] = useState(JSON.parse(localStorage.getItem('adminData')));
-  const [form] = Form.useForm();
-  const [profilePictureUrl, setProfilePictureUrl] = useState(JSON.parse(localStorage.getItem('adminData'))?.ProfilePicture);
-  const { adminId } = useParams();
   const [formData, setFormData] = useState({
     UserID: getNextUserID(),
     FirstName: '',
@@ -43,10 +42,7 @@ const AdminRegistrationForm = ({ addActivity }) => {
 
   const [errors, setErrors] = useState({});
 
-  useEffect(()=>{
-    localStorage.setItem("selectedMenu", 6);
-  },[])
-
+  //set errors if error occur
   const validateForm = () => {
     const newErrors = {};
 
@@ -86,11 +82,38 @@ const AdminRegistrationForm = ({ addActivity }) => {
       newErrors.Address = 'Address is required';
     }
 
+    if (!formData.ProfilePicture) {
+      newErrors.ProfilePicture = "Profile Picture is required";
+    }
+    else if (!isFileValid(formData.ProfilePicture)) {
+      newErrors.ProfilePicture = "Invalid file format. Only JPG, JPEG, or PNG files are allowed.";
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
+  //check if file is of correct type
+  function isFileValid(file) {
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+    if (!allowedTypes.includes(file.type)) {
+      message.error('Invalid file type. Please select an image file (JPEG, JPG, PNG, GIF).');
+      return false;
+    }
+    else return true;
+  }
+
   useEffect(() => {
+    //if no logged in admin navigate to login page
+    if (!adminData) {
+      setTimeout(() => {
+        navigate('/admin/login');
+        message.error('Please login to access the dashboard');
+      }, 5000);
+    } else {
+      setIsLoading(false);
+    }
+    localStorage.setItem('selectedMenu', 6);
     const Admin = localStorage.getItem('adminData');
     if (Admin) {
       try {
@@ -103,7 +126,17 @@ const AdminRegistrationForm = ({ addActivity }) => {
         // Handle error while parsing the data from localStorage
       }
     }
-  }, []);
+  }, [adminData, navigate]);
+  
+  if (isLoading) {
+    // Show loading spinner while checking login status
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+        <Spin size="large" />
+        <p>Please wait while we check your login status...</p>
+      </div>
+    );
+  }
 
   const handleFormChange = (e) => {
     const { name, value } = e.target;
@@ -115,6 +148,14 @@ const AdminRegistrationForm = ({ addActivity }) => {
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
+
+    // Check the file type
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+    if (!allowedTypes.includes(file.type)) {
+      message.error('Invalid file type. Please select an image file (JPEG, JPG, PNG, GIF).');
+      return;
+    }
+
     const url = URL.createObjectURL(file);
     setProfilePictureUrl(url);
     setFormData((prevData) => ({
@@ -161,25 +202,25 @@ const AdminRegistrationForm = ({ addActivity }) => {
       if (response.status === 200) {
         message.success('Admin Registered successfully');
         // Register admin activity
-      const currentDate = new Date();
-      const activity = {
-        adminName: `Admin ${adminData.user.FirstName}`,
-        action: 'registered',
-        targetAdminName:`Admin ${values.FirstName}`,
-        timestamp: currentDate.toISOString(),
-      };
+        const currentDate = new Date();
+        const activity = {
+          adminName: `Admin ${adminData.user.FirstName}`,
+          action: 'registered',
+          targetAdminName: `Admin ${values.FirstName}`,
+          timestamp: currentDate.toISOString(),
+        };
 
-      // Get the existing admin activities from localStorage or initialize an empty array
-      const adminActivities = JSON.parse(localStorage.getItem('adminActivities')) || [];
+        // Get the existing admin activities from localStorage or initialize an empty array
+        const adminActivities = JSON.parse(localStorage.getItem('adminActivities')) || [];
 
-      // Add the new activity to the array
-      adminActivities.push(activity);
+        // Add the new activity to the array
+        adminActivities.push(activity);
 
-      // Update the admin activities in localStorage
-      localStorage.setItem('adminActivities', JSON.stringify(adminActivities));
+        // Update the admin activities in localStorage
+        localStorage.setItem('adminActivities', JSON.stringify(adminActivities));
 
-      form.resetFields();
-      window.location.href = window.location.href;
+        form.resetFields();
+        message.success('Admin Registered successfully');
       } else {
         message.error('Failed to register admin');
       }
@@ -187,7 +228,7 @@ const AdminRegistrationForm = ({ addActivity }) => {
       console.error('Error registering admin:', error);
       message.error('Error registering admin');
     }
-    
+
   };
 
   return (
@@ -206,21 +247,21 @@ const AdminRegistrationForm = ({ addActivity }) => {
               onFinish={handleSave}
             >
               <Form.Item label="UserID" name="UserID" rules={[{ required: true }]}>
-                <Input defaultValue={`${formData.UserID}`} disabled />
+                <Input  />
               </Form.Item>
-              
-              
-              <Form.Item label="First Name" 
-              name="FirstName" rules={[{ required: true }]}>
+
+
+              <Form.Item label="First Name"
+                name="FirstName" rules={[{ required: true }]}>
                 <Input placeholder="Enter First Name" />
               </Form.Item>
               {errors.FirstName &&
-               <p className="error-message"
-               >{errors.FirstName}</p>}
-              
-              
-              
-              
+                <p className="error-message"
+                >{errors.FirstName}</p>}
+
+
+
+
               <Form.Item label="Last Name" name="LastName" rules={[{ required: true }]}>
                 <Input placeholder="Enter Last Name" />
               </Form.Item>

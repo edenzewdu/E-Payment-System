@@ -4,8 +4,9 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { UserOutlined } from '@ant-design/icons';
-import { Layout, Menu, Avatar, Button, message, Form, Input, Upload, Modal } from 'antd';
+import { Layout, Menu, Avatar, Button, message, Form, Input, Upload, Modal, Spin } from 'antd';
 import Dashboard from './Dashboard';
+import { useNavigate } from 'react-router-dom';
 
 const ServiceProviderRegistrationForm = () => {
   const [adminData, setAdminData] = useState(JSON.parse(localStorage.getItem('adminData')));
@@ -16,16 +17,37 @@ const ServiceProviderRegistrationForm = () => {
     servicesOffered: '',
     BankName: '',
     BankAccountNumber: '',
-    phoneNumber: '',
+    phoneNumber: '+251',
+    agentAuthorizationLetter: null,
   });
 
   const [file, setFile] = useState(null);
   const [errors, setErrors] = useState({});
   const [serviceProviderAuthorizationLetterUrl, setServiceProviderAuthorizationLetterUrl] = useState();
+  const [isLoading, setIsLoading] = useState(true);
+  const navigate = useNavigate();
+  
+ useEffect(() => {
+    if (!adminData) {
+      setTimeout(() => {
+        navigate('/admin/login');
+        message.error('Please login to access the dashboard');
+      }, 5000);
+    } else {
+      setIsLoading(false);
+    }
+    localStorage.setItem('selectedMenu', 4);
+  }, [adminData, navigate]);
 
-  useEffect(()=>{
-    localStorage.setItem("selectedMenu", 4);
-  },[])
+
+  if (isLoading) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+        <Spin size="large" />
+        <p>Please wait while we check your login status...</p>
+      </div>
+    );
+  }
 
   const validateForm = () => {
     const newErrors = {};
@@ -56,9 +78,25 @@ const ServiceProviderRegistrationForm = () => {
       newErrors.phoneNumber = 'Phone Number is invalid';
     }
 
+    if (!formData.serviceProviderAuthorizationLetter) {
+      newErrors.serviceProviderAuthorizationLetter = "Service Authorization Letter is required";
+    }
+     else if (!isFileValid(formData.serviceProviderAuthorizationLetter)) {
+      newErrors.serviceProviderAuthorizationLetter = "Invalid file format. Only JPG, JPEG, or PNG files are allowed.";
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
+
+  function isFileValid(file){
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+    if (!allowedTypes.includes(file.type)) {
+      message.error('Invalid file type. Please select an image file (JPEG, JPG, PNG, GIF).');
+      return false;
+    }
+    else return true;
+  }
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -69,13 +107,13 @@ const ServiceProviderRegistrationForm = () => {
   };
 
   const handleFileChange = (e) => {
-    const selectedFile = e.target.files[0];
-    setFile(selectedFile);
+    const file = e.target.files[0];
+    setFile(file);
     const url = URL.createObjectURL(file);
     setServiceProviderAuthorizationLetterUrl(url);
     setFormData((prevData) => ({
       ...prevData,
-      agentAuthorizationLetter: file,
+      serviceProviderAuthorizationLetter: file,
     }));
   };
 
@@ -112,7 +150,9 @@ const ServiceProviderRegistrationForm = () => {
         // Update the admin activities in localStorage
         localStorage.setItem('adminActivities', JSON.stringify(adminActivities));
         form.resetFields();
-        window.location.href = window.location.href;
+        setServiceProviderAuthorizationLetterUrl(null);
+        message.success('Service provider registered successfully!');
+        
       } catch (error) {
         message.error('Error submitting form:')
         console.error('Error submitting form:', error);
