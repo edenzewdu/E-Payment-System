@@ -31,6 +31,7 @@ const paymentController = require('./controller/PaymentController.js');
 const userController = require('./controller/UserController.js');
 const AgentController = require('./controller/agentController.js');
 const AdminLoginController = require('./controller/AdminLoginController.js')
+const adminActivityController = require('./controller/adminActivityController.js');
 
 // Import routes
 const billsRouter = require('./routes/billRoutes.js')
@@ -38,7 +39,9 @@ const serviceProvidersRouter = require('./routes/serviceProviderRoute.js');
 const paymentRouter = require('./routes/paymentRoutes.js');
 const usersRouter = require('./routes/userRoute.js');
 const AgentsRouter = require('./routes/agentRoutes.js');
-const AdminRouter = require('./routes/AdminRoutes.js')
+const AdminRouter = require('./routes/AdminRoutes.js');
+const adminActivityRouter = require('./routes/adminActivityRoutes.js');
+
 
 // Mount routes
 app.use('/bills', billsRouter);
@@ -48,6 +51,7 @@ app.use('/Users', usersRouter);
 app.use('/agents', AgentsRouter);
 app.use('/api/admin', AdminRouter);
 app.use('/Images', express.static('./Images'));
+app.use('/admin-activity', adminActivityRouter);
 
 
 

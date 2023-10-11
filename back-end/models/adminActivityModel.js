@@ -1,8 +1,5 @@
-
-const { DataTypes } = require('sequelize');
-const sequelize = require('../sequelize');
-
-const AdminActivity = sequelize.define('AdminActivity', {
+module.exports = (sequelize, DataTypes) => {
+    const AdminActivity = sequelize.define("AdminActivity", {
     adminName: {
         type: DataTypes.STRING,
         allowNull: false,
@@ -19,10 +16,10 @@ const AdminActivity = sequelize.define('AdminActivity', {
         type: DataTypes.BIGINT,
         allowNull: false,
     },
-    updatedData: {
+    changedData: {
         type: DataTypes.JSON,
         allowNull: false,
     },
 });
-
-module.exports = AdminActivity;
+return AdminActivity;
+};

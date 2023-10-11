@@ -28,12 +28,16 @@ db.Agents = require('./agentModel.js')(sequelize, Sequelize);
 db.User = require('./UserModel.js')(sequelize, Sequelize);
 db.ServiceProviders = require('./ServiceProviderModel.js')(sequelize, Sequelize);
 db.Payment = require('./PaymentModel.js')(sequelize, Sequelize);
+db.AdminActivity = require('./adminActivityModel.js')(sequelize, Sequelize);
 
 // Define User-Agents junction table
 const UserAgent = sequelize.define('userAgent', {});
 
 // Define Agents-ServiceProvider junction table
 const AgentServiceProvider = sequelize.define('agentServiceProvider', {});
+
+// Define User-Agents junction table
+const AdminActivity = sequelize.define('adminActivity', {});
 
 // Define User-ServiceProvider junction table
 const UserServiceProvider = sequelize.define('userServiceProvider', {
