@@ -16,7 +16,6 @@ async function adminLogin(req, res) {
   }
 
   try {
-    const createError = require('http-errors');
 
     // Find the user by email or username
     const user = await User.findOne({
@@ -32,7 +31,6 @@ async function adminLogin(req, res) {
       res.status(404).send({
         message: 'User not found',
       });
-      throw createError(404, 'User not found');
       return;
     }
 
@@ -41,7 +39,6 @@ async function adminLogin(req, res) {
 
     if (!isPasswordValid) {
       return res.status(401).json({ error: 'Invalid password' });
-      throw createError(401, 'Invalid password');
     }
     // Generate JWT token
     const token = jwt.sign({ userId: user.UserID }, 'super_secret_key_1234', { expiresIn: '1h' });

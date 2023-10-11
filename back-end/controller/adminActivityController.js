@@ -19,4 +19,16 @@ const createAdminActivity = async (req, res) => {
   }
 };
 
-module.exports = { createAdminActivity };
+const getAllAdminActivities = async (req, res) => {
+  try {
+    const adminActivities = await AdminActivity.findAll();
+    res.status(200).json(adminActivities);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch admin activities.' });
+  }
+};
+
+module.exports = {
+  createAdminActivity,
+  getAllAdminActivities,
+};

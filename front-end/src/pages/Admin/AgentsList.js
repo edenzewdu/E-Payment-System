@@ -126,17 +126,14 @@ const AgentsList = ({ isLoggedIn, setIsLoggedIn }) => {
                   action: 'Edited',
                   targetAdminName: `Agent ${updatedAgent.agentName}`,
                   timestamp: new Date().getTime(),
-                  updatedData: updatedAgent,
+                  changedData: updatedAgent,
                 };
   
-                // Get the existing admin activities from localStorage or initialize an empty array
-                const adminActivities = JSON.parse(localStorage.getItem('adminActivities')) || [];
-  
-                // Add the new activity to the array
-                adminActivities.push(editActivity);
-  
-                // Update the admin activities in localStorage
-                localStorage.setItem('adminActivities', JSON.stringify(adminActivities));
+                 axios.post('http://localhost:3000/admin-activity', editActivity, {
+                  headers: {
+                    Authorization: adminData.token,
+                  },
+                });
   
                 setEditMode(false);
                 form.resetFields();
@@ -175,17 +172,14 @@ const AgentsList = ({ isLoggedIn, setIsLoggedIn }) => {
                 action: 'Deleted',
                 targetAdminName: `Agent ${deletedAgent.agentName}`,
                 timestamp: new Date().getTime(),
-                deletedData: deletedAgent,
+                changedData: deletedAgent,
               };
   
-              // Get the existing admin activities from localStorage or initialize an empty array
-              const adminActivities = JSON.parse(localStorage.getItem('adminActivities')) || [];
-  
-              // Add the new activity to the array
-              adminActivities.push(deleteActivity);
-  
-              // Update the admin activities in localStorage
-              localStorage.setItem('adminActivities', JSON.stringify(adminActivities));
+              axios.post('http://localhost:3000/admin-activity', deleteActivity, {
+                headers: {
+                  Authorization: adminData.token,
+                },
+              });
   
               const updatedData = agentData.filter((agent) => agent.agentBIN !== agentBIN);
               setAgentData(updatedData);
@@ -266,7 +260,7 @@ const AgentsList = ({ isLoggedIn, setIsLoggedIn }) => {
     },
   ];
 
-  const handleSearch = (value) => {
+  const handleSearch = async (value) => {
     setSearchInput(value);
     const currentDate = new Date();
     const activity = {
@@ -276,14 +270,17 @@ const AgentsList = ({ isLoggedIn, setIsLoggedIn }) => {
       timestamp: currentDate.toISOString(),
     };
 
-    // Get the existing admin activities from localStorage or initialize an empty array
-    const adminActivities = JSON.parse(localStorage.getItem('adminActivities')) || [];
-
-    // Add the new activity to the array
-    adminActivities.push(activity);
-
-    // Update the admin activities in localStorage
-    localStorage.setItem('adminActivities', JSON.stringify(adminActivities));
+    try {
+      // Save the admin activity to the database
+      await axios.post('http://localhost:3000/admin-activity', activity, {
+        headers: {
+          Authorization: adminData.token,
+        },
+      });
+  
+    } catch (error) {
+      console.error('Error saving admin search activity:', error);
+    }
   };
 
   const filteredAgents = agentData.filter((agent) =>

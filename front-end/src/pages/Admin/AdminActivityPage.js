@@ -8,7 +8,7 @@ const { Option } = Select;
 const AdminActivityPage = () => {
   // State variables
   const [adminData, setAdminData] = useState(JSON.parse(localStorage.getItem('adminData')));
-  const adminActivities = JSON.parse(localStorage.getItem('adminActivities')) || [];
+  const [adminActivities, setAdminActivities] = useState([]);
   const loggedInAdmin = adminData ? `Admin ${adminData.user.FirstName}` : ''; // Add a check for adminData existence
   const [modalVisible, setModalVisible] = useState(false);
   const [modalData, setModalData] = useState(null);
@@ -33,6 +33,23 @@ const AdminActivityPage = () => {
     localStorage.setItem('selectedMenu', 10)
   }, [adminData, navigate]);
 
+  useEffect(() => {
+    // Fetch adminActivities from the database
+    const fetchAdminActivities = async () => {
+      try {
+        const response = await fetch('/api/adminActivities'); // Replace '/api/adminActivities' with the actual API endpoint
+        const data = await response.json();
+        setAdminActivities(data);
+      } catch (error) {
+        console.error('Error fetching adminActivities:', error);
+        // Handle error case
+      }
+    };
+
+    fetchAdminActivities();
+  }, []);
+
+  
   useEffect(() => {
     // Filter activities based on the search term and sort them
     if (searchTerm) {

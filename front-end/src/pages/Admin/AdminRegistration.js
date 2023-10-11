@@ -164,6 +164,7 @@ const AdminRegistrationForm = () => {
     }));
   };
 
+
   const handleSave = async (e) => {
     try {
       // Get form values
@@ -210,15 +211,12 @@ const AdminRegistrationForm = () => {
           timestamp: currentDate.toISOString(),
         };
 
-        // Get the existing admin activities from localStorage or initialize an empty array
-        const adminActivities = JSON.parse(localStorage.getItem('adminActivities')) || [];
-
-        // Add the new activity to the array
-        adminActivities.push(activity);
-
-        // Update the admin activities in localStorage
-        localStorage.setItem('adminActivities', JSON.stringify(adminActivities));
-
+        // Save the admin activity to the database
+      await axios.post('http://localhost:3000/admin-activity', activity, {
+        headers: {
+          Authorization: adminData.token,
+        },
+      });
         form.resetFields();
         message.success('Admin Registered successfully');
       } else {
