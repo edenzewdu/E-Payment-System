@@ -2,7 +2,7 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../sequelize');
 
-const Activity = sequelize.define('Activity', {
+const AdminActivity = sequelize.define('AdminActivity', {
     adminName: {
         type: DataTypes.STRING,
         allowNull: false,
@@ -25,4 +25,4 @@ const Activity = sequelize.define('Activity', {
     },
 });
 
-module.exports = Activity;
+module.exports = AdminActivity;
