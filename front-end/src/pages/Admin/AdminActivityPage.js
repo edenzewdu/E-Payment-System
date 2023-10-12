@@ -34,19 +34,22 @@ const AdminActivityPage = () => {
   }, [adminData, navigate]);
 
   useEffect(() => {
-    // Fetch adminActivities from the database
-    const fetchAdminActivities = async () => {
-      try {
-        const response = await fetch('/api/adminActivities'); // Replace '/api/adminActivities' with the actual API endpoint
-        const data = await response.json();
-        setAdminActivities(data);
-      } catch (error) {
-        console.error('Error fetching adminActivities:', error);
-        // Handle error case
-      }
-    };
+   // Fetch adminActivities from the database
+const fetchAdminActivities = async () => {
+  try {
+    const response = await fetch('/admin-activities',
+    {
+      method: 'GET'}); 
+    const data = await response.json();
+    setAdminActivities(data);
+  } catch (error) {
+    console.error('Error fetching adminActivities:', error);
+    message.error('Failed to fetch adminActivities. Please try again later.');
+    // Handle error case, e.g., set adminActivities to an empty array or show an error message
+  }
+};
 
-    fetchAdminActivities();
+fetchAdminActivities();
   }, []);
 
   

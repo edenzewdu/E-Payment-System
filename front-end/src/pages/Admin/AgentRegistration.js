@@ -118,12 +118,12 @@ const AgentRegistrationForm = () => {
     if (validateForm()) {
       try {
         const values = await form.validateFields();
-
+  
         setAgentData((prevData) => ({
           ...prevData,
           ...values,
         }));
-
+  
         const formData = new FormData();
         formData.append("agentBIN", agentData.agentBIN);
         formData.append("agentName", agentData.agentName);
@@ -131,11 +131,9 @@ const AgentRegistrationForm = () => {
         formData.append("servicesOffered", agentData.servicesOffered);
         formData.append("phoneNumber", agentData.phoneNumber);
         formData.append("agentAuthorizationLetter", file);
-
+  
         const response = await axios.post('http://localhost:3000/agents', formData);
         if (response.status === 200) {
-          message.success('agent registered successfully!');
-          console.log('Service provider registered successfully!');
           // Register admin activity
           const currentDate = new Date();
           const activity = {
@@ -144,21 +142,31 @@ const AgentRegistrationForm = () => {
             targetAdminName: `Agent ${agentData.agentName}`,
             timestamp: currentDate.toISOString(),
           };
-
-            // Save the admin activity to the database
-            await axios.post('http://localhost:3000/admin-activity', activity, {
+  
+          try {
+            const activityResponse = await axios.post('http://localhost:3000/admin-activity', activity, {
               headers: {
                 Authorization: adminData.token,
               },
             });
+  
+            if (activityResponse.status === 200) {
+              console.log('Admin activity registered successfully!');
+            } else {
+              console.error('Error registering admin activity:', activityResponse);
+            }
+          } catch (error) {
+            console.error('Error registering admin activity:', error);
+          }
+  
           form.resetFields();
           setFile(null);
           setAgentAuthorizationLetterUrl(null);
-          message.success('agent registered successfully!');
-          
+          console.log('Service provider registered successfully!');
+          message.success('Agent registered successfully!');
         }
       } catch (error) {
-        message.error('Error submitting form:')
+        message.error('Error submitting form:');
         console.error('Error submitting form:', error);
         // Handle the error, show an error message, etc.
       }
