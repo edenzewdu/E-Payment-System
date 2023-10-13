@@ -45,7 +45,6 @@ const fetchAdminActivities = async () => {
   } catch (error) {
     console.error('Error fetching adminActivities:', error);
     message.error('Failed to fetch adminActivities. Please try again later.');
-    // Handle error case, e.g., set adminActivities to an empty array or show an error message
   }
 };
 
