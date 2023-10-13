@@ -37,7 +37,7 @@ const AdminActivityPage = () => {
    // Fetch adminActivities from the database
 const fetchAdminActivities = async () => {
   try {
-    const response = await fetch('/admin-activities',
+    const response = await fetch('/admin-activity',
     {
       method: 'GET'}); 
     const data = await response.json();
