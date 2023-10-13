@@ -52,12 +52,12 @@ const AdminsList = ({ isLoggedIn, setIsLoggedIn }) => {
   //search for Admin
   const handleSearch = async (value) => {
     setSearchInput(value);
-    const currentDate = new Date();
     const activity = {
       adminName: `Admin ${adminData.user.FirstName}`,
       action: 'Searched for',
       targetAdminName: `${value} in Admin List`,
-      timestamp: currentDate.getTime(),
+      timestamp: new Date().getTime(),
+
     };
   
     try {

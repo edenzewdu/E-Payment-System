@@ -140,7 +140,7 @@ const AgentRegistrationForm = () => {
             adminName: `Admin ${adminData.user.FirstName}`,
             action: 'registered',
             targetAdminName: `Agent ${agentData.agentName}`,
-            timestamp: currentDate.toISOString(),
+            timestamp: new Date().getTime(),
           };
   
           try {

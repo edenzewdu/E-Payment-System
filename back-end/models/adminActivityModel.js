@@ -18,7 +18,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     changedData: {
         type: DataTypes.JSON,
-        allowNull: false,
+        allowNull: true,
     },
 });
 return AdminActivity;

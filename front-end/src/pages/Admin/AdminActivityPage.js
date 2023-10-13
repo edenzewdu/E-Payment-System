@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Dashboard from './Dashboard';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button, Input, Modal, Spin, message, Select } from 'antd';
+import axios from 'axios';
 
 const { Option } = Select;
 
@@ -37,13 +38,10 @@ const AdminActivityPage = () => {
    // Fetch adminActivities from the database
 const fetchAdminActivities = async () => {
   try {
-    const response = await fetch('/admin-activity',
-    {
-      method: 'GET'}); 
-    const data = await response.json();
-    setAdminActivities(data);
+      const response = await axios.get('http://localhost:3000/admin-activity');
+    setAdminActivities(response.data);
   } catch (error) {
-    console.error('Error fetching adminActivities:', error);
+    console.error( error);
     message.error('Failed to fetch adminActivities. Please try again later.');
   }
 };
@@ -252,7 +250,7 @@ fetchAdminActivities();
                       {activity.action === 'Edited' ? (
                         <Link
                           to="#"
-                          onClick={() => handleActivityClick(activity.updatedData)}
+                          onClick={() => handleActivityClick(activity.changedData)}
                           style={{ textDecoration: 'underline', cursor: 'pointer' }}
                         >
                           {activity.targetAdminName}
@@ -260,7 +258,7 @@ fetchAdminActivities();
                       ) : activity.action === 'Deleted' ? (
                         <Link
                           to="#"
-                          onClick={() => handleActivityClick(activity.deletedData)}
+                          onClick={() => handleActivityClick(activity.changedData)}
                           style={{ textDecoration: 'underline', cursor: 'pointer' }}
                         >
                           {activity.targetAdminName}

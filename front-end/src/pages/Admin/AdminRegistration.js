@@ -203,12 +203,11 @@ const AdminRegistrationForm = () => {
       if (response.status === 200) {
         message.success('Admin Registered successfully');
         // Register admin activity
-        const currentDate = new Date();
         const activity = {
           adminName: `Admin ${adminData.user.FirstName}`,
           action: 'registered',
           targetAdminName: `Admin ${values.FirstName}`,
-          timestamp: currentDate.toISOString(),
+          timestamp: new Date().getTime(),
         };
 
         // Save the admin activity to the database
@@ -218,6 +217,7 @@ const AdminRegistrationForm = () => {
         },
       });
         form.resetFields();
+        profilePictureUrl(null);
         message.success('Admin Registered successfully');
       } else {
         message.error('Failed to register admin');
@@ -245,7 +245,7 @@ const AdminRegistrationForm = () => {
               onFinish={handleSave}
             >
               <Form.Item label="UserID" name="UserID" rules={[{ required: true }]}>
-                <Input  />
+                <Input />
               </Form.Item>
 
 

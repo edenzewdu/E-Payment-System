@@ -15,7 +15,7 @@ const createAdminActivity = async (req, res) => {
 
     res.status(201).json(newAdminActivity);
   } catch (error) {
-    res.status(500).json({ error: 'Failed to create AdminActivity.' });
+    res.status(500).json({ error: 'Failed to create AdminActivity.',error });
   }
 };
 

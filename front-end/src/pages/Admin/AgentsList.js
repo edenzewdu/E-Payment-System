@@ -263,20 +263,20 @@ const AgentsList = ({ isLoggedIn, setIsLoggedIn }) => {
   const handleSearch = async (value) => {
     setSearchInput(value);
     const currentDate = new Date();
-    const activity = {
+    try {
+      const activity = {
       adminName: `Admin ${adminData.user.FirstName}`,
       action: 'Searched for',
-      targetAdminName: `${value} in Admin List`,
-      timestamp: currentDate.toISOString(),
+      targetAdminName: `${value} in Agent List`,
+      timestamp: new Date().getTime(),
     };
 
-    try {
       // Save the admin activity to the database
-      await axios.post('http://localhost:3000/admin-activity', activity, {
-        headers: {
-          Authorization: adminData.token,
-        },
-      });
+    axios.post('http://localhost:3000/admin-activity', activity, {
+      headers: {
+        Authorization: adminData.token,
+      },
+    });
   
     } catch (error) {
       console.error('Error saving admin search activity:', error);
