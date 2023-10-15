@@ -6,7 +6,7 @@ import Dashboard from './Dashboard';
 import { useNavigate } from 'react-router-dom';
 
 const ServiceProvidersList = ({ isLoggedIn, setIsLoggedIn }) => {
- 
+
   const [adminData, setAdminData] = useState(JSON.parse(localStorage.getItem('adminData')));
   const [serviceProviderData, setServiceProviderData] = useState([]);
   const [form] = Form.useForm();
@@ -16,18 +16,18 @@ const ServiceProvidersList = ({ isLoggedIn, setIsLoggedIn }) => {
   const [searchInput, setSearchInput] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
-  
+
   const fetchServiceProviders = async () => {
     try {
       const response = await axios.get('http://localhost:3000/serviceProviders');
       setServiceProviderData(response.data);
-      localStorage.setItem('serviceProvidersData', JSON.stringify(response.data)); 
-      
+      localStorage.setItem('serviceProvidersData', JSON.stringify(response.data));
+
     } catch (error) {
       message.error('Failed to fetch service providers.');
     }
   };
- useEffect(() => {
+  useEffect(() => {
     if (!adminData) {
       setTimeout(() => {
         navigate('/admin/login');
@@ -49,9 +49,9 @@ const ServiceProvidersList = ({ isLoggedIn, setIsLoggedIn }) => {
       </div>
     );
   }
-  
 
-  
+
+
 
   const handleEdit = (serviceProvider) => {
     form.setFieldsValue(serviceProvider);
@@ -78,32 +78,32 @@ const ServiceProvidersList = ({ isLoggedIn, setIsLoggedIn }) => {
               if (response.status === 200) {
                 message.success('Service provider data updated successfully.');
 
-                
+
                 // Retrieve the previous serviceProvider data from localStorage
                 const previousData = JSON.parse(localStorage.getItem('serviceProvidersData')) || [];
-  
+
                 // Find the index of the updated serviceProvider in the previous data
                 const updatedIndex = previousData.findIndex((serviceProvider) => serviceProvider.serviceProviderBIN === updatedServiceProvider.serviceProviderBIN);
-  
+
                 // Create a copy of the previous data
                 const updatedData = [...previousData];
-  
+
                 // Get the previous serviceProvider data
                 const previousServiceProvider = updatedData[updatedIndex];
-  
+
                 // Create a change object to track the changes
                 const changes = {};
-  
+
                 // Compare each field of the updated serviceProvider with the previous serviceProvider
                 for (const key in updatedServiceProvider) {
-                  if ( key !== 'serviceProviderBIN' && updatedServiceProvider[key] !== previousServiceProvider[key]) {
+                  if (key !== 'serviceProviderBIN' && updatedServiceProvider[key] !== previousServiceProvider[key]) {
                     changes[key] = {
                       from: previousServiceProvider[key],
                       to: updatedServiceProvider[key],
                     };
                   }
                 }
-  
+
                 // Update the serviceProviderBIN if it has changed
                 if (updatedServiceProvider.serviceProviderBIN !== previousServiceProvider.serviceProviderBIN) {
                   updatedData[updatedIndex].serviceProviderBIN = updatedServiceProvider.serviceProviderBIN;
@@ -112,13 +112,13 @@ const ServiceProvidersList = ({ isLoggedIn, setIsLoggedIn }) => {
                     to: updatedServiceProvider.serviceProviderBIN,
                   };
                 }
-  
+
                 // Add the changes object to the updated serviceProvider data
                 updatedServiceProvider.changes = changes;
-  
+
                 // Replace the updated serviceProvider with the new serviceProvider data in the copy
                 updatedData[updatedIndex] = updatedServiceProvider;
-  
+
                 // Update the serviceProvider data in localStorage
                 localStorage.setItem('serviceProviderData', JSON.stringify(updatedData));
 
@@ -130,21 +130,14 @@ const ServiceProvidersList = ({ isLoggedIn, setIsLoggedIn }) => {
                   timestamp: new Date().getTime(),
                   updatedData: updatedServiceProvider,
                 };
-  
-                // Get the existing admin activities from localStorage or initialize an empty array
-                const adminActivities = JSON.parse(localStorage.getItem('adminActivities')) || [];
-  
-                // Add the new activity to the array
-                adminActivities.push(editActivity);
-  
-                // Update the admin activities in localStorage
-                localStorage.setItem('adminActivities', JSON.stringify(adminActivities));
-  
-                // const UpdatedData = serviceProviderData.map((sp) =>
-                //   sp.serviceProviderBIN === updatedServiceProvider.serviceProviderBIN
-                //     ? updatedServiceProvider
-                //     : sp
-                // );
+
+                // Save the admin activity to the database
+                axios.post('http://localhost:3000/admin-activity', editActivity, {
+                  headers: {
+                    Authorization: adminData.token,
+                  },
+                });
+                
                 setServiceProviderData(updatedData);
                 setEditMode(false);
                 form.resetFields();
@@ -159,12 +152,12 @@ const ServiceProvidersList = ({ isLoggedIn, setIsLoggedIn }) => {
       },
     });
   };
-  
+
   const handleDelete = (serviceProviderBIN) => {
     const deletedServiceProvider = serviceProviderData.find(
       (sp) => sp.serviceProviderBIN === serviceProviderBIN
     );
-  
+
     Modal.confirm({
       title: 'Confirm Delete',
       content: 'Are you sure you want to delete this service provider?',
@@ -177,7 +170,7 @@ const ServiceProvidersList = ({ isLoggedIn, setIsLoggedIn }) => {
           .then((response) => {
             if (response.status === 200) {
               message.success('Service provider deleted successfully.');
-  
+
               // Create a new activity object for the service provider delete action
               const deleteActivity = {
                 adminName: `Admin ${adminData.user.FirstName}`,
@@ -186,16 +179,16 @@ const ServiceProvidersList = ({ isLoggedIn, setIsLoggedIn }) => {
                 timestamp: new Date().getTime(),
                 deletedData: deletedServiceProvider,
               };
-  
+
               // Get the existing admin activities from localStorage or initialize an empty array
               const adminActivities = JSON.parse(localStorage.getItem('adminActivities')) || [];
-  
+
               // Add the new activity to the array
               adminActivities.push(deleteActivity);
-  
+
               // Update the admin activities in localStorage
               localStorage.setItem('adminActivities', JSON.stringify(adminActivities));
-  
+
               const updatedData = serviceProviderData.filter(
                 (sp) => sp.serviceProviderBIN !== serviceProviderBIN
               );
@@ -286,35 +279,35 @@ const ServiceProvidersList = ({ isLoggedIn, setIsLoggedIn }) => {
     },
   ];
   const handleSearch = (value) => {
-  setSearchInput(value);
-  const currentDate = new Date();
-  const activity = {
-    adminName: `Admin ${adminData.user.FirstName}`,
-    action: 'Searched for',
-    targetAdminName: `${value} in Service Providers List`,
-    timestamp: currentDate.toISOString(),
+    setSearchInput(value);
+    const currentDate = new Date();
+    const activity = {
+      adminName: `Admin ${adminData.user.FirstName}`,
+      action: 'Searched for',
+      targetAdminName: `${value} in Service Providers List`,
+      timestamp: currentDate.toISOString(),
+    };
+
+    // Get the existing admin activities from localStorage or initialize an empty array
+    const adminActivities = JSON.parse(localStorage.getItem('adminActivities')) || [];
+
+    // Add the new activity to the array
+    adminActivities.push(activity);
+
+    // Update the admin activities in localStorage
+    localStorage.setItem('adminActivities', JSON.stringify(adminActivities));
   };
 
-  // Get the existing admin activities from localStorage or initialize an empty array
-  const adminActivities = JSON.parse(localStorage.getItem('adminActivities')) || [];
-
-  // Add the new activity to the array
-  adminActivities.push(activity);
-
-  // Update the admin activities in localStorage
-  localStorage.setItem('adminActivities', JSON.stringify(adminActivities));
-};
-
-const filteredServiceProviders = serviceProviderData.filter((serviceProvider) =>
-serviceProvider &&
-  (serviceProvider.serviceProviderBIN.toLowerCase().includes(searchInput.toLowerCase()) ||
-  serviceProvider.serviceProviderName.toLowerCase().includes(searchInput.toLowerCase()) ||
-  serviceProvider.BankName.toLowerCase().includes(searchInput.toLowerCase()) ||
-  serviceProvider.servicesOffered.toLowerCase().includes(searchInput.toLowerCase()) ||
-  serviceProvider.BankAccountNumber.toLowerCase().includes(searchInput.toLowerCase()) ||
-    (typeof serviceProvider.phoneNumber === 'string' &&
-    serviceProvider.phoneNumber.toLowerCase().includes(searchInput.toLowerCase())))
-);
+  const filteredServiceProviders = serviceProviderData.filter((serviceProvider) =>
+    serviceProvider &&
+    (serviceProvider.serviceProviderBIN.toLowerCase().includes(searchInput.toLowerCase()) ||
+      serviceProvider.serviceProviderName.toLowerCase().includes(searchInput.toLowerCase()) ||
+      serviceProvider.BankName.toLowerCase().includes(searchInput.toLowerCase()) ||
+      serviceProvider.servicesOffered.toLowerCase().includes(searchInput.toLowerCase()) ||
+      serviceProvider.BankAccountNumber.toLowerCase().includes(searchInput.toLowerCase()) ||
+      (typeof serviceProvider.phoneNumber === 'string' &&
+        serviceProvider.phoneNumber.toLowerCase().includes(searchInput.toLowerCase())))
+  );
 
 
   return (
@@ -356,7 +349,7 @@ serviceProvider &&
               <Input />
             </Form.Item>
             <Form.Item >
-          <label htmlFor="serviceProviderAuthorizationLetter">Authorization Letter:</label>
+              <label htmlFor="serviceProviderAuthorizationLetter">Authorization Letter:</label>
               <input
                 type="file"
                 id="serviceProvider"
@@ -365,7 +358,7 @@ serviceProvider &&
               {serviceProviderAuthorizationLetterUrl && (
                 <img src={serviceProviderAuthorizationLetterUrl} alt="Auth Letter" style={{ width: '200px' }} />
               )}
-          </Form.Item>
+            </Form.Item>
             <Button type="primary" onClick={handleSave}>
               Save
             </Button>

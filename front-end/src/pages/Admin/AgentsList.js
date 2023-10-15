@@ -262,7 +262,6 @@ const AgentsList = ({ isLoggedIn, setIsLoggedIn }) => {
 
   const handleSearch = async (value) => {
     setSearchInput(value);
-    const currentDate = new Date();
     try {
       const activity = {
       adminName: `Admin ${adminData.user.FirstName}`,
