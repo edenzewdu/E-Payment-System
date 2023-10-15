@@ -137,7 +137,7 @@ const ServiceProvidersList = ({ isLoggedIn, setIsLoggedIn }) => {
                     Authorization: adminData.token,
                   },
                 });
-                
+
                 setServiceProviderData(updatedData);
                 setEditMode(false);
                 form.resetFields();
@@ -180,14 +180,12 @@ const ServiceProvidersList = ({ isLoggedIn, setIsLoggedIn }) => {
                 deletedData: deletedServiceProvider,
               };
 
-              // Get the existing admin activities from localStorage or initialize an empty array
-              const adminActivities = JSON.parse(localStorage.getItem('adminActivities')) || [];
-
-              // Add the new activity to the array
-              adminActivities.push(deleteActivity);
-
-              // Update the admin activities in localStorage
-              localStorage.setItem('adminActivities', JSON.stringify(adminActivities));
+              // Save the admin activity to the database
+              axios.post('http://localhost:3000/admin-activity', deleteActivity, {
+                headers: {
+                  Authorization: adminData.token,
+                },
+              });
 
               const updatedData = serviceProviderData.filter(
                 (sp) => sp.serviceProviderBIN !== serviceProviderBIN
@@ -288,14 +286,12 @@ const ServiceProvidersList = ({ isLoggedIn, setIsLoggedIn }) => {
       timestamp: currentDate.toISOString(),
     };
 
-    // Get the existing admin activities from localStorage or initialize an empty array
-    const adminActivities = JSON.parse(localStorage.getItem('adminActivities')) || [];
-
-    // Add the new activity to the array
-    adminActivities.push(activity);
-
-    // Update the admin activities in localStorage
-    localStorage.setItem('adminActivities', JSON.stringify(adminActivities));
+    // Save the admin activity to the database
+    axios.post('http://localhost:3000/admin-activity', activity, {
+      headers: {
+        Authorization: adminData.token,
+      },
+    });
   };
 
   const filteredServiceProviders = serviceProviderData.filter((serviceProvider) =>
