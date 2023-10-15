@@ -1,5 +1,5 @@
 
-                 
+
 
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
@@ -26,8 +26,8 @@ const ServiceProviderRegistrationForm = () => {
   const [serviceProviderAuthorizationLetterUrl, setServiceProviderAuthorizationLetterUrl] = useState();
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
-  
- useEffect(() => {
+
+  useEffect(() => {
     if (!adminData) {
       setTimeout(() => {
         navigate('/admin/login');
@@ -78,10 +78,10 @@ const ServiceProviderRegistrationForm = () => {
       newErrors.phoneNumber = 'Phone Number is invalid';
     }
 
-    if (!formData.serviceProviderAuthorizationLetter) {
+    if (!file) {
       newErrors.serviceProviderAuthorizationLetter = "Service Authorization Letter is required";
     }
-     else if (!isFileValid(formData.serviceProviderAuthorizationLetter)) {
+    else if (!isFileValid(formData.serviceProviderAuthorizationLetter)) {
       newErrors.serviceProviderAuthorizationLetter = "Invalid file format. Only JPG, JPEG, or PNG files are allowed.";
     }
 
@@ -89,9 +89,10 @@ const ServiceProviderRegistrationForm = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  function isFileValid(file){
+  function isFileValid(file) {
     const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
-    if (!allowedTypes.includes(file.type)) {
+    const fileExtension = file.name.split('.').pop().toLowerCase();
+    if (!allowedTypes.includes(`image/${fileExtension}`)) {
       message.error('Invalid file type. Please select an image file (JPEG, JPG, PNG, GIF).');
       return false;
     }
@@ -111,10 +112,7 @@ const ServiceProviderRegistrationForm = () => {
     setFile(file);
     const url = URL.createObjectURL(file);
     setServiceProviderAuthorizationLetterUrl(url);
-    setFormData((prevData) => ({
-      ...prevData,
-      serviceProviderAuthorizationLetter: file,
-    }));
+    setFile(file);
   };
 
   const handleSubmit = async () => {
@@ -132,7 +130,7 @@ const ServiceProviderRegistrationForm = () => {
         await axios.post('http://localhost:3000/serviceproviders', formDataToSend);
         message.success('Service provider registered successfully!');
         console.log('Service provider registered successfully!');
-        
+
         const currentDate = new Date();
         const activity = {
           adminName: `Admin ${adminData.user.FirstName}`,
@@ -147,11 +145,11 @@ const ServiceProviderRegistrationForm = () => {
             Authorization: adminData.token,
           },
         });
-        
+
         form.resetFields();
         setServiceProviderAuthorizationLetterUrl(null);
         message.success('Service provider registered successfully!');
-        
+
       } catch (error) {
         message.error('Error submitting form:')
         console.error('Error submitting form:', error);
@@ -163,11 +161,11 @@ const ServiceProviderRegistrationForm = () => {
   return (
     <Dashboard
       content={
-        <Form name="serviceProviderRegistrationForm" 
-        layout="vertical"
-        onFinish={handleSubmit}>
+        <Form name="serviceProviderRegistrationForm"
+          layout="vertical"
+          onFinish={handleSubmit}>
           <h1>Service provider Registration</h1>
-  
+
           <Form.Item
             label="Business Identification Number"
             name="serviceProviderBIN"
@@ -177,7 +175,7 @@ const ServiceProviderRegistrationForm = () => {
           >
             <Input name="serviceProviderBIN" onChange={handleChange} placeholder="Enter BIN" />
           </Form.Item>
-  
+
           <Form.Item
             label="Service Provider Name"
             name="serviceProviderName"
@@ -187,7 +185,7 @@ const ServiceProviderRegistrationForm = () => {
           >
             <Input name="serviceProviderName" onChange={handleChange} placeholder="Enter Name" />
           </Form.Item>
-  
+
           <Form.Item
             label="Services Offered"
             name="servicesOffered"
@@ -197,7 +195,7 @@ const ServiceProviderRegistrationForm = () => {
           >
             <Input name="servicesOffered" onChange={handleChange} placeholder="Enter Services Offered" />
           </Form.Item>
-  
+
           <Form.Item
             label="Bank Name"
             name="BankName"
@@ -207,7 +205,7 @@ const ServiceProviderRegistrationForm = () => {
           >
             <Input name="BankName" onChange={handleChange} placeholder="Enter Bank Name" />
           </Form.Item>
-  
+
           <Form.Item
             label="Bank Account Number"
             name="BankAccountNumber"
@@ -217,7 +215,7 @@ const ServiceProviderRegistrationForm = () => {
           >
             <Input name="BankAccountNumber" onChange={handleChange} placeholder="Enter Bank Account Number" />
           </Form.Item>
-  
+
           <Form.Item
             label="Phone Number"
             name="phoneNumber"
@@ -227,15 +225,15 @@ const ServiceProviderRegistrationForm = () => {
           >
             <Input name="phoneNumber" onChange={handleChange} placeholder="Enter Phone Number" />
           </Form.Item>
-  
+
           <Form.Item
             label="serviceProviderAuthorizationLetter"
             name="serviceProviderAuthorizationLetter"
             validateStatus={errors.serviceProviderAuthorizationLetter && 'error'}
             help={errors.serviceProviderAuthorizationLetter}
             rules={[{ required: true }]}
-            >
-              <Input
+          >
+            <Input
               type="file"
               name="serviceProviderAuthorizationLetter"
               id="serviceProviderAuthorizationLetter"
@@ -244,13 +242,13 @@ const ServiceProviderRegistrationForm = () => {
               onChange={handleFileChange}
               help={errors.serviceProviderAuthorizationLetter}
               rules={[{ required: true }]}
-              style={{width:'fit-content'}}
+              style={{ width: 'fit-content' }}
             />
             {serviceProviderAuthorizationLetterUrl && (
               <img src={serviceProviderAuthorizationLetterUrl} alt="Auth Letter" style={{ width: '200px' }} />
             )}
           </Form.Item>
-  
+
           <Form.Item>
             <Button type="primary" htmlType="submit">
               Register
@@ -260,6 +258,6 @@ const ServiceProviderRegistrationForm = () => {
       }
     />
   );
-    };
+};
 
 export default ServiceProviderRegistrationForm;
