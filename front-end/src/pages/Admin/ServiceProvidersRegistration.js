@@ -135,19 +135,25 @@ const ServiceProviderRegistrationForm = () => {
 
         message.success('Service provider registered successfully!');
         console.log('Service provider registered successfully!');
-      }
-      form.resetFields();
+        form.resetFields(); // Reset the form fields
         setServiceProviderAuthorizationLetterUrl(null);
+        return;
+      }
       } catch (error) {
-        message.error('Failed to register service provider. Please try again.');
-        console.error('Error:', error);
+        if (error.response && error.response.data && error.response.data.error) {
+          const errorMessage = error.response.data.error;
+          message.error(`Failed to register service provider. ${errorMessage}`);
+        } else {
+          message.error('Failed to register service provider. Please try again.');
+          console.error('Error:', error);
+        }
       }
     }
   };
   return (
     <Dashboard
       content={
-        <Form name="serviceProviderRegistrationForm" layout="vertical" onFinish={handleSubmit}>
+        <Form name="serviceProviderRegistrationForm" layout="vertical" onFinish={handleSubmit} form={form}>
           <h1>Service provider Registration</h1>
   
           <Form.Item

@@ -3,7 +3,7 @@ import axios from "axios";
 import { Layout, Menu, Avatar, Button, message, Form, Input, Upload, Modal, Spin } from 'antd';
 import Dashboard from "./Dashboard";
 import { useNavigate, useParams } from "react-router-dom";
-import FormItem from "antd/es/form/FormItem";
+import { UploadOutlined } from '@ant-design/icons';
 
 const AgentRegistrationForm = () => {
 
@@ -45,52 +45,6 @@ const AgentRegistrationForm = () => {
     );
   }
 
-  const validateForm = () => {
-    const newErrors = {};
-
-    if (!agentData.agentBIN) {
-      newErrors.agentBIN = "Business Identification Number is required";
-    }
-
-    if (!agentData.agentName) {
-      newErrors.agentName = "Bank Name is required";
-    }
-
-    if (!agentData.agentEmail) {
-      newErrors.agentEmail = "Email is required";
-    } else if (!/\S+@\S+\.\S+/.test(agentData.agentEmail)) {
-      newErrors.agentEmail = "Email is invalid";
-    }
-
-    if (!agentData.servicesOffered) {
-      newErrors.servicesOffered = "Services Offered is required";
-    }
-
-
-    if (!agentData.phoneNumber) {
-      newErrors.phoneNumber = 'Phone Number is required';
-    } else if (!/^\+?\d+$/.test(agentData.phoneNumber)) {
-      newErrors.phoneNumber = 'Phone Number is invalid';
-    }
-
-    if (!agentData.agentAuthorizationLetter) {
-      newErrors.agentAuthorizationLetter = "Agent Authorization Letter is required";
-    }
-     else if (!isFileValid(agentData.agentAuthorizationLetter)) {
-      newErrors.agentAuthorizationLetter = "Invalid file format. Only JPG, JPEG, or PNG files are allowed.";
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
- function isFileValid(file){
-  const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
-  if (!allowedTypes.includes(file.type)) {
-    message.error('Invalid file type. Please select an image file (JPEG, JPG, PNG, GIF).');
-    return false;
-  }
-  else return true;
-}
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -101,29 +55,60 @@ const AgentRegistrationForm = () => {
   };
 
 
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    setFile(file);
-    const url = URL.createObjectURL(file);
-    setAgentAuthorizationLetterUrl(url);
-    setAgentData((prevData) => ({
-      ...prevData,
-      agentAuthorizationLetter: file,
-    }));
+  const validateForm = async () => {
+    try {
+      await form.validateFields();
+      return isFileValid(file);
+    } catch (error) {
+      const newErrors = {};
+      error.errorFields.forEach((field) => {
+        newErrors[field.name[0]] = field.errors[0];
+      });
+      setErrors(newErrors);
+      return false;
+    }
+  };
 
+  function isFileValid(file) {
+    if (!file) {
+      message.error('No file selected.');
+      return false;
+    }
+
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+    const fileExtension = file.name.split('.').pop().toLowerCase();
+
+    if (!allowedTypes.includes(`image/${fileExtension}`)) {
+      message.error('Invalid file type. Please select an image file (JPEG, JPG, PNG, GIF).');
+      return false;
+    } else {
+      return true;
+    }
+  }
+
+
+  const handleFileChange = (info) => {
+    const file = info.file?.originFileObj;
+    if (!file) {
+      setFile(null);
+      setAgentAuthorizationLetterUrl(null);
+      return;
+    }
+  
+    setFile(file);
+  
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const fileUrl = event.target.result;
+      setAgentAuthorizationLetterUrl(fileUrl);
+    };
+    reader.readAsDataURL(file);
   };
 
 
   const handleSubmit = async () => {
-    if (validateForm()) {
+    if (await validateForm()) {
       try {
-        const values = await form.validateFields();
-  
-        setAgentData((prevData) => ({
-          ...prevData,
-          ...values,
-        }));
-  
         const formData = new FormData();
         formData.append("agentBIN", agentData.agentBIN);
         formData.append("agentName", agentData.agentName);
@@ -135,7 +120,6 @@ const AgentRegistrationForm = () => {
         const response = await axios.post('http://localhost:3000/agents', formData);
         if (response.status === 200) {
           // Register admin activity
-          const currentDate = new Date();
           const activity = {
             adminName: `Admin ${adminData.user.FirstName}`,
             action: 'registered',
@@ -166,22 +150,21 @@ const AgentRegistrationForm = () => {
           message.success('Agent registered successfully!');
         }
       } catch (error) {
-        message.error('Error submitting form:');
-        console.error('Error submitting form:', error);
-        // Handle the error, show an error message, etc.
+        if (error.response && error.response.data && error.response.data.error) {
+          const errorMessage = error.response.data.error;
+          message.error(`Failed to register Agent. ${errorMessage}`);
+        } else {
+          message.error('Failed to register Agent. Please try again.');
+          console.error('Error:', error);
+        }
       }
     }
   };
 
   return (
-    <Dashboard content={
-      <Layout.Content className="agent-registration-content">
-        <Form name="serviceProviderRegistrationForm"
-          form={form}
-          layout="vertical"
-        >
-
-
+    <Dashboard
+      content={
+        <Form name="agentRegistrationForm" layout="vertical" onFinish={handleSubmit} form={form}>
           <h1>Agent Registration</h1>
 
           <Form.Item
@@ -236,23 +219,20 @@ const AgentRegistrationForm = () => {
 
 
           <Form.Item
-            label="agentAuthorizationLetter"
+            label="Agent Authorization Letter"
             name="agentAuthorizationLetter"
             validateStatus={errors.agentAuthorizationLetter && 'error'}
             help={errors.agentAuthorizationLetter}
             rules={[{ required: true }]}
           >
-            <Input
-              type="file"
+            <Upload
               name="agentAuthorizationLetter"
-              id="agentAuthorizationLetter"
-              accept=".jpeg, .jpg, .png, .gif"
-              validateStatus={errors.agentAuthorizationLetter && 'error'}
+              accept=".jpeg,.jpg,.png,.gif"
               onChange={handleFileChange}
-              help={errors.agentAuthorizationLetter}
-              rules={[{ required: true }]}
-              style={{width:'fit-content'}}
-            />
+            >
+              <Button icon={<UploadOutlined />}>Click to Upload</Button>
+            </Upload>
+
             {agentAuthorizationLetterUrl && (
               <img src={agentAuthorizationLetterUrl} alt="Auth Letter" style={{ width: '200px' }} />
             )}
@@ -262,7 +242,6 @@ const AgentRegistrationForm = () => {
             <Button type="primary" htmlType="submit" onClick={handleSubmit}>Register</Button>
           </Form.Item>
         </Form>
-      </Layout.Content>
     } />
   );
 };
