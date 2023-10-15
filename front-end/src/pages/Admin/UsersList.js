@@ -51,22 +51,19 @@ const UsersList = ({ isLoggedIn, setIsLoggedIn }) => {
 
   const handleSearch = (value) => {
     setSearchInput(value);
-    const currentDate = new Date();
     const activity = {
       adminName: `Admin ${adminData.user.FirstName}`,
       action: 'Searched for',
       targetAdminName: `${value} in User List`,
-      timestamp: currentDate.toISOString(),
+    timestamp: new Date().getTime(),
     };
 
-    // Get the existing admin activities from localStorage or initialize an empty array
-    const adminActivities = JSON.parse(localStorage.getItem('adminActivities')) || [];
-
-    // Add the new activity to the array
-    adminActivities.push(activity);
-
-    // Update the admin activities in localStorage
-    localStorage.setItem('adminActivities', JSON.stringify(adminActivities));
+    // Save the admin activity to the database
+    axios.post('http://localhost:3000/admin-activity', activity, {
+      headers: {
+        Authorization: adminData.token,
+      },
+    });
   };
 
   const filteredUsers = userData.filter((user) =>
