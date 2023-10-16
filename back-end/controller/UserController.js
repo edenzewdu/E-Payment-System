@@ -134,14 +134,14 @@ exports.create = async (req, res) => {
         });
         return;
       }
-    
+
       // Generate random unique serviceNo
       const generatedServiceNos = new Set();
       while (generatedServiceNos.size < serviceProviders.length) {
         const randomServiceNo = Math.floor(100000 + Math.random() * 900000);
         generatedServiceNos.add(randomServiceNo);
       }
-    
+
       // Create associations and add serviceNo to the junction table
       for (let i = 0; i < serviceProviders.length; i++) {
         const serviceProvider = serviceProviders[i];
@@ -153,11 +153,11 @@ exports.create = async (req, res) => {
         });
       }
     }
-    
+
     const data = await User.findOne({
       where: {
         id: createdUser.id,
-      }, 
+      },
       include: [
         {
           model: ServiceProviders,
@@ -177,7 +177,7 @@ exports.create = async (req, res) => {
           model: Agents,
           as: 'Agents',
         },
-      
+
       ],
     });
 
@@ -236,15 +236,17 @@ exports.findOneByServiceNo = asyncHandler(async (req, res) => {
 
   try {
     const user = await db.User.findOne({
-     include: [
-         {
+      include: [
+        {
           model: db.ServiceProviders,
           as: 'ServiceProviders',
           through: {
             model: db.UserServiceProvider,
             as: 'userServiceProvider',
-            where: { serviceNo: serviceNo,
-            serviceProviderBIN: serviceProviderBIN },
+            where: {
+              serviceNo: serviceNo,
+              serviceProviderBIN: serviceProviderBIN
+            },
             required: true,
           },
         },
@@ -261,7 +263,7 @@ exports.findOneByServiceNo = asyncHandler(async (req, res) => {
           as: 'Agents',
         },
       ],
-      distinct: true 
+      distinct: true
     });
 
     if (!user) {
@@ -319,7 +321,7 @@ exports.update = asyncHandler(async (req, res) => {
   try {
     // Find the user by ID
     const user = await User.findByPk(id,
-      );
+    );
 
     if (!user) {
       res.status(404).send({
@@ -471,6 +473,93 @@ exports.update = asyncHandler(async (req, res) => {
     res.status(500).send({
       message: 'Error updating user',
     });
+  }
+});
+
+exports.associate = asyncHandler(async (req, res) => {
+  try {
+    let user;
+    if (req.body.UserID) {
+      // Find the user by UserID
+      user = await User.findOne({
+        where: {
+          UserID: req.body.UserID,
+        },
+      });
+    }
+    if (user) {
+      // Associate existing user with service provider
+      if (req.body.serviceProviderBINs && req.body.serviceProviderBINs.length > 0) {
+        const serviceProviderBINs = req.body.serviceProviderBINs;
+        const serviceProviders = await ServiceProviders.findAll({
+          where: {
+            serviceProviderBIN: {
+              [Op.in]: serviceProviderBINs,
+            },
+          },
+        });
+        if (serviceProviders.length !== serviceProviderBINs.length) {
+          const existingServiceProviders = serviceProviders.map((sp) => sp.serviceProviderBIN);
+          const missingServiceProviders = serviceProviderBINs.filter(
+            (sp) => !existingServiceProviders.includes(sp)
+          );
+          res.status(404).send({
+            message: `Service providers with IDs ${missingServiceProviders.join(', ')} not found`,
+          });
+          return;
+        }
+
+        // Generate random unique serviceNo
+        const generatedServiceNos = new Set();
+        while (generatedServiceNos.size < serviceProviders.length) {
+          const randomServiceNo = Math.floor(100000 + Math.random() * 900000);
+          generatedServiceNos.add(randomServiceNo);
+        }
+
+        // Create associations and add serviceNo to the junction table
+        for (let i = 0; i < serviceProviders.length; i++) {
+          const serviceProvider = serviceProviders[i];
+          const serviceNo = Array.from(generatedServiceNos)[i]; // Convert Set to Array and access by index
+          await user.addServiceProviders(serviceProvider, {
+            through: {
+              serviceNo: serviceNo,
+            },
+          });
+        }
+        // Include the associated service providers in the response
+        const associatedServiceProviders = await User.findOne({
+          where: {
+            UserID: req.body.UserID,
+          },
+          include: [
+            {
+              model: ServiceProviders,
+              as: 'ServiceProviders',
+              through: {
+                model: UserServiceProvider,
+                as: 'userServiceProvider',
+                where: {
+                  serviceNo: {
+                    [Op.in]: Array.from(generatedServiceNos),
+                  },
+                },
+                required: true,
+              },
+            },
+          ],
+        });
+
+        res.send({
+          message: 'Associations created successfully',
+          user: associatedServiceProviders,
+        });
+      }
+    } else {
+      res.status(404).send({ message: 'User not found' });
+    }
+  } catch (error) {
+    console.error('Error associating user with service providers:', error);
+    res.status(500).send({ message: 'Error associating user with service providers' });
   }
 });
 
@@ -631,7 +720,7 @@ exports.requestPasswordReset = asyncHandler(async (req, res) => {
   const recipientEmail = req.body.Email;
   const subject = 'Password Reset Request';
   const resetLink = `http://localhost:3001/Users/UpdatePassword#/${resetToken}`;
-  const message =` Dear ${user.FirstName},\n\nWe received a request to reset your password.\n\nTo reset your password, click on the following link:\n${resetLink}\n\nIf you did not request a password reset, please ignore this email.\n\nBest regards,\nYourApp Team`;
+  const message = ` Dear ${user.FirstName},\n\nWe received a request to reset your password.\n\nTo reset your password, click on the following link:\n${resetLink}\n\nIf you did not request a password reset, please ignore this email.\n\nBest regards,\nYourApp Team`;
 
   sendEmail(senderEmail, senderPassword, recipientEmail, subject, message);
 
@@ -654,7 +743,7 @@ async function sendEmail(senderEmail, senderPassword, recipientEmail, subject, m
         rejectUnauthorized: false,
       },
     });
-    
+
 
     // Define the email options
     const mailOptions = {
@@ -691,7 +780,7 @@ exports.verifyUser = async (req, res) => {
   try {
     // Find the user based on the provided userId
     const user = await User.findByPk(userId);
-  
+
     if (!user) {
       res.status(404).send({
         message: 'User not found',
@@ -795,8 +884,8 @@ exports.updatePasswordWithToken = asyncHandler(async (req, res) => {
       return;
     }
     console.log('Email:', Email);
-console.log('Password:', Password);
-console.log('', user);
+    console.log('Password:', Password);
+    console.log('', user);
 
     // Generate salt and hash the password
     const salt = await bcrypt.genSalt(10);
