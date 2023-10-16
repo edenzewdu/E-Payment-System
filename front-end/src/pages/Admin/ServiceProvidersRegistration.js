@@ -1,4 +1,4 @@
-import React, { useEffect, useState, URL } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { UploadOutlined } from '@ant-design/icons';
 import { Layout, Menu, Avatar, Button, message, Form, Input, Upload, Modal, Spin } from 'antd';
@@ -86,10 +86,21 @@ const ServiceProviderRegistrationForm = () => {
   };
 
   const handleFileChange = (info) => {
-    const file = info.file.originFileObj;
+    const file = info.file?.originFileObj;
+    if (!file) {
+      setFile(null);
+      setServiceProviderAuthorizationLetterUrl(null);
+      return;
+    }
+  
     setFile(file);
-    const url = URL.createObjectURL(file);
-    setServiceProviderAuthorizationLetterUrl(url);
+  
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const fileUrl = event.target.result;
+      setServiceProviderAuthorizationLetterUrl(fileUrl);
+    };
+    reader.readAsDataURL(file);
   };
 
   const handleSubmit = async () => {
@@ -104,16 +115,15 @@ const ServiceProviderRegistrationForm = () => {
         formDataToSend.append('phoneNumber', formData.phoneNumber);
         formDataToSend.append('serviceProviderAuthorizationLetter', file);
 
-        await axios.post('http://localhost:3000/serviceproviders', formDataToSend);
-        message.success('Service provider registered successfully!');
-        console.log('Service provider registered successfully!');
+        const response = await axios.post('http://localhost:3000/serviceproviders', formDataToSend);
+        
 
-        const currentDate = new Date();
+        if(response.status === 200){
         const activity = {
           adminName: `Admin ${adminData.user.FirstName}`,
           action: 'registered',
           targetAdminName: `Service Provider ${formData.serviceProviderName}`,
-          timestamp: currentDate.toISOString(),
+          timestamp: new Date().getTime(),
         };
 
         // Save the admin activity to the database
@@ -123,10 +133,11 @@ const ServiceProviderRegistrationForm = () => {
           },
         });
 
-        form.resetFields();
-        setServiceProviderAuthorizationLetterUrl(null);
         message.success('Service provider registered successfully!');
-
+        console.log('Service provider registered successfully!');
+      }
+      form.resetFields();
+        setServiceProviderAuthorizationLetterUrl(null);
       } catch (error) {
         message.error('Failed to register service provider. Please try again.');
         console.error('Error:', error);
@@ -210,10 +221,6 @@ const ServiceProviderRegistrationForm = () => {
               name="serviceProviderAuthorizationLetter"
               accept=".jpeg,.jpg,.png,.gif"
               onChange={handleFileChange}
-              beforeUpload={(file) => {
-                setFile(file);
-                return false;
-              }}
             >
               <Button icon={<UploadOutlined />}>Click to Upload</Button>
             </Upload>

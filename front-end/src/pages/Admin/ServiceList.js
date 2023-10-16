@@ -278,12 +278,11 @@ const ServiceProvidersList = ({ isLoggedIn, setIsLoggedIn }) => {
   ];
   const handleSearch = (value) => {
     setSearchInput(value);
-    const currentDate = new Date();
     const activity = {
       adminName: `Admin ${adminData.user.FirstName}`,
       action: 'Searched for',
       targetAdminName: `${value} in Service Providers List`,
-      timestamp: currentDate.toISOString(),
+      timestamp: new Date().getTime(),
     };
 
     // Save the admin activity to the database
