@@ -31,7 +31,7 @@ const AdminActivityPage = () => {
     } else {
       setIsLoading(false);
     }
-    localStorage.setItem('selectedMenu', 10)
+    localStorage.setItem('selectedMenu', 12)
   }, [adminData, navigate]);
 
   useEffect(() => {

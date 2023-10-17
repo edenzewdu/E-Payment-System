@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import AdminLogin from './pages/Admin/AdminLogin';
 import AgentsList from './pages/Admin/AgentsList';
-import ServiceProvidersList from './pages/Admin/ServiceList';
+import ServiceProvidersList from './pages/Admin/ServiceProvidersList';
 import UsersList from './pages/Admin/UsersList';
 import ServiceProviderRegistrationForm from './pages/Admin/ServiceProvidersRegistration';
 import AdminRegistrationForm from './pages/Admin/AdminRegistration';
@@ -23,9 +23,10 @@ import ContactUs from './pages/contactUs';
 import AboutUsPage from './pages/aboutUs';
 import PaymentHistory from './pages/paymentHistory';
 import AdminActivityPage from './pages/Admin/AdminActivityPage';
+import ServiceNumberGeneration from './pages/Admin/ServiceNumberGeneration';
+import BillGenerationForm from './pages/Admin/BillGeneration';
 
 function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   return (
     <Router>
@@ -40,32 +41,23 @@ function App() {
         <Route path="/serviceNumber" element={<ServiceNumber />} />
         <Route path="/payment" element={<Payment />} />
         <Route path="/history" element={<PaymentHistory />} />
-        <Route path="/admin/login" element={<AdminLogin />} />
-        <Route path="/admin/dashboard/:adminId" element={<Home />} />
         <Route path="/users/resetpassword" element={<ResetPasswordForm />} />
         <Route path="/users/updatepassword" element={<UpdatePassword />} />
-        <Route
-          path="/admin/agents/:adminId"
-          element={<AgentsList isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />}
-        />
-        <Route
-          path="/admin/agents/registration/:adminId"
-          element={<AgentRegistrationForm isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />}
-        />
-        <Route
-          path="/admin/service-providers/:adminId"
-          element={<ServiceProvidersList isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />}
-        />
+
+        <Route path="/admin/login" element={<AdminLogin />} />
+        <Route path="/admin/dashboard/:adminId" element={<Home />} />
+        <Route path="/admin/agents/:adminId" element={<AgentsList />} />
+        <Route path="/admin/agents/registration/:adminId" element={<AgentRegistrationForm />} />
+        <Route path="/admin/service-providers/:adminId" element={<ServiceProvidersList />} />
         <Route path="/admin/usersList/:adminId" element={<UsersList />} />
         <Route path="/admin/adminsList/:adminId" element={<AdminsList />} />
-        <Route
-          path="/admin/service-providers/registration/:adminId"
-          element={<ServiceProviderRegistrationForm />}
-        />
+        <Route path="/admin/service-providers/registration/:adminId" element={<ServiceProviderRegistrationForm />} />
         <Route path="/admin/user/registration/:adminId" element={<AdminRegistrationForm />} />
         <Route path="/admin/transactions/:adminId" element={<PaymentList />} />
+        <Route path="/admin/serviceNogenerator/:adminId" element={<ServiceNumberGeneration />} />
+        <Route path="/admin/billgenerator/:adminId" element={<BillGenerationForm />} />
         <Route path="/admin/activities/:adminId" element={<AdminActivityPage />} />
-        
+
       </Routes>
     </Router>
   );

@@ -264,7 +264,7 @@ const Dashboard = ({ content }) => {
             key="submenu"
             icon={<HomeOutlined />}
             title="E-Payment System"
-            style={{ position: 'fixed', marginTop: '40px', minWidth: '190px', width: isSiderCollapsed ? '190px' : '350px', }}
+            style={{ position: 'fixed', marginTop: '-5px', minWidth: '190px', width: isSiderCollapsed ? '190px' : '350px', }}
           >
             <Menu.Item key="2" icon={<BankOutlined />}>
               <Link
@@ -332,14 +332,29 @@ const Dashboard = ({ content }) => {
             </Menu.Item>
             <Menu.Item key="10" icon={<AppstoreOutlined />}>
               <Link
+                to={`/admin/serviceNogenerator/${formData.id}`}
+                style={{ color: '#ffffff' }}
+              >
+                Service Number Generation
+              </Link>
+            </Menu.Item>
+            <Menu.Item key="11" icon={<AppstoreOutlined />}>
+              <Link
+                to={`/admin/billgenerator/${formData.id}`}
+                style={{ color: '#ffffff' }}
+              >
+                Bill Generation
+              </Link>
+            </Menu.Item>
+            <Menu.Item key="12" icon={<AppstoreOutlined />}>
+              <Link
                 to={`/admin/activities/${formData.id}`}
                 style={{ color: '#ffffff' }}
               >
                 Activities
               </Link>
             </Menu.Item>
-
-
+            
           </Menu.SubMenu>
         </Menu>
       </Sider>
