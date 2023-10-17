@@ -146,13 +146,12 @@ const AgentRegistrationForm = () => {
           form.resetFields();
           setFile(null);
           setAgentAuthorizationLetterUrl(null);
-          console.log('Service provider registered successfully!');
+          console.log('Agent registered successfully!');
           message.success('Agent registered successfully!');
         }
       } catch (error) {
         if (error.response && error.response.data && error.response.data.error) {
           const errorMessage = error.response.data.error;
-          message.error(`Failed to register Agent. ${errorMessage}`);
         } else {
           message.error('Failed to register Agent. Please try again.');
           console.error('Error:', error);

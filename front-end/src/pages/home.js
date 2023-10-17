@@ -37,10 +37,7 @@ const HomePage = () => {
           <br />
           <hr className='horizontal-line' />
           <div className='note3'>
-            <h4>Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-              Fusce tincidunt ante et feugiat fringilla.
-              Mauris vel purus in leo rhoncus auctor quis at ligula.
-              Suspendisse potenti. Nulla facilisi.</h4>
+            <h4>Welcome to E-payment-system, your trusted online payment system. We are dedicated to providing secure, convenient, and innovative e-payment solutions to make your life easier.</h4>
           </div>
         </div>
       </div>

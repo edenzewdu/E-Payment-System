@@ -123,7 +123,7 @@ const PaymentList = () => {
     <div>
       <h1>Payment List</h1>
       <Input.Search
-        placeholder="Search Service provider"
+        placeholder="Search for Transactions"
         value={searchInput}
         onChange={(e) => handleSearch(e.target.value)}
         style={{ marginBottom: '16px' }}

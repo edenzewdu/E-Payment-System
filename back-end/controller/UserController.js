@@ -715,8 +715,8 @@ exports.requestPasswordReset = asyncHandler(async (req, res) => {
   await user.save();
 
   // Send password reset email to the user
-  const senderEmail = "bezawitseb@gmail.com";
-  const senderPassword = "qcgeavpcflselbre";
+  const senderEmail = "letinamekonnen6@gmail.com";
+  const senderPassword = "clnyfngaveyvxucx";
   const recipientEmail = req.body.Email;
   const subject = 'Password Reset Request';
   const resetLink = `http://localhost:3001/Users/UpdatePassword#/${resetToken}`;
@@ -736,8 +736,8 @@ async function sendEmail(senderEmail, senderPassword, recipientEmail, subject, m
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
-        user: "bezawitseb@gmail.com",
-        pass: "qcgeavpcflselbre",
+        user: "letinamekonnen6@gmail.com",
+        pass: "clnyfngaveyvxucx",
       },
       tls: {
         rejectUnauthorized: false,
@@ -789,8 +789,8 @@ exports.verifyUser = async (req, res) => {
     }
 
     // Send verification code email to the user
-    const senderEmail = 'bezawitseb@gmail.com';
-    const senderPassword = 'qcgeavpcflselbre';
+    const senderEmail = 'letinamekonnen6@gmail.com';
+    const senderPassword = 'clnyfngaveyvxucx';
     const recipientEmail = user.Email;
     const subject = 'Email Verification';
     const message = `Dear ${user.FirstName},\n\nYour verification code is: ${verificationCode}\n\nPlease use this code to verify your email.\n\nBest regards,\nYourApp Team`;

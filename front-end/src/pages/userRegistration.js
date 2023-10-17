@@ -5,7 +5,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import companyLogo from '../image/logoimage.jpg';
 import { Link, useNavigate } from 'react-router-dom';
 
-import {  Input, Select, message } from 'antd';
+import { Input, Select, message } from 'antd';
 
 
 
@@ -248,6 +248,18 @@ const RegistrationForm = () => {
                 />
               </div>
               <div className="item">
+                <label className="user-input">User Name:</label>
+                <input
+                  type="text"
+                  name="UserName"
+                  className="input-field"
+                  value={formData.UserName}
+                  onChange={handleChange}
+                  placeholder="Enter your user name"
+                />
+                {errors.UserName && <div className="error-message">{errors.UserName}</div>}
+              </div>
+              <div className="item">
                 <label className="user-input">First Name:</label>
                 <input
                   type="text"
@@ -273,6 +285,18 @@ const RegistrationForm = () => {
               </div>
 
               <div className="item">
+                <label className="user-input">Email:<br /> </label>
+                <input
+                  type="Email"
+                  name="Email"
+                  className="input-field"
+                  value={formData.Email}
+                  onChange={handleChange}
+                  placeholder="Enter your email"
+                />
+                {errors.Email && <span>{errors.Email}</span>}
+              </div>
+              <div className="item">
                 <div className="select-item">
                   <label className="gender-title" value={formData.Gender}>
                     Gender:
@@ -288,18 +312,7 @@ const RegistrationForm = () => {
                 </div>
               </div>
 
-              <div className="item">
-                <label className="user-input">User Name:</label>
-                <input
-                  type="text"
-                  name="UserName"
-                  className="input-field"
-                  value={formData.UserName}
-                  onChange={handleChange}
-                  placeholder="Enter your user name"
-                />
-                {errors.UserName && <div className="error-message">{errors.UserName}</div>}
-              </div>
+
               <div className="item">
                 <label className="user-input">Password:</label>
                 <Input.Password
@@ -324,18 +337,7 @@ const RegistrationForm = () => {
                 />
                 {errors.ConfirmPassword && <span>{errors.ConfirmPassword}</span>}
               </div>
-              <div className="item">
-                <label className="user-input">Email:<br /> </label>
-                <input
-                  type="Email"
-                  name="Email"
-                  className="input-field"
-                  value={formData.Email}
-                  onChange={handleChange}
-                  placeholder="Enter your email"
-                />
-                {errors.Email && <span>{errors.Email}</span>}
-              </div>
+
               <div className="item">
                 <label className="user-input">Phone Number:</label>
                 <input

@@ -1,32 +1,31 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Layout, Button, message, Form, Input, Select, Spin } from 'antd';
+import { UserOutlined } from '@ant-design/icons';
+import { Layout, Menu, Avatar, Button, message, Form, Input, Upload, Modal, Select, Spin } from 'antd';
 import Dashboard from './Dashboard';
 
-const AdminRegistrationForm = () => {
+const AdminRegistrationForm = ({ addActivity }) => {
 
   const { Option } = Select;
   const [counter, setCounter] = useState(1);
   const navigate = useNavigate();
-
-  // State variables
-  const [adminData, setAdminData] = useState(JSON.parse(localStorage.getItem('adminData')));
-  const [isLoading, setIsLoading] = useState(true);
-  const [form] = Form.useForm();
-  const [profilePictureUrl, setProfilePictureUrl] = useState(JSON.parse(localStorage.getItem('adminData'))?.ProfilePicture);
-  const { adminId } = useParams();
-  
+  // Generate the next admin ID
   const getNextUserID = () => {
     const timestamp = Date.now().toString(); // Get the current timestamp
     const randomNumber = Math.floor(Math.random() * 10000).toString(); // Generate a random number between 0 and 9999
     return `P${timestamp}${randomNumber}`;
   };
 
-  //increment to next user
   const incrementCounter = () => {
     setCounter((prevCounter) => prevCounter + 1);
   };
+
+  const [adminData, setAdminData] = useState(JSON.parse(localStorage.getItem('adminData')));
+  const [isLoading, setIsLoading] = useState(true);
+  const [form] = Form.useForm();
+  const [profilePictureUrl, setProfilePictureUrl] = useState(JSON.parse(localStorage.getItem('adminData'))?.ProfilePicture);
+  const { adminId } = useParams();
   const [formData, setFormData] = useState({
     UserID: getNextUserID(),
     FirstName: '',
@@ -42,7 +41,6 @@ const AdminRegistrationForm = () => {
 
   const [errors, setErrors] = useState({});
 
-  //set errors if error occur
   const validateForm = () => {
     const newErrors = {};
 
@@ -93,7 +91,6 @@ const AdminRegistrationForm = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  //check if file is of correct type
   function isFileValid(file) {
     const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
     if (!allowedTypes.includes(file.type)) {
@@ -104,7 +101,6 @@ const AdminRegistrationForm = () => {
   }
 
   useEffect(() => {
-    //if no logged in admin navigate to login page
     if (!adminData) {
       setTimeout(() => {
         navigate('/admin/login');
@@ -114,22 +110,8 @@ const AdminRegistrationForm = () => {
       setIsLoading(false);
     }
     localStorage.setItem('selectedMenu', 6);
-    const Admin = localStorage.getItem('adminData');
-    if (Admin) {
-      try {
-        const parsedAdminData = JSON.parse(Admin);
-        setFormData(parsedAdminData);
-        setAdminData(parsedAdminData);
-      } catch (error) {
-        console.error('Error parsing admin data:', error);
-        message.error('Error parsing admin data');
-        // Handle error while parsing the data from localStorage
-      }
-    }
   }, [adminData, navigate]);
-  
   if (isLoading) {
-    // Show loading spinner while checking login status
     return (
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
         <Spin size="large" />
@@ -148,14 +130,14 @@ const AdminRegistrationForm = () => {
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
-
+  
     // Check the file type
     const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
     if (!allowedTypes.includes(file.type)) {
       message.error('Invalid file type. Please select an image file (JPEG, JPG, PNG, GIF).');
       return;
     }
-
+  
     const url = URL.createObjectURL(file);
     setProfilePictureUrl(url);
     setFormData((prevData) => ({
@@ -163,7 +145,6 @@ const AdminRegistrationForm = () => {
       ProfilePicture: file,
     }));
   };
-
 
   const handleSave = async (e) => {
     try {
@@ -203,22 +184,30 @@ const AdminRegistrationForm = () => {
       if (response.status === 200) {
         message.success('Admin Registered successfully');
         // Register admin activity
-        const activity = {
-          adminName: `Admin ${adminData.user.FirstName}`,
-          action: 'registered',
-          targetAdminName: `Admin ${values.FirstName}`,
-          timestamp: new Date().getTime(),
-        };
-
-        // Save the admin activity to the database
-      await axios.post('http://localhost:3000/admin-activity', activity, {
-        headers: {
-          Authorization: adminData.token,
-        },
-      });
-        form.resetFields();
-        profilePictureUrl(null);
-        message.success('Admin Registered successfully');
+      const activity = {
+        adminName: `Admin ${adminData.user.FirstName}`,
+        action: 'registered',
+        targetAdminName:`Admin ${values.FirstName}`,
+        timestamp: new Date().getTime(),
+          };
+  
+          try {
+            const activityResponse = await axios.post('http://localhost:3000/admin-activity', activity, {
+              headers: {
+                Authorization: adminData.token,
+              },
+            });
+  
+            if (activityResponse.status === 200) {
+              console.log('Admin activity registered successfully!');
+            } else {
+              console.error('Error registering admin activity:', activityResponse);
+            }
+          } catch (error){
+            console.error('Error registering admin activity:', error);
+          }
+      form.resetFields();
+      window.location.href = window.location.href;
       } else {
         message.error('Failed to register admin');
       }
@@ -226,7 +215,7 @@ const AdminRegistrationForm = () => {
       console.error('Error registering admin:', error);
       message.error('Error registering admin');
     }
-
+    
   };
 
   return (
@@ -244,22 +233,21 @@ const AdminRegistrationForm = () => {
               onChange={handleFormChange}
               onFinish={handleSave}
             >
-              <Form.Item label="UserID" name="UserID" rules={[{ required: true }]}>
-                <Input />
-              </Form.Item>
-
-
-              <Form.Item label="First Name"
-                name="FirstName" rules={[{ required: true }]}>
+            <Form.Item label="UserID" name="UserID" rules={[{ required: true }]}>
+  <Input defaultvalue={formData.UserID} disabled />
+</Form.Item>
+              
+              <Form.Item label="First Name" 
+              name="FirstName" rules={[{ required: true }]}>
                 <Input placeholder="Enter First Name" />
               </Form.Item>
               {errors.FirstName &&
-                <p className="error-message"
-                >{errors.FirstName}</p>}
-
-
-
-
+               <p className="error-message"
+               >{errors.FirstName}</p>}
+              
+              
+              
+              
               <Form.Item label="Last Name" name="LastName" rules={[{ required: true }]}>
                 <Input placeholder="Enter Last Name" />
               </Form.Item>
