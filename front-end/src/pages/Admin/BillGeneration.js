@@ -53,13 +53,14 @@ const BillGenerationForm = () => {
   const validateForm = async () => {
     try {
       await form.validateFields();
+      return true; // Return true when the form is valid
     } catch (error) {
       const newErrors = {};
       error.errorFields.forEach((field) => {
         newErrors[field.name[0]] = field.errors[0];
       });
       setErrors(newErrors);
-      return false;
+      return false; // Return false when there are validation errors
     }
   };
 
@@ -72,6 +73,7 @@ const BillGenerationForm = () => {
   };
 
   const handleSubmit = async () => {
+    console.log('Registration button clicked');
     if (await validateForm()) {
       try {
         const formDataToSend = new FormData();
