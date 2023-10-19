@@ -49,6 +49,7 @@ const ServiceNumberGeneration = () => {
     const validateForm = async () => {
         try {
             await form.validateFields();
+            return true;
         } catch (error) {
             const newErrors = {};
             error.errorFields.forEach((field) => {

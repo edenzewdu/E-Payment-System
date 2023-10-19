@@ -53,6 +53,7 @@ const BillGenerationForm = () => {
   const validateForm = async () => {
     try {
       await form.validateFields();
+      setErrors({}); // Reset the errors state when the form is valid
       return true; // Return true when the form is valid
     } catch (error) {
       const newErrors = {};
@@ -73,22 +74,27 @@ const BillGenerationForm = () => {
   };
 
   const handleSubmit = async () => {
-    console.log('Registration button clicked');
     if (await validateForm()) {
       try {
-        const formDataToSend = new FormData();
-        formDataToSend.append('billNumber', formData.billNumber);
-        formDataToSend.append('dateIssued', formData.dateIssued);
-        formDataToSend.append('dueDate', formData.dueDate);
-        formDataToSend.append('amountDue', formData.amountDue);
-        formDataToSend.append('serviceDescription', formData.serviceDescription);
-        formDataToSend.append('servicePeriod', formData.servicePeriod);
-        formDataToSend.append('serviceCharges', formData.serviceCharges);
-        formDataToSend.append('additionalCharges', formData.additionalCharges);
-        formDataToSend.append('billStatus', formData.billStatus);
-        formDataToSend.append('serviceProviderBIN', formData.serviceProviderBIN);
-        formDataToSend.append('UserId', formData.UserId);
+        console.log(formData);
 
+        const formDataToSend = {
+          billNumber: formData.billNumber,
+          dateIssued: formData.dateIssued,
+          dueDate: formData.dueDate,
+          amountDue: parseFloat(formData.amountDue),
+          serviceDescription: formData.serviceDescription,
+          servicePeriod: formData.servicePeriod,
+          serviceCharges: parseFloat(formData.serviceCharges),
+          additionalCharges: parseFloat(formData.additionalCharges),
+          billStatus: formData.billStatus,
+          serviceProviderBIN: parseInt(formData.serviceProviderBIN),
+          UserId: parseInt(formData.UserId)
+        };
+
+        console.log(formDataToSend);
+
+        console.log(formDataToSend);
         const response = await axios.post('http://localhost:3000/bills', formDataToSend);
 
         if (response.status === 200) {
