@@ -27,8 +27,8 @@ const PaymentHistory = () => {
 
   const fetchPaymentDetails = async (paymentId) => {
     try {
-      const response = await axios.get(`http://localhost:3000/payment/${paymentId}`);
-      const paymentDetails = response.data;
+      const response = await axios.get(`http://localhost:3000/Users/${userData.UserId}`);
+      const paymentDetails = response.data.payment;
       const customerName = paymentDetails.Bill.customerName;
 
       setSelectedPayment({ ...paymentDetails, customerName });

@@ -1,27 +1,84 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import 'react-toastify/dist/ReactToastify.css';
-import { Link, useNavigate } from 'react-router-dom';
-import { Button, Form, Input, Modal, Select, Spin, Table, message } from 'antd';
+import { useNavigate } from 'react-router-dom';
+import { Button, Form, Input, Modal, Spin, Table, message } from 'antd';
 import Dashboard from './Dashboard';
 
 
-
 const ServiceNumberGeneration = () => {
+    // CSS styles
+  const listUser = {
+    animation: 'blink 2s infinite',
+    display: 'inline-block',
+  };
+
+  // CSS keyframes
+  const keyframesBlink = `
+    @keyframes blink {
+      0% {
+        opacity: 1;
+      }
+      50% {
+        opacity: 0;
+      }
+      100% {
+        opacity: 1;
+      }
+    }
+  `;
 
     const [form] = Form.useForm();
+    const [isListUsersClicked, setIsListUsersClicked] = useState(false);
     const [modalVisible, setModalVisible] = useState(false);
     const [modalContent, setModalContent] = useState(null);
     const [userList, setUserList] = useState([]);
     const [formData, setFormData] = useState({
         UserID: '',
-        serviceProviderBINs: '',
+        serviceProviderBINs: [],
     });
     const navigate = useNavigate();
     const [errors, setErrors] = useState({});
     const [isLoading, setIsLoading] = useState(false);
-    const [isSubmitted, setIsSubmitted] = useState(false);
     const [adminData, setAdminData] = useState(JSON.parse(localStorage.getItem('adminData')));
+    const [searchInput, setSearchInput] = useState('');
+    const [filteredUserList, setFilteredUserList] = useState([]);
+
+    //search for user
+    const handleSearch = async (value) => {
+        setSearchInput(value);
+        const activity = {
+            adminName: `Admin ${adminData.user.FirstName}`,
+            action: 'Searched for',
+            targetAdminName: `${value} in service Number List`,
+            timestamp: new Date().getTime(),
+
+        };
+
+        try {
+            // Save the admin activity to the database
+            await axios.post('http://localhost:3000/admin-activity', activity, {
+                headers: {
+                    Authorization: adminData.token,
+                },
+            });
+
+        } catch (error) {
+            console.error('Error saving admin search activity:', error);
+        }
+        // Filter the user list based on the search input
+        const filteredUsers = userList.filter((user) =>
+            user.serviceProviders.some((provider) =>
+                String(provider.serviceNo).toLowerCase().includes(value.toLowerCase()) ||
+                String(user.UserID).toLowerCase().includes(value.toLowerCase()) ||
+                String(user.FirstName).toLowerCase().includes(value.toLowerCase()) ||
+                provider.name.toLowerCase().includes(value.toLowerCase())
+            )
+        );
+
+        setFilteredUserList(filteredUsers);
+    };
+
 
 
     useEffect(() => {
@@ -63,38 +120,43 @@ const ServiceNumberGeneration = () => {
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData((prevData) => ({
-            ...prevData,
-            [name]: value,
+          ...prevData,
+          [name]: name === 'serviceProviderBINs' ? value.split(',').map(Number) : value,
         }));
-    };
+      };
 
 
     const handleSubmit = async (e) => {
         if (await validateForm()) {
             try {
-                const formDataToSend = new FormData();
-                formDataToSend.append('UserID', formData.UserID);
-                formDataToSend.append('serviceProviderBINs', formData.serviceProviderBINs);
-
+                console.log(formData);
+                const { UserID, serviceProviderBINs } = formData;
+                const formDataToSend = {
+                  UserID,
+                  serviceProviderBINs: serviceProviderBINs.map(Number),
+                };
                 const response = await axios.post('http://localhost:3000/Users/associate', formDataToSend);
                 const responseData = response.data;
 
+                console.log(formDataToSend);
                 if (response.status === 200) {
                     setModalVisible(true);
                     setModalContent(responseData.user);
                     const activity = {
                         adminName: `Admin ${adminData.user.FirstName}`,
-                        action: '',
-                        targetAdminName: ``,
+                        action: `associated user UserID: \" ${formDataToSend.UserID}\"`,
+                        targetAdminName: `with serviceBINs: \" ${formDataToSend.serviceProviderBINs}\"`,
                         timestamp: new Date().getTime(),
                     };
 
                     // Save the admin activity to the database
-                    axios.post('http://localhost:3000/admin-activity', activity, {
+                    const response = axios.post('http://localhost:3000/admin-activity', activity, {
                         headers: {
                             Authorization: adminData.token,
                         },
                     });
+                    message.success(`user associated successfully with serviceProviderBINs:\"${formDataToSend.serviceProviderBINs}\"`)
+              
                 } else {
                     console.log('Error:', responseData.message);
                     message.error('Error:', responseData.message);
@@ -108,65 +170,71 @@ const ServiceNumberGeneration = () => {
 
     const columns = [
         {
-          title: 'User ID',
-          dataIndex: 'UserID',
-          key: 'UserID',
+            title: 'User ID',
+            dataIndex: 'UserID',
+            key: 'UserID',
         },
         {
-          title: 'Service No',
-          dataIndex: 'serviceNo',
-          key: 'serviceNo',
-          render: (text, record) => (
-            <span>
-              {record.serviceProviders.map((provider) => (
-                <div key={provider.serviceNo}>{provider.serviceNo}</div>
-              ))}
-            </span>
-          ),
+            title: 'User Name',
+            dataIndex: "FirstName",
+            key: 'userName',
         },
         {
-          title: 'Name',
-          dataIndex: 'name',
-          key: 'name',
-          render: (text, record) => (
-            <span>
-              {record.serviceProviders.map((provider) => (
-                <div key={provider.serviceNo}>{provider.name}</div>
-              ))}
-            </span>
-          ),
+            title: 'Service No',
+            dataIndex: 'serviceNo',
+            key: 'serviceNo',
+            render: (text, record) => (
+                <span>
+                    {record.serviceProviders.map((provider) => (
+                        <div key={provider.serviceNo}>{provider.serviceNo}</div>
+                    ))}
+                </span>
+            ),
         },
-      ];
-      
+        {
+            title: 'serviceName',
+            dataIndex: 'name',
+            key: 'name',
+            render: (text, record) => (
+                <span>
+                    {record.serviceProviders.map((provider) => (
+                        <div key={provider.serviceNo}>{provider.name}</div>
+                    ))}
+                </span>
+            ),
+        },
+    ];
+
 
     const handleListUsers = async () => {
-    try {
-        const response = await axios.get('http://localhost:3000/Users');
-        const responseData = response.data;
+        try {
+            const response = await axios.get('http://localhost:3000/Users');
+            const responseData = response.data;
 
-        if (response.status === 200) {
-            const modifiedData = responseData.map((user) => {
-                const serviceProviders = user.ServiceProviders.map((serviceProvider) => ({
-                    serviceNo: serviceProvider.userServiceProvider.serviceNo || '',
-                    name: serviceProvider.serviceProviderName || ''
-                }));
+            if (response.status === 200) {
+                const modifiedData = responseData.map((user) => {
+                    const serviceProviders = user.ServiceProviders.map((serviceProvider) => ({
+                        serviceNo: serviceProvider.userServiceProvider.serviceNo || '',
+                        name: serviceProvider.serviceProviderName || ''
+                    }));
 
-                return {
-                    ...user,
-                    serviceProviders
-                };
-            });
+                    return {
+                        ...user,
+                        serviceProviders
+                    };
+                });
 
-            const filteredData = modifiedData.filter((user) => user.serviceProviders.length > 0);
-            setUserList(filteredData);
-        } else {
-            console.log('Error:', responseData.message);
-            message.error('Error:', responseData.message);
+                const filteredData = modifiedData.filter((user) => user.serviceProviders.length > 0);
+                setUserList(filteredData);
+                setIsListUsersClicked(true); // Set the flag to indicate that the "List Users" button has been clicked
+            } else {
+                console.log('Error:', responseData.message);
+                message.error('Error:', responseData.message);
+            }
+        } catch (error) {
+            console.error('Error listing users:', error);
         }
-    } catch (error) {
-        console.error('Error listing users:', error);
-    }
-};
+    };
     return (
         <Dashboard content={
             <div>
@@ -174,14 +242,14 @@ const ServiceNumberGeneration = () => {
                 <Form form={form} layout="vertical" onFinish={handleSubmit} >
                     <h1>Service Number Generation</h1>
                     <Form.Item label="User ID" name="UserID" rules={[{ required: true, message: 'Please enter the User ID' }]}>
-                        <Input />
+                        <Input name="UserID" onChange={handleChange} placeholder='Enter the User ID' />
                     </Form.Item>
                     <Form.Item
                         label="Service Provider BINs (comma-separated)"
                         name="serviceProviderBINs"
                         rules={[{ required: true, message: 'Please enter the Service Provider BINs' }]}
                     >
-                        <Input />
+                        <Input name="serviceProviderBINs" onChange={handleChange} placeholder='enter the Service Provider BINs' />
                     </Form.Item>
                     <Button type="primary" htmlType="submit">
                         Generate
@@ -190,26 +258,20 @@ const ServiceNumberGeneration = () => {
 
                 <br />
                 <br />
-                <Button onClick={handleListUsers}>List Users</Button>
+                <Button onClick={handleListUsers} style={listUser}>List Users</Button>
 
-                <Modal
-                    title="Associated User"
-                    visible={modalVisible}
-                    onCancel={() => setModalVisible(false)}
-                    footer={null}
-                >
-                    {modalContent && (
-                        <div>
-                            <p>User ID: {modalContent.UserID}</p>
-                            <p>Service No: {modalContent.serviceNo}</p>
-                            <p>Name: {modalContent.FirstName + ' ' + modalContent.LastName}</p>
-                        </div>
-                    )}
-                </Modal>
-
-                <Table dataSource={userList} columns={columns} />
+                <Input.Search
+                    placeholder="Search User with Service Number"
+                    value={searchInput}
+                    onChange={(e) => handleSearch(e.target.value)}
+                    style={{ marginBottom: '16px' }}
+                />
+                <Table dataSource={searchInput ? filteredUserList : userList} columns={columns} />
 
             </div>} />
     );
 };
 export default ServiceNumberGeneration;
+
+  
+ 

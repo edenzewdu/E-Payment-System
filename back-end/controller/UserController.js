@@ -509,6 +509,23 @@ exports.associate = asyncHandler(async (req, res) => {
           return;
         }
 
+        // Check if the associations already exist
+        const existingAssociations = await UserServiceProvider.findAll({
+          where: {
+            UserID: user.UserID,
+            serviceProviderBIN: {
+              [Op.in]: serviceProviderBINs,
+            },
+          },
+        });
+        if (existingAssociations.length > 0) {
+          res.send({
+            message: 'Associations already exist',
+            user: user,
+          });
+          return;
+        }
+
         // Generate random unique serviceNo
         const generatedServiceNos = new Set();
         while (generatedServiceNos.size < serviceProviders.length) {
