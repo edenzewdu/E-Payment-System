@@ -129,7 +129,18 @@ const ServiceNumberGeneration = () => {
             const responseData = response.data;
 
             if (response.status === 200) {
-                setUserList(responseData);
+                const modifiedData = responseData.map((user) => {
+                    const serviceProvider = user.ServiceProviders[0]; // Assuming there's only one serviceProvider per user
+                    const serviceNo = serviceProvider ? serviceProvider.userServiceProvider.serviceNo : '';
+                    const name = serviceProvider ? serviceProvider.serviceProviderName : '';
+            
+                    return {
+                      ...user,
+                      serviceNo,
+                      name
+                    };
+                  });
+                setUserList(modifiedData);
             } else {
                 console.log('Error:', responseData.message);
                 message.error('Error:', responseData.message);
