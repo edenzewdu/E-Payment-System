@@ -105,7 +105,7 @@ const ServiceNumberGeneration = () => {
             }
         };
     };
-    
+
     const columns = [
         {
           title: 'User ID',
@@ -140,33 +140,33 @@ const ServiceNumberGeneration = () => {
       
 
     const handleListUsers = async () => {
-        try {
-            const response = await axios.get('http://localhost:3000/Users');
-            const responseData = response.data;
+    try {
+        const response = await axios.get('http://localhost:3000/Users');
+        const responseData = response.data;
 
-            if (response.status === 200) {
-                const modifiedData = responseData.map((user) => {
-                  const serviceProviders = user.ServiceProviders.map((serviceProvider) => ({
+        if (response.status === 200) {
+            const modifiedData = responseData.map((user) => {
+                const serviceProviders = user.ServiceProviders.map((serviceProvider) => ({
                     serviceNo: serviceProvider.userServiceProvider.serviceNo || '',
                     name: serviceProvider.serviceProviderName || ''
-                  }));
-              
-                  return {
+                }));
+
+                return {
                     ...user,
                     serviceProviders
-                  };
-                });
-              
-                setUserList(modifiedData);
-              } else {
-                console.log('Error:', responseData.message);
-                message.error('Error:', responseData.message);
-            }
-        } catch (error) {
-            console.error('Error listing users:', error);
-        }
-    };
+                };
+            });
 
+            const filteredData = modifiedData.filter((user) => user.serviceProviders.length > 0);
+            setUserList(filteredData);
+        } else {
+            console.log('Error:', responseData.message);
+            message.error('Error:', responseData.message);
+        }
+    } catch (error) {
+        console.error('Error listing users:', error);
+    }
+};
     return (
         <Dashboard content={
             <div>
