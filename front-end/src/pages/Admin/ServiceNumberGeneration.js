@@ -105,23 +105,39 @@ const ServiceNumberGeneration = () => {
             }
         };
     };
+    
     const columns = [
         {
-            title: 'User ID',
-            dataIndex: 'UserID',
-            key: 'UserID',
+          title: 'User ID',
+          dataIndex: 'UserID',
+          key: 'UserID',
         },
         {
-            title: 'Service No',
-            dataIndex: 'serviceNo',
-            key: 'serviceNo',
+          title: 'Service No',
+          dataIndex: 'serviceNo',
+          key: 'serviceNo',
+          render: (text, record) => (
+            <span>
+              {record.serviceProviders.map((provider) => (
+                <div key={provider.serviceNo}>{provider.serviceNo}</div>
+              ))}
+            </span>
+          ),
         },
         {
-            title: 'Name',
-            dataIndex: 'name',
-            key: 'name',
+          title: 'Name',
+          dataIndex: 'name',
+          key: 'name',
+          render: (text, record) => (
+            <span>
+              {record.serviceProviders.map((provider) => (
+                <div key={provider.serviceNo}>{provider.name}</div>
+              ))}
+            </span>
+          ),
         },
-    ];
+      ];
+      
 
     const handleListUsers = async () => {
         try {
@@ -130,18 +146,19 @@ const ServiceNumberGeneration = () => {
 
             if (response.status === 200) {
                 const modifiedData = responseData.map((user) => {
-                    const serviceProvider = user.ServiceProviders[0]; // Assuming there's only one serviceProvider per user
-                    const serviceNo = serviceProvider ? serviceProvider.userServiceProvider.serviceNo : '';
-                    const name = serviceProvider ? serviceProvider.serviceProviderName : '';
-            
-                    return {
-                      ...user,
-                      serviceNo,
-                      name
-                    };
-                  });
+                  const serviceProviders = user.ServiceProviders.map((serviceProvider) => ({
+                    serviceNo: serviceProvider.userServiceProvider.serviceNo || '',
+                    name: serviceProvider.serviceProviderName || ''
+                  }));
+              
+                  return {
+                    ...user,
+                    serviceProviders
+                  };
+                });
+              
                 setUserList(modifiedData);
-            } else {
+              } else {
                 console.log('Error:', responseData.message);
                 message.error('Error:', responseData.message);
             }
